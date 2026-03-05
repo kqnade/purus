@@ -55,6 +55,8 @@ neg x      -- -x
 
 ## Comparison
 
+`eq` and `is` are interchangeable. When the right side is a type name (e.g., `string`, `number`, `null`, or a capitalized class name), it becomes a type check. Otherwise, it becomes a strict equality comparison (`===`).
+
 ```
 a eq b     -- a === b
 a ne b     -- a !== b
@@ -62,6 +64,12 @@ a lt b     -- a < b
 a gt b     -- a > b
 a le b     -- a <= b
 a ge b     -- a >= b
+
+-- eq and is can be used interchangeably
+a eq b     -- a === b (value comparison)
+a is b     -- a === b (value comparison)
+a eq string -- typeof a === "string" (type check)
+a is string -- typeof a === "string" (type check)
 ```
 
 ## Logical
@@ -74,8 +82,11 @@ not x      -- !x
 
 ## Type Checks
 
+`eq` and `is` both work for type checks when followed by a type name.
+
 ```
 x is string          -- typeof x === "string"
+x eq string          -- typeof x === "string"
 x is null            -- x === null
 x is MyClass         -- x instanceof MyClass
 x instanceof Y       -- x instanceof Y
