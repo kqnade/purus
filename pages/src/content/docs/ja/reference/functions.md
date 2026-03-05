@@ -1,6 +1,8 @@
 ---
 title: 関数
 description: Purusの関数宣言と式。
+sidebar:
+  order: 5
 ---
 
 ## 名前付き関数（ブロック本体）

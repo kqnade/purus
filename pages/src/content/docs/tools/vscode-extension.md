@@ -1,6 +1,8 @@
 ---
 title: VS Code Extension
 description: Purus language support for Visual Studio Code.
+sidebar:
+  order: 1
 ---
 
 ## Installation

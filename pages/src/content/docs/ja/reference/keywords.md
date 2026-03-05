@@ -1,6 +1,8 @@
 ---
 title: 予約語
 description: Purusの予約語一覧。
+sidebar:
+  order: 2
 ---
 
 ## 宣言

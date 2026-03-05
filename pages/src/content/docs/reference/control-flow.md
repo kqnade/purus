@@ -1,6 +1,8 @@
 ---
 title: Control Flow
 description: Conditionals, loops, and pattern matching in Purus.
+sidebar:
+  order: 4
 ---
 
 ## If / Elif / Else

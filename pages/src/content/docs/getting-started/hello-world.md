@@ -1,6 +1,8 @@
 ---
 title: Hello World
 description: Your first Purus program.
+sidebar:
+  order: 3
 ---
 
 ## Hello World

@@ -1,6 +1,8 @@
 ---
 title: VS Code拡張機能
 description: Visual Studio Code向けPurus言語サポート。
+sidebar:
+  order: 1
 ---
 
 ## インストール

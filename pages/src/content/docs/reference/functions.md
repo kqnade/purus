@@ -1,6 +1,8 @@
 ---
 title: Functions
 description: Function declarations and expressions in Purus.
+sidebar:
+  order: 5
 ---
 
 ## Named function (block body)

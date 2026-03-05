@@ -1,6 +1,8 @@
 ---
 title: CLI
 description: Purus command-line interface reference.
+sidebar:
+  order: 2
 ---
 
 The Purus CLI provides commands for compiling, running, checking, and managing Purus projects.

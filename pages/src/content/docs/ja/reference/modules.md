@@ -1,6 +1,8 @@
 ---
 title: モジュール
 description: Purusのインポート、エクスポート、モジュールシステム。
+sidebar:
+  order: 6
 ---
 
 ## ESMインポート

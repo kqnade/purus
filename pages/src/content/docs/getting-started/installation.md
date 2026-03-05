@@ -1,6 +1,8 @@
 ---
 title: Installation
 description: How to install the Purus compiler.
+sidebar:
+  order: 1
 ---
 
 ## Install via npm

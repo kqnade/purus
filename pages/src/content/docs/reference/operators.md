@@ -1,6 +1,8 @@
 ---
 title: Operators
 description: Purus operators and precedence.
+sidebar:
+  order: 3
 ---
 
 ## Operator Precedence (low to high)

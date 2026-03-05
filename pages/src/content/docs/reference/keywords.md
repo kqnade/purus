@@ -1,6 +1,8 @@
 ---
 title: Keywords
 description: Complete list of Purus keywords.
+sidebar:
+  order: 2
 ---
 
 ## Declaration

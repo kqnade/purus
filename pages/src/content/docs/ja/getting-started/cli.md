@@ -1,6 +1,8 @@
 ---
 title: CLI
 description: Purusコマンドラインインターフェースのリファレンス。
+sidebar:
+  order: 2
 ---
 
 Purus CLIはPurusプロジェクトのコンパイル、実行、チェック、管理のためのコマンドを提供します。

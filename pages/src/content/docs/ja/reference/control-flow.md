@@ -1,6 +1,8 @@
 ---
 title: 制御フロー
 description: Purusの条件分岐、ループ、パターンマッチ。
+sidebar:
+  order: 4
 ---
 
 ## If / Elif / Else

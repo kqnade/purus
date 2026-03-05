@@ -1,7 +1,7 @@
 ---
 title: Linter
-description: "@puruslang/linter — static analysis for Purus."
----
+description: "@puruslang/linter — static analysis for Purus."sidebar:
+  order: 2---
 
 ## Installation
 

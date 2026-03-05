@@ -1,6 +1,8 @@
 ---
 title: Hello World
 description: 初めてのPurusプログラム。
+sidebar:
+  order: 3
 ---
 
 ## Hello World

@@ -1,6 +1,8 @@
 ---
 title: 構文の概要
 description: Purusの構文の概要。
+sidebar:
+  order: 1
 ---
 
 ## ファイル拡張子

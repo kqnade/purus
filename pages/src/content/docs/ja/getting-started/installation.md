@@ -1,6 +1,8 @@
 ---
 title: インストール
 description: Purusコンパイラのインストール方法。
+sidebar:
+  order: 1
 ---
 
 ## npmでインストール

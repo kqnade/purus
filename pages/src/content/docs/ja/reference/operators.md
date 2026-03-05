@@ -1,6 +1,8 @@
 ---
 title: 演算子
 description: Purusの演算子と優先順位。
+sidebar:
+  order: 3
 ---
 
 ## 演算子の優先順位（低い順）

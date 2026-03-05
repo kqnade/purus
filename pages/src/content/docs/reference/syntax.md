@@ -1,6 +1,8 @@
 ---
 title: Syntax Overview
 description: Overview of Purus syntax.
+sidebar:
+  order: 1
 ---
 
 ## File Extensions

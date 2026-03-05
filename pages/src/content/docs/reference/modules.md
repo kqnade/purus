@@ -1,6 +1,8 @@
 ---
 title: Modules
 description: Import, export, and module system in Purus.
+sidebar:
+  order: 6
 ---
 
 ## ESM Import
