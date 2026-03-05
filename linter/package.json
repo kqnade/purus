@@ -17,11 +17,18 @@
     "noshift",
     "noshift.js"
   ],
+  "author": "otoneko1102 (https://github.com/otoneko1102)",
   "homepage": "https://purus.work",
   "repository": {
     "type": "git",
     "url": "https://github.com/otoneko1102/purus",
     "directory": "linter"
+  },
+  "bugs": {
+    "url": "https://github.com/otoneko1102/purus/issues"
+  },
+  "funding": {
+    "url": "https://github.com/sponsors/otoneko1102"
   },
   "engines": {
     "node": ">=18"
