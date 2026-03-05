@@ -130,15 +130,15 @@
     "operator": {
       "patterns": [
         {
-          "match": "\\b(be)\\b",
-          "name": "keyword.operator.assignment.purus"
+          "match": "\\b(eq|is|be)\\b",
+          "name": "keyword.other.equality.purus"
         },
         {
           "match": "\\b(add|sub|mul|div|mod|neg)\\b",
-          "name": "keyword.operator.arithmetic.purus"
+          "name": "keyword.control.arithmetic.purus"
         },
         {
-          "match": "\\b(eq|ne|lt|gt|le|ge)\\b",
+          "match": "\\b(ne|lt|gt|le|ge)\\b",
           "name": "keyword.operator.comparison.purus"
         },
         {
@@ -152,7 +152,7 @@
       ]
     },
     "type-keyword": {
-      "match": "\\b(is|as|of|gives|typeof|instanceof|type)\\b",
+      "match": "\\b(as|of|gives|typeof|instanceof|type)\\b",
       "name": "keyword.other.type.purus"
     },
     "constant": {
