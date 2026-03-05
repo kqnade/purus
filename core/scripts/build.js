@@ -29,5 +29,9 @@ if (!fs.existsSync(src)) {
 // Ensure lib/ exists
 fs.mkdirSync(path.dirname(dest), { recursive: true });
 
-fs.copyFileSync(src, dest);
-console.log(`Copied ${src} -> ${dest}`);
+// Read, inject version, and write
+const version = require(path.join(root, "package.json")).version;
+let content = fs.readFileSync(src, "utf8");
+content = content.replace(/__PURUS_VERSION__/g, version);
+fs.writeFileSync(dest, content, "utf8");
+console.log(`Copied ${src} -> ${dest} (version: ${version})`);

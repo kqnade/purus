@@ -40,6 +40,11 @@ switch (cmd) {
   case "run":
     require("../lib/run-wrapper.js");
     break;
+  case "version":
+  case "--version":
+  case "-v":
+    console.log(`purus v${VERSION}`);
+    break;
   case "help":
   case "--help":
   case "-h":

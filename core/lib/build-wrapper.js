@@ -28,8 +28,27 @@ for (let i = 0; i < args.length; i++) {
 }
 
 if (file) {
-  // Single file - delegate to MoonBit compiler
-  require("./purus-compiler.js");
+  // Single file - handle directly via compile API
+  const source = fs.readFileSync(file, "utf8");
+  const useHeader = !noHeader;
+  const js = compile(source, { header: useHeader });
+
+  if (toStdout) {
+    process.stdout.write(js);
+  } else {
+    let ext = ".js";
+    if (file.endsWith(".cpurus")) ext = ".cjs";
+    else if (file.endsWith(".mpurus")) ext = ".mjs";
+    const base = file.replace(/\.(c|m)?purus$/, "");
+    const outputFile = output
+      ? path.join(path.resolve(output), path.basename(base) + ext)
+      : base + ext;
+    if (output) {
+      fs.mkdirSync(path.resolve(output), { recursive: true });
+    }
+    fs.writeFileSync(outputFile, js);
+    console.log(`Compiled ${file} -> ${outputFile}`);
+  }
 } else {
   let entryDir;
   let outputDir;

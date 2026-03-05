@@ -154,9 +154,9 @@ node_modules/
     if (yesFlag) {
       installDeps = true;
     } else {
-      const answer = await question(rl, "\nInstall dependencies? (y/N) ");
+      const answer = await question(rl, "\nInstall dependencies? (Y/n) ");
       installDeps =
-        answer.toLowerCase() === "y" || answer.toLowerCase() === "yes";
+        answer === "" || answer.toLowerCase() === "y" || answer.toLowerCase() === "yes";
     }
 
     if (installDeps) {
