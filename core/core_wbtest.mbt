@@ -583,6 +583,28 @@ test "parser: is check" {
   }
 }
 
+test "parser: eq with type name becomes IsCheck" {
+  let stmts = parse("const r be x eq string")
+  match stmts[0] {
+    VarDecl(Const_, _, IsCheck(Ident(name), type_name)) => {
+      assert_eq(name, "x")
+      assert_eq(type_name, "string")
+    }
+    _ => fail("expected IsCheck from eq + type name")
+  }
+}
+
+test "parser: is with value becomes BinOp Eq" {
+  let stmts = parse("const r be x is y")
+  match stmts[0] {
+    VarDecl(Const_, _, BinOp(Eq, Ident(l), Ident(r))) => {
+      assert_eq(l, "x")
+      assert_eq(r, "y")
+    }
+    _ => fail("expected BinOp Eq from is + non-type value")
+  }
+}
+
 test "parser: as cast" {
   let stmts = parse("const r be x as number")
   match stmts[0] {
