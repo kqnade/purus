@@ -1,7 +1,9 @@
 ---
 title: リンター
-description: "@puruslang/linter — Purusの静的解析ツール。"sidebar:
-  order: 2---
+description: "@puruslang/linter — Purusの静的解析ツール。"
+sidebar:
+  order: 2
+---
 
 ## インストール
 

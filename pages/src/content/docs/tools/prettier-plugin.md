@@ -1,7 +1,9 @@
 ---
 title: Prettier Plugin
-description: "@puruslang/prettier-plugin-purus — format Purus code with Prettier."sidebar:
-  order: 3---
+description: "@puruslang/prettier-plugin-purus — format Purus code with Prettier."
+sidebar:
+  order: 3
+---
 
 ## Installation
 

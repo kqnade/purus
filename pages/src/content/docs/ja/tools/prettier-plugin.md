@@ -1,7 +1,9 @@
 ---
 title: Prettierプラグイン
-description: "@puruslang/prettier-plugin-purus — PrettierでPurusコードをフォーマット。"sidebar:
-  order: 3---
+description: "@puruslang/prettier-plugin-purus — PrettierでPurusコードをフォーマット。"
+sidebar:
+  order: 3
+---
 
 ## インストール
 
