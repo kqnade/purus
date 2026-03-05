@@ -42,6 +42,13 @@ jobs:
       - name: Verify package
         run: cd core && node -e "const p = require('.'); console.log('version:', p.version)"
 
+      - name: Resolve symlinks
+        run: |
+          cd core
+          for f in README.md README-ja.md LICENSE; do
+            if [ -L "$f" ]; then cp --remove-destination "$(readlink -f "$f")" "$f"; fi
+          done
+
       - name: Publish to npm
         run: cd core && npm publish --access public --provenance
         env:
