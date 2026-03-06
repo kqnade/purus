@@ -225,6 +225,19 @@ pub fn Lexer::tokenize(self : Lexer) -> Array[Token] {
       self.scan_ident()
       continue
     }
+    // Backslash and optional chaining
+    if ch == '\\' {
+      let line = self.line
+      let col = self.col
+      self.advance() |> ignore
+      if self.peek() == '.' {
+        self.advance() |> ignore
+        self.emit(OptDot, line, col)
+      } else {
+        self.emit(Backslash, line, col)
+      }
+      continue
+    }
     // Skip unknown characters
     self.advance() |> ignore
   }
@@ -434,7 +447,7 @@ fn Lexer::is_neg_literal_context(self : Lexer) -> Bool {
   }
   let last = self.tokens[self.tokens.length() - 1]
   match last.kind {
-    LBracket | Comma | Semicolon | Be | Newline | Indent(_) | Return_ | To | Then_ | Coal => true
+    LBracket | Comma | Semicolon | Be | Newline | Indent(_) | Return_ | To | Then_ | Coal | Backslash => true
     _ => false
   }
 }

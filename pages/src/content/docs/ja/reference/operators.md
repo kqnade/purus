@@ -17,7 +17,7 @@ sidebar:
 8. `mul` / `div` / `mod` — 乗算 / 除算 / 剰余
 9. `pow` — べき乗
 10. 単項: `not` / `neg` / `typeof` / `await` / `delete` / `new`
-11. 後置: `.` アクセス / `[args]` 呼び出し / `as` キャスト
+11. 後置: `.` アクセス / `\.` オプショナルチェイニング / `[args]` 呼び出し / `[\expr]` 計算アクセス / `as` キャスト
 12. 基本: リテラル、識別子、括弧
 
 ## パイプライン
@@ -95,12 +95,12 @@ const d be [1...10]   -- [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 ## スライス（切り出し）
 
-`..`（包含）または `...`（排他）をブラケットアクセス内で使い、配列の一部を切り出します:
+`\` プレフィックスと `..`（包含）または `...`（排他）をブラケットアクセス内で使い、配列の一部を切り出します:
 
 ```
 const numbers be [0, 1, 2, 3, 4, 5, 6]
-const middle be numbers[2..4]    -- [2, 3, 4]
-const partial be numbers[1...4]  -- [1, 2, 3]
+const middle be numbers[\2..4]    -- [2, 3, 4]
+const partial be numbers[\1...4]  -- [1, 2, 3]
 ```
 
 ## スプライス（部分置換）
@@ -108,8 +108,38 @@ const partial be numbers[1...4]  -- [1, 2, 3]
 スライスに代入することで配列の一部を置換できます:
 
 ```
-numbers[2..4] be [///a///; ///b///; ///c///]
+numbers[\2..4] be [///a///; ///b///; ///c///]
 -- numbers は [0, 1, "a", "b", "c", 5, 6] になります
+```
+
+## 計算プロパティアクセス
+
+`\` を括弧内で使うことで、式による配列・オブジェクトアクセスを行います:
+
+```
+const val be arr[\i]       -- arr[i]
+const item be obj[\key]    -- obj[key]
+arr[\0] be ///new///        -- arr[0] = "new"
+```
+
+`\` プレフィックスにより、関数呼び出し(`f[x]`)とプロパティアクセス(`arr[\x]`)を区別します。
+
+## オプショナルチェイニング
+
+`\.` でオプショナルチェイニング（JS の `?.`）を表現します:
+
+```
+const name be user\.name          -- user?.name
+const val be obj\.method[1; 2]    -- obj?.method(1, 2)
+const deep be a\.b\.c             -- a?.b?.c
+```
+
+コンパイル結果:
+
+```js
+const name = user?.name;
+const val = obj?.method(1, 2);
+const deep = a?.b?.c;
 ```
 
 ## 分割代入

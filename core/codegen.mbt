@@ -676,5 +676,11 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
       self.write(module_name)
       self.write("\");\n")
     }
+    SideEffectImport(module_name) => {
+      self.write_indent()
+      self.write("import \"")
+      self.write(module_name)
+      self.write("\";\n")
+    }
   }
 }

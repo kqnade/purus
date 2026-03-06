@@ -14,6 +14,20 @@ import React, [Component] from ///react///
 import all as fs from ///fs///
 ```
 
+### 副作用のみのインポート
+
+バインディングなしでモジュールの副作用だけをインポートします:
+
+```
+import ///dotenv/config///
+import ///./polyfills///
+```
+
+```js
+import "dotenv/config";
+import "./polyfills";
+```
+
 ## Use（ドットパスインポート）
 
 ```

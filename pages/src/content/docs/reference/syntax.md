@@ -109,12 +109,12 @@ const exclusive be [0...5]  -- [0, 1, 2, 3, 4]
 
 ### Slicing
 
-Extract a portion of an array using `..` (inclusive) or `...` (exclusive):
+Extract a portion of an array using `\` prefix with `..` (inclusive) or `...` (exclusive):
 
 ```
 const numbers be [0, 1, 2, 3, 4, 5, 6]
-const middle be numbers[2..4]    -- [2, 3, 4]
-const partial be numbers[1...4]  -- [1, 2, 3]
+const middle be numbers[\2..4]    -- [2, 3, 4]
+const partial be numbers[\1...4]  -- [1, 2, 3]
 ```
 
 Compiles to:
@@ -129,7 +129,7 @@ const partial = numbers.slice(1, 4);
 Replace a portion of an array by assigning to a slice:
 
 ```
-numbers[2..4] be [///a///; ///b///; ///c///]
+numbers[\2..4] be [///a///; ///b///; ///c///]
 -- numbers is now [0, 1, "a", "b", "c", 5, 6]
 ```
 
@@ -184,6 +184,58 @@ const { name, age } = person;
 ## Brackets only
 
 Purus uses `[]` for everything — function calls, arrays, objects, and grouping. No `()` or `{}`.
+
+### Computed Access
+
+Use `\` inside brackets to access array indices or object properties by expression:
+
+```
+const val be arr[\0]        -- arr[0]
+const item be obj[\key]     -- obj[key]
+const x be matrix[\i][\j]  -- matrix[i][j]
+```
+
+This `\` prefix distinguishes computed access from function calls:
+
+| Syntax | Meaning | JS Output |
+|---|---|---|
+| `f[x]` | Function call | `f(x)` |
+| `arr[\x]` | Computed access | `arr[x]` |
+| `arr[\2..4]` | Slice | `arr.slice(2,5)` |
+
+### Optional Chaining
+
+Use `\.` for optional chaining (JS `?.`):
+
+```
+const name be user\.name          -- user?.name
+const val be obj\.method[1; 2]    -- obj?.method(1, 2)
+```
+
+### Multi-line Brackets
+
+Brackets `[...]` can span multiple lines. Newlines and indentation between items are ignored:
+
+```
+const items be [
+  1;
+  2;
+  3
+]
+
+const config be [
+  host be ///localhost///,
+  port be 8080
+]
+
+fetch[url].then[
+  fn response
+    return response.json[]
+].catch[
+  fn err
+    console.error[err]
+]
+```
 
 ## Indentation
 

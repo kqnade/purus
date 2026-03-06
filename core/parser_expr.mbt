@@ -277,83 +277,90 @@ fn Parser::parse_postfix(self : Parser) -> Expr {
       Dot => {
         self.pos += 1
         let field = self.parse_ident_name()
-        // Check if it's a method call or slice: expr.field[args] or expr.field[start..end]
         if self.peek() == LBracket {
-          let saved_dot = self.pos
-          self.pos += 1 // skip [
-          let start_expr = self.parse_expr()
-          match self.peek() {
-            DotDot => {
-              self.pos += 1
-              let end_expr = self.parse_expr()
-              if self.peek() == RBracket {
-                self.pos += 1
-              }
-              expr = Slice(DotAccess(expr, field), start_expr, end_expr, true)
-            }
-            DotDotDot => {
-              self.pos += 1
-              let end_expr = self.parse_expr()
-              if self.peek() == RBracket {
-                self.pos += 1
-              }
-              expr = Slice(DotAccess(expr, field), start_expr, end_expr, false)
-            }
-            _ => {
-              // Not a slice, backtrack and parse as method call
-              self.pos = saved_dot
-              let args = self.parse_args()
-              expr = MethodCall(expr, field, args)
-            }
-          }
-        } else {
-          expr = DotAccess(expr, field)
-        }
-      }
-      LBracket => {
-        // Could be function call args, index access, or slice
-        let saved = self.pos
-        self.pos += 1
-        match expr {
-          Ident(_) | DotAccess(_, _) | MethodCall(_, _, _) | Call(_, _) | IndexAccess(_, _) => {
-            // Try slice first: expr[start..end] or expr[start...end]
-            let slice_saved = self.pos
+          if self.is_computed_bracket() {
+            // Computed access on property: obj.field[\expr]
+            self.pos += 1 // skip [
+            self.skip_bracket_ws()
+            self.pos += 1 // skip \
+            self.skip_bracket_ws()
             let start_expr = self.parse_expr()
             match self.peek() {
               DotDot => {
                 self.pos += 1
                 let end_expr = self.parse_expr()
-                if self.peek() == RBracket {
-                  self.pos += 1
-                }
-                expr = Slice(expr, start_expr, end_expr, true)
+                if self.peek() == RBracket { self.pos += 1 }
+                expr = Slice(DotAccess(expr, field), start_expr, end_expr, true)
               }
               DotDotDot => {
                 self.pos += 1
                 let end_expr = self.parse_expr()
-                if self.peek() == RBracket {
-                  self.pos += 1
-                }
-                expr = Slice(expr, start_expr, end_expr, false)
+                if self.peek() == RBracket { self.pos += 1 }
+                expr = Slice(DotAccess(expr, field), start_expr, end_expr, false)
               }
               _ => {
-                // Not a slice, backtrack and parse as function call
-                let _ = slice_saved
-                self.pos = saved
-                let args = self.parse_args()
-                expr = Call(expr, args)
+                if self.peek() == RBracket { self.pos += 1 }
+                expr = ComputedAccess(DotAccess(expr, field), start_expr)
               }
             }
+          } else {
+            let args = self.parse_args()
+            expr = MethodCall(expr, field, args)
           }
-          _ => {
-            // Treat as index access - parse integer index
-            let index_expr = self.parse_expr()
-            if self.peek() == RBracket {
+        } else {
+          expr = DotAccess(expr, field)
+        }
+      }
+      OptDot => {
+        self.pos += 1
+        let field = self.parse_ident_name()
+        if self.peek() == LBracket {
+          if self.is_computed_bracket() {
+            self.pos += 1 // skip [
+            self.skip_bracket_ws()
+            self.pos += 1 // skip \
+            self.skip_bracket_ws()
+            let key_expr = self.parse_expr()
+            if self.peek() == RBracket { self.pos += 1 }
+            expr = ComputedAccess(OptDotAccess(expr, field), key_expr)
+          } else {
+            let args = self.parse_args()
+            expr = OptMethodCall(expr, field, args)
+          }
+        } else {
+          expr = OptDotAccess(expr, field)
+        }
+      }
+      LBracket => {
+        if self.is_computed_bracket() {
+          // Computed access: expr[\key]
+          self.pos += 1 // skip [
+          self.skip_bracket_ws()
+          self.pos += 1 // skip \
+          self.skip_bracket_ws()
+          let key_expr = self.parse_expr()
+          match self.peek() {
+            DotDot => {
               self.pos += 1
+              let end_expr = self.parse_expr()
+              if self.peek() == RBracket { self.pos += 1 }
+              expr = Slice(expr, key_expr, end_expr, true)
             }
-            // For computed access, wrap as method call "get"
-            expr = MethodCall(expr, "get", [index_expr])
+            DotDotDot => {
+              self.pos += 1
+              let end_expr = self.parse_expr()
+              if self.peek() == RBracket { self.pos += 1 }
+              expr = Slice(expr, key_expr, end_expr, false)
+            }
+            _ => {
+              if self.peek() == RBracket { self.pos += 1 }
+              expr = ComputedAccess(expr, key_expr)
+            }
           }
+        } else {
+          // Function call: expr[args]
+          let args = self.parse_args()
+          expr = Call(expr, args)
         }
       }
       As => {
@@ -368,33 +375,40 @@ fn Parser::parse_postfix(self : Parser) -> Expr {
 }
 
 ///|
+fn Parser::is_computed_bracket(self : Parser) -> Bool {
+  let mut i = self.pos + 1
+  while i < self.tokens.length() {
+    match self.tokens[i].kind {
+      Newline | Indent(_) | Comment(_) | BlockComment(_) => i += 1
+      Backslash => { return true }
+      _ => { return false }
+    }
+  }
+  false
+}
+
+///|
 fn Parser::parse_args(self : Parser) -> Array[Expr] {
   let args : Array[Expr] = []
   if self.peek() != LBracket {
     return args
   }
   self.pos += 1 // skip [
-  let mut depth = 1
-  while self.pos < self.tokens.length() && depth > 0 {
-    if self.peek() == RBracket {
-      depth -= 1
-      if depth == 0 {
-        self.pos += 1
-        break
-      }
-    }
-    if self.peek() == LBracket {
-      depth += 1
-    }
+  self.skip_bracket_ws()
+  while self.pos < self.tokens.length() && self.peek() != RBracket {
     args.push(self.parse_expr())
-    // Skip semicolons between args
+    self.skip_bracket_ws()
     if self.peek() == Semicolon {
       self.pos += 1
+      self.skip_bracket_ws()
     }
-    // Also skip commas (for array-like contexts)
     if self.peek() == Comma {
       self.pos += 1
+      self.skip_bracket_ws()
     }
+  }
+  if self.peek() == RBracket {
+    self.pos += 1
   }
   args
 }
@@ -499,6 +513,26 @@ fn Parser::parse_primary(self : Parser) -> Expr {
       let catch_body = self.parse_block(ca_indent)
       TryExpr(try_body, catch_name, catch_body)
     }
+    Async_ => {
+      self.pos += 1 // skip async
+      if self.peek() == Fn {
+        self.pos += 1 // skip fn
+        let params = self.parse_param_list()
+        if self.peek() == Gives {
+          self.pos += 1
+          self.skip_type_annotation()
+        }
+        if self.peek() == To {
+          self.pos += 1
+          AsyncFnExprTo(params, self.parse_expr())
+        } else {
+          let indent = self.skip_newlines_and_indent()
+          AsyncFnExpr(params, self.parse_block(indent))
+        }
+      } else {
+        Ident("async")
+      }
+    }
     _ => {
       // Unknown token - advance and return undefined
       self.pos += 1
@@ -513,14 +547,18 @@ fn Parser::parse_list_literal(self : Parser) -> Expr {
     return ArrayLit([])
   }
   self.pos += 1 // skip [
+  self.skip_bracket_ws()
   let elements : Array[Expr] = []
   while self.pos < self.tokens.length() && self.peek() != RBracket {
     elements.push(self.parse_expr())
+    self.skip_bracket_ws()
     if self.peek() == Comma {
       self.pos += 1
+      self.skip_bracket_ws()
     }
     if self.peek() == Semicolon {
       self.pos += 1
+      self.skip_bracket_ws()
     }
   }
   if self.peek() == RBracket {
@@ -535,6 +573,7 @@ fn Parser::parse_object_literal(self : Parser) -> Expr {
     return ObjectLit([])
   }
   self.pos += 1 // skip [
+  self.skip_bracket_ws()
   let pairs : Array[(String, Expr)] = []
   while self.pos < self.tokens.length() && self.peek() != RBracket {
     let key = self.parse_ident_name()
@@ -546,11 +585,14 @@ fn Parser::parse_object_literal(self : Parser) -> Expr {
       // shorthand: key only → key be key
       pairs.push((key, Ident(key)))
     }
+    self.skip_bracket_ws()
     if self.peek() == Comma {
       self.pos += 1
+      self.skip_bracket_ws()
     }
     if self.peek() == Semicolon {
       self.pos += 1
+      self.skip_bracket_ws()
     }
   }
   if self.peek() == RBracket {
@@ -562,6 +604,7 @@ fn Parser::parse_object_literal(self : Parser) -> Expr {
 ///|
 fn Parser::parse_bracket_expr(self : Parser) -> Expr {
   self.pos += 1 // skip [
+  self.skip_bracket_ws()
   // Empty: [] → empty array
   if self.peek() == RBracket {
     self.pos += 1
@@ -570,6 +613,7 @@ fn Parser::parse_bracket_expr(self : Parser) -> Expr {
   // [be] → empty object
   if self.peek() == Be {
     self.pos += 1
+    self.skip_bracket_ws()
     if self.peek() == RBracket {
       self.pos += 1
       return ObjectLit([])
@@ -579,12 +623,14 @@ fn Parser::parse_bracket_expr(self : Parser) -> Expr {
   }
   // Parse first expression
   let first = self.parse_expr()
+  self.skip_bracket_ws()
   // Check what follows
   match self.peek() {
     DotDot => {
       // Inclusive range: [start .. end]
       self.pos += 1
       let end_expr = self.parse_expr()
+      self.skip_bracket_ws()
       if self.peek() == RBracket {
         self.pos += 1
       }
@@ -594,6 +640,7 @@ fn Parser::parse_bracket_expr(self : Parser) -> Expr {
       // Exclusive range: [start ... end]
       self.pos += 1
       let end_expr = self.parse_expr()
+      self.skip_bracket_ws()
       if self.peek() == RBracket {
         self.pos += 1
       }
@@ -610,13 +657,16 @@ fn Parser::parse_bracket_expr(self : Parser) -> Expr {
       self.pos += 1
       let value = self.parse_expr()
       let pairs : Array[(String, Expr)] = [(key_name, value)]
+      self.skip_bracket_ws()
       while self.peek() == Comma || self.peek() == Semicolon {
         self.pos += 1
+        self.skip_bracket_ws()
         if self.peek() == RBracket { break }
         let k = self.parse_ident_name()
         self.expect(Be)
         let v = self.parse_expr()
         pairs.push((k, v))
+        self.skip_bracket_ws()
       }
       if self.peek() == RBracket {
         self.pos += 1
@@ -628,8 +678,10 @@ fn Parser::parse_bracket_expr(self : Parser) -> Expr {
       let elements : Array[Expr] = [first]
       while self.peek() == Comma {
         self.pos += 1
+        self.skip_bracket_ws()
         if self.peek() == RBracket { break }
         elements.push(self.parse_expr())
+        self.skip_bracket_ws()
       }
       if self.peek() == RBracket {
         self.pos += 1
@@ -641,8 +693,10 @@ fn Parser::parse_bracket_expr(self : Parser) -> Expr {
       let elements : Array[Expr] = [first]
       while self.peek() == Semicolon {
         self.pos += 1
+        self.skip_bracket_ws()
         if self.peek() == RBracket { break }
         elements.push(self.parse_expr())
+        self.skip_bracket_ws()
       }
       if self.peek() == RBracket {
         self.pos += 1

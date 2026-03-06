@@ -370,27 +370,27 @@ test "codegen: namespace declaration" {
 // ===== Slice tests =====
 
 test "codegen: inclusive slice" {
-  let js = compile("const mid be numbers[2..4]")
+  let js = compile("const mid be numbers[\\2..4]")
   assert_true(js.contains("numbers.slice(2, 4 + 1)"))
 }
 
 test "codegen: exclusive slice" {
-  let js = compile("const mid be numbers[2...4]")
+  let js = compile("const mid be numbers[\\2...4]")
   assert_true(js.contains("numbers.slice(2, 4)"))
 }
 
 test "codegen: splice with array literal" {
-  let js = compile("numbers[2..4] be [///a///; ///b///; ///c///]")
+  let js = compile("numbers[\\2..4] be [///a///; ///b///; ///c///]")
   assert_true(js.contains("numbers.splice(2, 4 - 2 + 1, \"a\", \"b\", \"c\")"))
 }
 
 test "codegen: splice exclusive" {
-  let js = compile("numbers[2...4] be [///a///; ///b///]")
+  let js = compile("numbers[\\2...4] be [///a///; ///b///]")
   assert_true(js.contains("numbers.splice(2, 4 - 2, \"a\", \"b\")"))
 }
 
 test "codegen: splice with variable" {
-  let js = compile("numbers[2..4] be replacement")
+  let js = compile("numbers[\\2..4] be replacement")
   assert_true(js.contains("numbers.splice(2, 4 - 2 + 1, ...replacement)"))
 }
 
@@ -414,4 +414,51 @@ test "codegen: destructuring swap" {
 test "codegen: destructuring from array" {
   let js = compile("const [first; second] be [1; 2]")
   assert_true(js.contains("const [first, second] = [1, 2]"))
+}
+
+// ===== Optional chaining tests =====
+
+test "codegen: optional dot access" {
+  let js = compile("const val be obj\\.name")
+  assert_true(js.contains("obj?.name"))
+}
+
+test "codegen: optional method call" {
+  let js = compile("const val be obj\\.method[1; 2]")
+  assert_true(js.contains("obj?.method(1, 2)"))
+}
+
+// ===== Computed access tests =====
+
+test "codegen: computed access" {
+  let js = compile("const val be arr[\\i]")
+  assert_true(js.contains("arr[i]"))
+}
+
+test "codegen: computed access string key" {
+  let js = compile("const val be obj[\\///key///]")
+  assert_true(js.contains("obj[\"key\"]"))
+}
+
+// ===== Side-effect import tests =====
+
+test "codegen: side-effect import" {
+  let js = compile("import ///dotenv/config///")
+  assert_eq(js, "import \"dotenv/config\";\n")
+}
+
+// ===== Async fn expression tests =====
+
+test "codegen: async fn expression to" {
+  let js = compile("const handler be async fn x to x add 1")
+  assert_true(js.contains("async (x) => x + 1"))
+}
+
+test "codegen: async fn expression block" {
+  let src =
+    #|const handler be async fn x
+    #|  return x add 1
+  let js = compile(src)
+  assert_true(js.contains("async (x) => {"))
+  assert_true(js.contains("return x + 1;"))
 }

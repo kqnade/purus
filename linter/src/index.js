@@ -80,7 +80,28 @@ function tokenize(source) {
     }
 
     // Punctuation
-    if ("[],;.".includes(source[i])) {
+    if ("[],;".includes(source[i])) {
+      tokens.push({ type: "punct", value: source[i], line: startLine, col: startCol });
+      i++; col++;
+      continue;
+    }
+
+    // Optional chaining \.
+    if (source[i] === "\\" && source[i + 1] === ".") {
+      tokens.push({ type: "punct", value: "\\.", line: startLine, col: startCol });
+      i += 2; col += 2;
+      continue;
+    }
+
+    // Backslash (computed access prefix)
+    if (source[i] === "\\") {
+      tokens.push({ type: "punct", value: "\\", line: startLine, col: startCol });
+      i++; col++;
+      continue;
+    }
+
+    // Dot
+    if (source[i] === ".") {
       tokens.push({ type: "punct", value: source[i], line: startLine, col: startCol });
       i++; col++;
       continue;

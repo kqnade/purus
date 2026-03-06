@@ -393,6 +393,64 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.gen_expr(inner)
     }
     ThisExpr => self.write("this")
+    OptDotAccess(obj, field) => {
+      self.gen_expr_wrap(obj)
+      self.write("?.")
+      self.write(field)
+    }
+    OptMethodCall(obj, meth_name, args) => {
+      self.gen_expr_wrap(obj)
+      self.write("?.")
+      self.write(meth_name)
+      self.write("(")
+      let mut first = true
+      for a in args {
+        if not(first) {
+          self.write(", ")
+        }
+        self.gen_expr(a)
+        first = false
+      }
+      self.write(")")
+    }
+    ComputedAccess(obj, key) => {
+      self.gen_expr_wrap(obj)
+      self.write("[")
+      self.gen_expr(key)
+      self.write("]")
+    }
+    AsyncFnExpr(params, body) => {
+      self.write("async (")
+      let mut first = true
+      for p in params {
+        if not(first) {
+          self.write(", ")
+        }
+        self.write(js_ident(p))
+        first = false
+      }
+      self.write(") => {\n")
+      self.indent_level += 1
+      for s in body {
+        self.gen_stmt(s)
+      }
+      self.indent_level -= 1
+      self.write_indent()
+      self.write("}")
+    }
+    AsyncFnExprTo(params, body_expr) => {
+      self.write("async (")
+      let mut first = true
+      for p in params {
+        if not(first) {
+          self.write(", ")
+        }
+        self.write(js_ident(p))
+        first = false
+      }
+      self.write(") => ")
+      self.gen_expr(body_expr)
+    }
   }
 }
 

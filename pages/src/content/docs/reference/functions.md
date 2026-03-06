@@ -122,6 +122,60 @@ async function fetchData(url) {
 }
 ```
 
+### Async function expressions
+
+Async anonymous functions work like regular anonymous functions with `async` prefix:
+
+```
+const handler be async fn event to await process[event]
+
+const fetcher be async fn url
+  const res be await fetch[url]
+  return await res.json[]
+```
+
+```js
+const handler = async (event) => await process(event);
+
+const fetcher = async (url) => {
+  const res = await fetch(url);
+  return await res.json();
+};
+```
+
+## Inline Callbacks
+
+With multi-line bracket support, anonymous functions can be passed as arguments in method chains:
+
+```
+promise.then[fn result to console.log[result]].catch[fn err to console.error[err]]
+```
+
+Multi-line form:
+
+```
+fetch[url].then[
+  fn response
+    return response.json[]
+].then[
+  fn data
+    console.log[data]
+].catch[
+  fn err
+    console.error[err]
+]
+```
+
+```js
+fetch(url).then((response) => {
+  return response.json();
+}).then((data) => {
+  console.log(data);
+}).catch((err) => {
+  console.error(err);
+});
+```
+
 ## Function calls
 
 Use `[]` instead of `()`:

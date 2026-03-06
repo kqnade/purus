@@ -48,6 +48,17 @@ fn Parser::skip_newlines_and_indent(self : Parser) -> Int {
   indent
 }
 
+///|
+/// Skip whitespace (newlines, indentation, comments) inside brackets.
+fn Parser::skip_bracket_ws(self : Parser) -> Unit {
+  while self.pos < self.tokens.length() {
+    match self.peek() {
+      Newline | Indent(_) | Comment(_) | BlockComment(_) => self.pos += 1
+      _ => break
+    }
+  }
+}
+
 
 
 ///|
@@ -210,12 +221,15 @@ fn Parser::parse_var_decl(self : Parser, kind : DeclKind) -> Stmt {
     self.pos += 1 // skip 'object'
     if self.peek() == LBracket {
       self.pos += 1 // skip [
+      self.skip_bracket_ws()
       let names : Array[String] = []
       while self.pos < self.tokens.length() && self.peek() != RBracket {
         let name = self.parse_ident_name()
         names.push(name)
+        self.skip_bracket_ws()
         if self.peek() == Semicolon || self.peek() == Comma {
           self.pos += 1
+          self.skip_bracket_ws()
         }
       }
       if self.peek() == RBracket {
@@ -238,12 +252,15 @@ fn Parser::parse_var_decl(self : Parser, kind : DeclKind) -> Stmt {
   // Check for destructuring: const/let/var [a; b] be expr
   if self.peek() == LBracket {
     self.pos += 1 // skip [
+    self.skip_bracket_ws()
     let names : Array[String] = []
     while self.pos < self.tokens.length() && self.peek() != RBracket {
       let name = self.parse_ident_name()
       names.push(name)
+      self.skip_bracket_ws()
       if self.peek() == Semicolon || self.peek() == Comma {
         self.pos += 1
+        self.skip_bracket_ws()
       }
     }
     if self.peek() == RBracket {
@@ -603,6 +620,14 @@ fn Parser::parse_try_stmt(self : Parser) -> Stmt {
 ///|
 fn Parser::parse_import_stmt(self : Parser) -> Stmt {
   self.pos += 1 // skip import
+  // Side-effect import: import ///module///
+  match self.peek() {
+    Str(s) => {
+      self.pos += 1
+      return ImportDecl(SideEffectImport(s))
+    }
+    _ => ()
+  }
   // import X from ///...///
   // import [X, Y] from ///...///
   // import X, [Y, Z] from ///...///
@@ -639,12 +664,14 @@ fn Parser::parse_import_stmt(self : Parser) -> Stmt {
 fn Parser::parse_bracket_names(self : Parser) -> Array[String] {
   let names : Array[String] = []
   self.expect(LBracket)
+  self.skip_bracket_ws()
   while self.pos < self.tokens.length() && self.peek() != RBracket {
     match self.peek() {
       Ident(s) => { self.pos += 1; names.push(s) }
       Comma => { self.pos += 1 }
       _ => { self.pos += 1 }
     }
+    self.skip_bracket_ws()
   }
   if self.peek() == RBracket {
     self.pos += 1

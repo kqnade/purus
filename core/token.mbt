@@ -104,6 +104,8 @@ pub(all) enum TokenKind {
   Dot         // .
   DotDot      // ..   (inclusive range)
   DotDotDot   // ...  (exclusive range)
+  Backslash   // \    (computed access prefix)
+  OptDot      // \.   (optional chaining)
 
   // Line-related
   Newline

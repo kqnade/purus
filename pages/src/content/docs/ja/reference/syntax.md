@@ -109,12 +109,12 @@ const exclusive be [0...5]  -- [0, 1, 2, 3, 4]
 
 ### スライス（切り出し）
 
-`..`（包含）または `...`（排他）を使って配列の一部を切り出します:
+`\` プレフィックスと `..`（包含）または `...`（排他）を使って配列の一部を切り出します:
 
 ```
 const numbers be [0, 1, 2, 3, 4, 5, 6]
-const middle be numbers[2..4]    -- [2, 3, 4]
-const partial be numbers[1...4]  -- [1, 2, 3]
+const middle be numbers[\2..4]    -- [2, 3, 4]
+const partial be numbers[\1...4]  -- [1, 2, 3]
 ```
 
 コンパイル結果:
@@ -129,7 +129,7 @@ const partial = numbers.slice(1, 4);
 スライスに代入することで配列の一部を置換できます:
 
 ```
-numbers[2..4] be [///a///; ///b///; ///c///]
+numbers[\2..4] be [///a///; ///b///; ///c///]
 -- numbers は [0, 1, "a", "b", "c", 5, 6] になります
 ```
 
@@ -184,6 +184,58 @@ const { name, age } = person;
 ## 括弧は`[]`のみ
 
 Purusでは関数呼び出し、配列、オブジェクト、グループ化のすべてに `[]` を使用します。`()` や `{}` は使いません。
+
+### 計算プロパティアクセス
+
+`\` を括弧内で使うことで、式による配列・オブジェクトアクセスを行います:
+
+```
+const val be arr[\0]        -- arr[0]
+const item be obj[\key]     -- obj[key]
+const x be matrix[\i][\j]  -- matrix[i][j]
+```
+
+`\` プレフィックスにより、関数呼び出しとプロパティアクセスを区別します:
+
+| 構文 | 意味 | JS出力 |
+|---|---|---|
+| `f[x]` | 関数呼び出し | `f(x)` |
+| `arr[\x]` | 計算プロパティアクセス | `arr[x]` |
+| `arr[\2..4]` | スライス | `arr.slice(2,5)` |
+
+### オプショナルチェイニング
+
+`\.` でオプショナルチェイニング（JS の `?.`）を表現します:
+
+```
+const name be user\.name          -- user?.name
+const val be obj\.method[1; 2]    -- obj?.method(1, 2)
+```
+
+### 複数行括弧
+
+括弧 `[...]` は複数行にまたがることができます。項目間の改行やインデントは無視されます:
+
+```
+const items be [
+  1;
+  2;
+  3
+]
+
+const config be [
+  host be ///localhost///,
+  port be 8080
+]
+
+fetch[url].then[
+  fn response
+    return response.json[]
+].catch[
+  fn err
+    console.error[err]
+]
+```
 
 ## インデント
 

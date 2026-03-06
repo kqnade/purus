@@ -122,6 +122,60 @@ async function fetchData(url) {
 }
 ```
 
+### 非同期関数式
+
+`async` プレフィックスで無名の非同期関数を作成できます:
+
+```
+const handler be async fn event to await process[event]
+
+const fetcher be async fn url
+  const res be await fetch[url]
+  return await res.json[]
+```
+
+```js
+const handler = async (event) => await process(event);
+
+const fetcher = async (url) => {
+  const res = await fetch(url);
+  return await res.json();
+};
+```
+
+## インラインコールバック
+
+複数行括弧のサポートにより、メソッドチェーン内で無名関数を引数として渡せます:
+
+```
+promise.then[fn result to console.log[result]].catch[fn err to console.error[err]]
+```
+
+複数行形式:
+
+```
+fetch[url].then[
+  fn response
+    return response.json[]
+].then[
+  fn data
+    console.log[data]
+].catch[
+  fn err
+    console.error[err]
+]
+```
+
+```js
+fetch(url).then((response) => {
+  return response.json();
+}).then((data) => {
+  console.log(data);
+}).catch((err) => {
+  console.error(err);
+});
+```
+
 ## 関数呼び出し
 
 `()` の代わりに `[]` を使います:

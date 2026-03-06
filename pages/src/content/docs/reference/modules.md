@@ -14,6 +14,20 @@ import React, [Component] from ///react///
 import all as fs from ///fs///
 ```
 
+### Side-effect Import
+
+Import a module for its side effects only (no bindings):
+
+```
+import ///dotenv/config///
+import ///./polyfills///
+```
+
+```js
+import "dotenv/config";
+import "./polyfills";
+```
+
 ## Use (dot-path import)
 
 ```

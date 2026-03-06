@@ -196,6 +196,14 @@
     "punctuation": {
       "patterns": [
         {
+          "match": "\\\\\\.",
+          "name": "punctuation.accessor.optional.purus"
+        },
+        {
+          "match": "\\\\(?=[^\\s])",
+          "name": "punctuation.accessor.computed.purus"
+        },
+        {
           "match": "\\[",
           "name": "punctuation.bracket.open.purus"
         },

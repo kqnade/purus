@@ -797,7 +797,7 @@ test "parser: exclusive range [0...5]" {
 // ===== Slice tests =====
 
 test "parser: inclusive slice" {
-  let stmts = Parser::new(Lexer::new("numbers[2..4]").tokenize()).parse()
+  let stmts = Parser::new(Lexer::new("numbers[\\2..4]").tokenize()).parse()
   match stmts[0] {
     ExprStmt(Slice(Ident(name), IntLit(2), IntLit(4), inclusive)) => {
       assert_eq(name, "numbers")
@@ -808,7 +808,7 @@ test "parser: inclusive slice" {
 }
 
 test "parser: exclusive slice" {
-  let stmts = Parser::new(Lexer::new("numbers[2...4]").tokenize()).parse()
+  let stmts = Parser::new(Lexer::new("numbers[\\2...4]").tokenize()).parse()
   match stmts[0] {
     ExprStmt(Slice(Ident(name), IntLit(2), IntLit(4), inclusive)) => {
       assert_eq(name, "numbers")
@@ -819,7 +819,7 @@ test "parser: exclusive slice" {
 }
 
 test "parser: slice with dot access" {
-  let stmts = Parser::new(Lexer::new("obj.arr[1..3]").tokenize()).parse()
+  let stmts = Parser::new(Lexer::new("obj.arr[\\1..3]").tokenize()).parse()
   match stmts[0] {
     ExprStmt(Slice(DotAccess(Ident(obj), field), IntLit(1), IntLit(3), _)) => {
       assert_eq(obj, "obj")
@@ -831,7 +831,7 @@ test "parser: slice with dot access" {
 
 test "parser: splice assignment" {
   let stmts = Parser::new(
-    Lexer::new("numbers[2..4] be [///a///; ///b///]").tokenize(),
+    Lexer::new("numbers[\\2..4] be [///a///; ///b///]").tokenize(),
   ).parse()
   match stmts[0] {
     Assign(Slice(Ident(name), IntLit(2), IntLit(4), inclusive), ArrayLit(elems)) => {
@@ -887,4 +887,99 @@ test "parser: destructuring swap" {
     }
     _ => fail("expected Assign with ArrayLit swap")
   }
+}
+
+// ===== Optional chaining tests =====
+
+test "parser: optional dot access" {
+  let stmts = Parser::new(Lexer::new("obj\\.name").tokenize()).parse()
+  match stmts[0] {
+    ExprStmt(OptDotAccess(Ident(obj), field)) => {
+      assert_eq(obj, "obj")
+      assert_eq(field, "name")
+    }
+    _ => fail("expected OptDotAccess")
+  }
+}
+
+test "parser: optional method call" {
+  let stmts = Parser::new(Lexer::new("obj\\.method[1; 2]").tokenize()).parse()
+  match stmts[0] {
+    ExprStmt(OptMethodCall(Ident(obj), meth, args)) => {
+      assert_eq(obj, "obj")
+      assert_eq(meth, "method")
+      assert_eq(args.length(), 2)
+    }
+    _ => fail("expected OptMethodCall")
+  }
+}
+
+// ===== Computed access tests =====
+
+test "parser: computed access" {
+  let stmts = Parser::new(Lexer::new("arr[\\i]").tokenize()).parse()
+  match stmts[0] {
+    ExprStmt(ComputedAccess(Ident(name), Ident(key))) => {
+      assert_eq(name, "arr")
+      assert_eq(key, "i")
+    }
+    _ => fail("expected ComputedAccess")
+  }
+}
+
+test "parser: computed access with number" {
+  let stmts = Parser::new(Lexer::new("arr[\\0]").tokenize()).parse()
+  match stmts[0] {
+    ExprStmt(ComputedAccess(Ident(name), IntLit(0))) => {
+      assert_eq(name, "arr")
+    }
+    _ => fail("expected ComputedAccess with number")
+  }
+}
+
+// ===== Side-effect import tests =====
+
+test "parser: side-effect import" {
+  let stmts = Parser::new(Lexer::new("import ///dotenv/config///").tokenize()).parse()
+  match stmts[0] {
+    ImportDecl(SideEffectImport(path)) => {
+      assert_eq(path, "dotenv/config")
+    }
+    _ => fail("expected SideEffectImport")
+  }
+}
+
+// ===== Async fn expression tests =====
+
+test "parser: async fn expression to" {
+  let stmts = Parser::new(Lexer::new("const h be async fn x to x add 1").tokenize()).parse()
+  match stmts[0] {
+    VarDecl(_, _, AsyncFnExprTo(params, _)) => {
+      assert_eq(params.length(), 1)
+      assert_eq(params[0], "x")
+    }
+    _ => fail("expected AsyncFnExprTo")
+  }
+}
+
+// ===== Lexer backslash tests =====
+
+test "lexer: backslash token" {
+  let src = "x[\\y]"
+  let tokens = Lexer::new(src).tokenize()
+  // tokens[0] is Indent(0) from scan_line_start
+  assert_eq(tokens[1].kind, Ident("x"))
+  assert_eq(tokens[2].kind, LBracket)
+  assert_eq(tokens[3].kind, Backslash)
+  assert_eq(tokens[4].kind, Ident("y"))
+  assert_eq(tokens[5].kind, RBracket)
+}
+
+test "lexer: optional dot token" {
+  let src = "a\\.b"
+  let tokens = Lexer::new(src).tokenize()
+  // tokens[0] is Indent(0) from scan_line_start
+  assert_eq(tokens[1].kind, Ident("a"))
+  assert_eq(tokens[2].kind, OptDot)
+  assert_eq(tokens[3].kind, Ident("b"))
 }

@@ -45,12 +45,12 @@ const exclusive be [0...5]
 
 -- Slicing
 const numbers be [0, 1, 2, 3, 4, 5, 6]
-const middle be numbers[2..4]
-const partial be numbers[1...4]
+const middle be numbers[\2..4]
+const partial be numbers[\1...4]
 
 -- Splicing
 let arr be [0, 1, 2, 3, 4, 5, 6]
-arr[2..4] be [///a///; ///b///; ///c///]
+arr[\2..4] be [///a///; ///b///; ///c///]
 
 -- Destructuring (array)
 const weather be [///Sunny///; ///Rainy///]

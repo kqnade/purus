@@ -56,6 +56,17 @@ pub(all) enum Expr {
 
   // This
   ThisExpr
+
+  // Optional chaining
+  OptDotAccess(Expr, String)             // obj\.field
+  OptMethodCall(Expr, String, Array[Expr]) // obj\.method[args]
+
+  // Computed access
+  ComputedAccess(Expr, Expr)             // expr[\key]
+
+  // Async function expressions
+  AsyncFnExpr(Array[String], Array[Stmt]) // async fn (block)
+  AsyncFnExprTo(Array[String], Expr)      // async fn to EXPR
 }
 
 ///|
@@ -187,4 +198,5 @@ pub(all) enum ImportDecl {
   EsImport(String?, Array[String]?, String?, String) // default, named, namespace, from
   CjsRequire(String, String)                          // name, module
   DynImport(String)                                    // dynamic import
+  SideEffectImport(String)                             // import ///module///
 }

@@ -17,7 +17,7 @@ sidebar:
 8. `mul` / `div` / `mod` — Multiplication / Division / Modulo
 9. `pow` — Exponentiation
 10. Unary: `not` / `neg` / `typeof` / `await` / `delete` / `new`
-11. Postfix: `.` access / `[args]` call / `as` cast
+11. Postfix: `.` access / `\.` optional chaining / `[args]` call / `[\expr]` computed access / `as` cast
 12. Primary: literals, identifiers, brackets
 
 ## Pipeline
@@ -95,12 +95,12 @@ const d be [1...10]   -- [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 ## Slicing
 
-Extract a portion of an array using `..` (inclusive) or `...` (exclusive) inside bracket access:
+Extract a portion of an array using `\` prefix with `..` (inclusive) or `...` (exclusive) inside bracket access:
 
 ```
 const numbers be [0, 1, 2, 3, 4, 5, 6]
-const middle be numbers[2..4]    -- [2, 3, 4]
-const partial be numbers[1...4]  -- [1, 2, 3]
+const middle be numbers[\2..4]    -- [2, 3, 4]
+const partial be numbers[\1...4]  -- [1, 2, 3]
 ```
 
 ## Splicing
@@ -108,8 +108,38 @@ const partial be numbers[1...4]  -- [1, 2, 3]
 Replace a portion of an array by assigning to a slice:
 
 ```
-numbers[2..4] be [///a///; ///b///; ///c///]
+numbers[\2..4] be [///a///; ///b///; ///c///]
 -- numbers is now [0, 1, "a", "b", "c", 5, 6]
+```
+
+## Computed Access
+
+Use `\` inside brackets to access array elements or object properties by expression:
+
+```
+const val be arr[\i]       -- arr[i]
+const item be obj[\key]    -- obj[key]
+arr[\0] be ///new///        -- arr[0] = "new"
+```
+
+The `\` prefix distinguishes computed access from function calls: `f[x]` is a call, `arr[\x]` is property access.
+
+## Optional Chaining
+
+Use `\.` for optional chaining (JS `?.`):
+
+```
+const name be user\.name          -- user?.name
+const val be obj\.method[1; 2]    -- obj?.method(1, 2)
+const deep be a\.b\.c             -- a?.b?.c
+```
+
+Compiles to:
+
+```js
+const name = user?.name;
+const val = obj?.method(1, 2);
+const deep = a?.b?.c;
 ```
 
 ## Destructuring

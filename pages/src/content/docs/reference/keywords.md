@@ -138,3 +138,16 @@ sidebar:
 | `pipe` | pipeline operator |
 | `list` | array literal |
 | `object` | object literal |
+
+## Punctuation
+
+| Symbol | Meaning |
+|---|---|
+| `[` `]` | Brackets (calls, arrays, objects, grouping) |
+| `.` | Property access |
+| `\.` | Optional chaining (`?.`) |
+| `\` | Computed access prefix (inside `[...]`) |
+| `;` | Argument / element separator |
+| `,` | Array / object separator |
+| `..` | Inclusive range |
+| `...` | Exclusive range |
