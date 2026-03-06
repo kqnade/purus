@@ -4,10 +4,11 @@
 ///   pipe
 ///   or
 ///   and
-///   eq/ne/is/instanceof
+///   eq/neq/is/instanceof
 ///   lt/gt/le/ge
 ///   add/sub
 ///   mul/div/mod
+///   pow
 ///   unary (not/neg/typeof/await/delete/new)
 ///   postfix (dot access, index access, method call, function call)
 ///   primary
@@ -65,10 +66,25 @@ fn Parser::parse_equality(self : Parser) -> Expr {
           left = BinOp(Eq, left, right)
         }
       }
-      Ne => {
+      Neq => {
         self.pos += 1
         let right = self.parse_comparison()
-        left = BinOp(Ne, left, right)
+        left = BinOp(Neq, left, right)
+      }
+      Not => {
+        // "not eq" → Neq
+        if self.pos + 1 < self.tokens.length() {
+          match self.tokens[self.pos + 1].kind {
+            Eq => {
+              self.pos += 2
+              let right = self.parse_comparison()
+              left = BinOp(Neq, left, right)
+            }
+            _ => break
+          }
+        } else {
+          break
+        }
       }
       Instanceof_ => {
         self.pos += 1
@@ -100,11 +116,35 @@ fn Parser::parse_comparison(self : Parser) -> Expr {
   while self.pos < self.tokens.length() {
     match self.peek() {
       Lt => {
+        // Check for "lt eq" → Le
+        if self.pos + 1 < self.tokens.length() {
+          match self.tokens[self.pos + 1].kind {
+            Eq => {
+              self.pos += 2
+              let right = self.parse_addition()
+              left = BinOp(Le, left, right)
+              continue
+            }
+            _ => ()
+          }
+        }
         self.pos += 1
         let right = self.parse_addition()
         left = BinOp(Lt, left, right)
       }
       Gt => {
+        // Check for "gt eq" → Ge
+        if self.pos + 1 < self.tokens.length() {
+          match self.tokens[self.pos + 1].kind {
+            Eq => {
+              self.pos += 2
+              let right = self.parse_addition()
+              left = BinOp(Ge, left, right)
+              continue
+            }
+            _ => ()
+          }
+        }
         self.pos += 1
         let right = self.parse_addition()
         left = BinOp(Gt, left, right)
@@ -148,26 +188,38 @@ fn Parser::parse_addition(self : Parser) -> Expr {
 
 ///|
 fn Parser::parse_multiplication(self : Parser) -> Expr {
-  let mut left = self.parse_unary()
+  let mut left = self.parse_power()
   while self.pos < self.tokens.length() {
     match self.peek() {
       Mul => {
         self.pos += 1
-        let right = self.parse_unary()
+        let right = self.parse_power()
         left = BinOp(Mul, left, right)
       }
       Div => {
         self.pos += 1
-        let right = self.parse_unary()
+        let right = self.parse_power()
         left = BinOp(Div, left, right)
       }
       Mod => {
         self.pos += 1
-        let right = self.parse_unary()
+        let right = self.parse_power()
         left = BinOp(Mod, left, right)
       }
       _ => break
     }
+  }
+  left
+}
+
+///|
+fn Parser::parse_power(self : Parser) -> Expr {
+  let left = self.parse_unary()
+  // pow is right-associative
+  if self.pos < self.tokens.length() && self.peek() == Pow {
+    self.pos += 1
+    let right = self.parse_power()
+    return BinOp(Pow, left, right)
   }
   left
 }
@@ -214,28 +266,73 @@ fn Parser::parse_postfix(self : Parser) -> Expr {
       Dot => {
         self.pos += 1
         let field = self.parse_ident_name()
-        // Check if it's a method call: expr.field[args]
+        // Check if it's a method call or slice: expr.field[args] or expr.field[start..end]
         if self.peek() == LBracket {
-          let args = self.parse_args()
-          expr = MethodCall(expr, field, args)
+          let saved_dot = self.pos
+          self.pos += 1 // skip [
+          let start_expr = self.parse_expr()
+          match self.peek() {
+            DotDot => {
+              self.pos += 1
+              let end_expr = self.parse_expr()
+              if self.peek() == RBracket {
+                self.pos += 1
+              }
+              expr = Slice(DotAccess(expr, field), start_expr, end_expr, true)
+            }
+            DotDotDot => {
+              self.pos += 1
+              let end_expr = self.parse_expr()
+              if self.peek() == RBracket {
+                self.pos += 1
+              }
+              expr = Slice(DotAccess(expr, field), start_expr, end_expr, false)
+            }
+            _ => {
+              // Not a slice, backtrack and parse as method call
+              self.pos = saved_dot
+              let args = self.parse_args()
+              expr = MethodCall(expr, field, args)
+            }
+          }
         } else {
           expr = DotAccess(expr, field)
         }
       }
       LBracket => {
-        // Could be function call args or index access
-        // Disambiguate: if previous was an Ident then it's a function call
+        // Could be function call args, index access, or slice
         let saved = self.pos
         self.pos += 1
-        // Check if it looks like index access (single expr then ])
-        // or function call args (semicolon separated)
-        // For now, check if previous token is callable
         match expr {
           Ident(_) | DotAccess(_, _) | MethodCall(_, _, _) | Call(_, _) | IndexAccess(_, _) => {
-            // Treat as function call
-            self.pos = saved
-            let args = self.parse_args()
-            expr = Call(expr, args)
+            // Try slice first: expr[start..end] or expr[start...end]
+            let slice_saved = self.pos
+            let start_expr = self.parse_expr()
+            match self.peek() {
+              DotDot => {
+                self.pos += 1
+                let end_expr = self.parse_expr()
+                if self.peek() == RBracket {
+                  self.pos += 1
+                }
+                expr = Slice(expr, start_expr, end_expr, true)
+              }
+              DotDotDot => {
+                self.pos += 1
+                let end_expr = self.parse_expr()
+                if self.peek() == RBracket {
+                  self.pos += 1
+                }
+                expr = Slice(expr, start_expr, end_expr, false)
+              }
+              _ => {
+                // Not a slice, backtrack and parse as function call
+                let _ = slice_saved
+                self.pos = saved
+                let args = self.parse_args()
+                expr = Call(expr, args)
+              }
+            }
           }
           _ => {
             // Treat as index access - parse integer index
@@ -451,6 +548,24 @@ fn Parser::parse_bracket_expr(self : Parser) -> Expr {
   let first = self.parse_expr()
   // Check what follows
   match self.peek() {
+    DotDot => {
+      // Inclusive range: [start .. end]
+      self.pos += 1
+      let end_expr = self.parse_expr()
+      if self.peek() == RBracket {
+        self.pos += 1
+      }
+      RangeArray(first, end_expr, true)
+    }
+    DotDotDot => {
+      // Exclusive range: [start ... end]
+      self.pos += 1
+      let end_expr = self.parse_expr()
+      if self.peek() == RBracket {
+        self.pos += 1
+      }
+      RangeArray(first, end_expr, false)
+    }
     Be => {
       // Object literal: [key be value, ...]
       // Need to extract key name from first expr

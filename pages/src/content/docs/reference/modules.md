@@ -35,10 +35,10 @@ export default fn main
   console.log[///hi///]
 ```
 
-## Module namespace (mod)
+## Module namespace
 
 ```
-mod utils
+namespace utils
   fn helper to 42
 ```
 

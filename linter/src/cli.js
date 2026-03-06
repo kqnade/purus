@@ -12,13 +12,11 @@ if (args.includes("--help") || args.includes("-h")) {
   console.log("purus-lint - Linter for the Purus language");
   console.log("");
   console.log("Usage:");
-  console.log("  purus-lint [file...]                 Lint specific files");
-  console.log("  purus-lint --directory <dir>         Lint all files in directory");
+  console.log("  purus-lint [file|dir...]             Lint specific files or directories");
   console.log("  purus-lint                           Lint using config.purus");
   console.log("");
   console.log("Options:");
   console.log("  --config <file>  Path to config JSON file");
-  console.log("  --directory, -d  Directory to lint");
   console.log("  --fix            (not yet implemented)");
   console.log("  --help           Show this help");
   process.exit(0);
@@ -26,16 +24,13 @@ if (args.includes("--help") || args.includes("-h")) {
 
 // Collect files and options
 let configPath = null;
-let directory = null;
-const files = [];
+const inputPaths = [];
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--config" && i + 1 < args.length) {
     configPath = args[++i];
-  } else if ((args[i] === "--directory" || args[i] === "-d") && i + 1 < args.length) {
-    directory = args[++i];
   } else if (!args[i].startsWith("-")) {
-    files.push(args[i]);
+    inputPaths.push(args[i]);
   }
 }
 
@@ -70,25 +65,23 @@ if (configPath) {
       }
     }
   }
-
-  // Also check for .puruslint.json in cwd
-  if (Object.keys(ruleOverrides).length === 0) {
-    const defaultConfig = path.join(process.cwd(), ".puruslint.json");
-    if (fs.existsSync(defaultConfig)) {
-      try {
-        ruleOverrides = JSON.parse(fs.readFileSync(defaultConfig, "utf8"));
-      } catch {
-        // ignore
-      }
-    }
-  }
 }
 
 // Determine files to lint
-let filesToLint = files;
+let filesToLint = [];
 
-if (filesToLint.length === 0 && directory) {
-  filesToLint = findPurusFiles(path.resolve(directory));
+for (const p of inputPaths) {
+  const resolved = path.resolve(p);
+  if (!fs.existsSync(resolved)) {
+    console.error(`Error: '${p}' not found`);
+    process.exit(1);
+  }
+  const stat = fs.statSync(resolved);
+  if (stat.isDirectory()) {
+    filesToLint.push(...findPurusFiles(resolved));
+  } else {
+    filesToLint.push(resolved);
+  }
 }
 
 if (filesToLint.length === 0) {
@@ -106,8 +99,7 @@ if (filesToLint.length === 0) {
   console.log("purus-lint - Linter for the Purus language");
   console.log("");
   console.log("Usage:");
-  console.log("  purus-lint [file...]                 Lint specific files");
-  console.log("  purus-lint --directory <dir>         Lint all files in directory");
+  console.log("  purus-lint [file|dir...]             Lint specific files or directories");
   console.log("  purus-lint                           Lint using config.purus");
   process.exit(0);
 }

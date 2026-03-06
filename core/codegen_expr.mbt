@@ -53,6 +53,34 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       }
       self.write("]")
     }
+    RangeArray(start, end, inclusive) => {
+      // Generate: Array.from({length: end - start (+ 1 if inclusive)}, (_, i) => i + start)
+      self.write("Array.from({ length: ")
+      self.gen_expr_wrap(end)
+      self.write(" - ")
+      self.gen_expr_wrap(start)
+      if inclusive {
+        self.write(" + 1")
+      }
+      self.write(" }, (_, i) => i + ")
+      self.gen_expr_wrap(start)
+      self.write(")")
+    }
+    Slice(obj, start, end, inclusive) => {
+      // arr[start..end] → arr.slice(start, end + 1) (inclusive)
+      // arr[start...end] → arr.slice(start, end) (exclusive)
+      self.gen_expr_wrap(obj)
+      self.write(".slice(")
+      self.gen_expr(start)
+      self.write(", ")
+      if inclusive {
+        self.gen_expr_wrap(end)
+        self.write(" + 1")
+      } else {
+        self.gen_expr(end)
+      }
+      self.write(")")
+    }
     ObjectLit(pairs) => {
       if pairs.is_empty() {
         self.write("{}")
@@ -390,8 +418,9 @@ fn js_binop(op : BinOp) -> String {
     Mul => "*"
     Div => "/"
     Mod => "%"
+    Pow => "**"
     Eq => "==="
-    Ne => "!=="
+    Neq => "!=="
     Lt => "<"
     Gt => ">"
     Le => "<="

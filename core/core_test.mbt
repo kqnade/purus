@@ -319,3 +319,99 @@ test "codegen: no header when empty" {
   let js = compile("const x be 1")
   assert_eq(js, "const x = 1;\n")
 }
+
+// ===== New feature codegen tests =====
+
+test "codegen: neq operator" {
+  let js = compile("const r be x neq y")
+  assert_eq(js, "const r = x !== y;\n")
+}
+
+test "codegen: not eq operator" {
+  let js = compile("const r be x not eq y")
+  assert_eq(js, "const r = x !== y;\n")
+}
+
+test "codegen: pow operator" {
+  let js = compile("const r be 2 pow 3")
+  assert_eq(js, "const r = 2 ** 3;\n")
+}
+
+test "codegen: inclusive range" {
+  let js = compile("const r be [0..5]")
+  assert_true(js.contains("Array.from"))
+  assert_true(js.contains("+ 1"))
+}
+
+test "codegen: exclusive range" {
+  let js = compile("const r be [0...5]")
+  assert_true(js.contains("Array.from"))
+  assert_true(not(js.contains("+ 1")))
+}
+
+test "codegen: lt eq operator" {
+  let js = compile("const r be x lt eq y")
+  assert_eq(js, "const r = x <= y;\n")
+}
+
+test "codegen: gt eq operator" {
+  let js = compile("const r be x gt eq y")
+  assert_eq(js, "const r = x >= y;\n")
+}
+
+test "codegen: namespace declaration" {
+  let src =
+    #|namespace utils
+    #|  const x be 1
+  let js = compile(src)
+  assert_true(js.contains("const utils = (() => {"))
+}
+
+// ===== Slice tests =====
+
+test "codegen: inclusive slice" {
+  let js = compile("const mid be numbers[2..4]")
+  assert_true(js.contains("numbers.slice(2, 4 + 1)"))
+}
+
+test "codegen: exclusive slice" {
+  let js = compile("const mid be numbers[2...4]")
+  assert_true(js.contains("numbers.slice(2, 4)"))
+}
+
+test "codegen: splice with array literal" {
+  let js = compile("numbers[2..4] be [///a///; ///b///; ///c///]")
+  assert_true(js.contains("numbers.splice(2, 4 - 2 + 1, \"a\", \"b\", \"c\")"))
+}
+
+test "codegen: splice exclusive" {
+  let js = compile("numbers[2...4] be [///a///; ///b///]")
+  assert_true(js.contains("numbers.splice(2, 4 - 2, \"a\", \"b\")"))
+}
+
+test "codegen: splice with variable" {
+  let js = compile("numbers[2..4] be replacement")
+  assert_true(js.contains("numbers.splice(2, 4 - 2 + 1, ...replacement)"))
+}
+
+// ===== Destructuring tests =====
+
+test "codegen: const destructuring" {
+  let js = compile("const [today; tomorrow] be weather")
+  assert_true(js.contains("const [today, tomorrow] = weather"))
+}
+
+test "codegen: let destructuring" {
+  let js = compile("let [x; y; z] be arr")
+  assert_true(js.contains("let [x, y, z] = arr"))
+}
+
+test "codegen: destructuring swap" {
+  let js = compile("[a; b] be [b; a]")
+  assert_true(js.contains("[a, b] = [b, a]"))
+}
+
+test "codegen: destructuring from array" {
+  let js = compile("const [first; second] be [1; 2]")
+  assert_true(js.contains("const [first, second] = [1, 2]"))
+}

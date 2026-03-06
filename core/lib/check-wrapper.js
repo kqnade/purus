@@ -2,19 +2,15 @@
 
 const fs = require("fs");
 const path = require("path");
-const { execFileSync } = require("child_process");
 const { loadConfig } = require("./config.js");
 const { compile } = require("./purus-core.js");
 
 const args = process.argv.slice(3);
 
 let entry = null;
-let noHeader = false;
 
 for (let i = 0; i < args.length; i++) {
-  if (args[i] === "--no-header") {
-    noHeader = true;
-  } else if (args[i] === "--entry" || args[i] === "-e") {
+  if (args[i] === "--entry" || args[i] === "-e") {
     entry = args[++i];
   } else if (!args[i].startsWith("-")) {
     entry = args[i];
@@ -22,37 +18,30 @@ for (let i = 0; i < args.length; i++) {
 }
 
 if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile()) {
-  // Single file - compile and run
-  const source = fs.readFileSync(entry, "utf8");
-  const js = compile(source, { header: false });
-  const m = new (require("module"))();
-  m._compile(js, entry);
+  checkFile(entry);
 } else {
   let entryDir;
-  let useHeader;
 
   if (entry) {
     entryDir = path.resolve(entry);
-    useHeader = false;
   } else {
     const result = loadConfig();
     if (!result) {
       console.log("Error: no input file specified and no config.purus found");
       console.log("");
       console.log("Usage:");
-      console.log("  purus run <file|dir>           Run a file or directory");
-      console.log("  purus run --entry <file|dir>   Specify entry");
-      console.log("  purus run                      Run using config.purus");
+      console.log("  purus check <file|dir>           Check a file or directory");
+      console.log("  purus check --entry <file|dir>   Specify entry");
+      console.log("  purus check                      Check using config.purus");
       process.exit(1);
     }
 
     const { config, configDir } = result;
     entryDir = path.resolve(configDir, config.entry || "src");
-    useHeader = false;
   }
 
   if (!fs.existsSync(entryDir)) {
-    console.log(`Error: entry directory '${entryDir}' not found`);
+    console.log(`Error: entry '${entryDir}' not found`);
     process.exit(1);
   }
 
@@ -70,27 +59,27 @@ if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile()) {
     process.exit(0);
   }
 
+  let errors = 0;
   for (const f of files) {
-    const source = fs.readFileSync(f, "utf8");
-    const js = compile(source, { header: false });
+    if (!checkFile(f)) errors++;
+  }
 
-    const tmpFile = path.join(
-      require("os").tmpdir(),
-      `purus_run_${Date.now()}_${Math.random().toString(36).slice(2)}.js`
-    );
-    try {
-      fs.writeFileSync(tmpFile, js, "utf8");
-      execFileSync(process.execPath, [tmpFile], {
-        stdio: "inherit",
-        cwd: path.dirname(f),
-      });
-    } finally {
-      try {
-        fs.unlinkSync(tmpFile);
-      } catch {
-        // ignore cleanup errors
-      }
-    }
+  if (errors > 0) {
+    console.log(`\n${errors} file${errors === 1 ? "" : "s"} with errors.`);
+    process.exit(1);
+  } else {
+    console.log(`${files.length} file${files.length === 1 ? "" : "s"} checked. No errors.`);
+  }
+}
+
+function checkFile(file) {
+  try {
+    const source = fs.readFileSync(file, "utf8");
+    compile(source, { header: false });
+    return true;
+  } catch (err) {
+    console.log(`${file}: ${err.message}`);
+    return false;
   }
 }
 
@@ -100,7 +89,7 @@ function findPurusFiles(dir) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       results.push(...findPurusFiles(fullPath));
-    } else if (/\.(c|m)?purus$/.test(entry.name)) {
+    } else if (/\.(c|m)?purus$/.test(entry.name) && entry.name !== "config.purus") {
       results.push(fullPath);
     }
   }

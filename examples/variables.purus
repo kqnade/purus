@@ -1,0 +1,28 @@
+-- Variables and Data Types
+
+-- Constants
+const name be ///Alice///
+const age be 30
+const pi be 3.14159
+const is-active be true
+
+-- Variables
+let score be 100
+score be score add 50
+
+-- Null and undefined
+const nothing be null
+const also-nothing be nil
+const not-set be undefined
+
+-- Arrays
+const numbers be [1, 2, 3, 4, 5]
+const mixed be [///hello///; 42; true; null]
+
+-- Objects
+const person be [name be ///Bob///, age be 25]
+const empty-obj be [be]
+
+-- Destructuring
+const weather be [///Sunny///; ///Rainy///]
+const [today; tomorrow] be weather

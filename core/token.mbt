@@ -24,10 +24,11 @@ pub(all) enum TokenKind {
   Div
   Mod
   Neg
+  Pow
 
   // Comparison
   Eq
-  Ne
+  Neq
   Lt
   Gt
   Le
@@ -98,6 +99,8 @@ pub(all) enum TokenKind {
   Comma       // ,
   Semicolon   // ;
   Dot         // .
+  DotDot      // ..   (inclusive range)
+  DotDotDot   // ...  (exclusive range)
 
   // Line-related
   Newline

@@ -88,6 +88,35 @@ add(1, 2);
 console.log("hello");
 ```
 
+### Nested function calls
+
+In JavaScript, nested calls like `a(b(c), d)` use `()`. In Purus, since `[]` is used for both arrays and calls, use `;` to separate arguments:
+
+```
+-- JS: a(b(c), d)
+a[b[c]; d]
+
+-- JS: a(b, c(d, e))
+a[b; c[d; e]]
+
+-- JS: console.log(Math.max(1, 2))
+console.log[Math.max[1; 2]]
+
+-- JS: fn(a(1, 2), b(3, 4), c)
+fn[a[1; 2]; b[3; 4]; c]
+
+-- JS: outer(inner1(x), inner2(y, z))
+outer[inner1[x]; inner2[y; z]]
+```
+
+```js
+a(b(c), d);
+a(b, c(d, e));
+console.log(Math.max(1, 2));
+fn(a(1, 2), b(3, 4), c);
+outer(inner1(x), inner2(y, z));
+```
+
 ## Type annotations (erased)
 
 ```

@@ -200,7 +200,18 @@ pub fn Lexer::tokenize(self : Lexer) -> Array[Token] {
       let line = self.line
       let col = self.col
       self.advance() |> ignore
-      self.emit(Dot, line, col)
+      // Check for .. (inclusive range) and ... (exclusive range)
+      if self.peek() == '.' {
+        self.advance() |> ignore
+        if self.peek() == '.' {
+          self.advance() |> ignore
+          self.emit(DotDotDot, line, col)
+        } else {
+          self.emit(DotDot, line, col)
+        }
+      } else {
+        self.emit(Dot, line, col)
+      }
       continue
     }
     // Identifiers and keywords
@@ -412,8 +423,9 @@ fn Lexer::scan_ident(self : Lexer) -> Unit {
     "div" => Div
     "mod" => Mod
     "neg" => Neg
+    "pow" => Pow
     "eq" => Eq
-    "ne" => Ne
+    "neq" => Neq
     "lt" => Lt
     "gt" => Gt
     "le" => Le
@@ -460,6 +472,7 @@ fn Lexer::scan_ident(self : Lexer) -> Unit {
     "default" => Default_
     "require" => Require_
     "use" => Use_
+    "namespace" => Mod_
     "pub" => Pub_
     "all" => All_
     "type" => Type_

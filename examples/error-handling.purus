@@ -1,0 +1,27 @@
+-- Error Handling
+
+-- Try-catch
+try
+  const data be JSON.parse[///invalid///]
+catch err
+  console.error[///Parse failed:///; err]
+
+-- Try-catch-finally
+try
+  const res be await fetch[///https://api.example.com/data///]
+catch err
+  console.error[err]
+finally
+  console.log[///done///]
+
+-- Throw
+fn validate value
+  unless value
+    throw new Error[///Invalid value///]
+  return value
+
+-- Try as expression
+const result be try
+  JSON.parse[///{"key": "value"}///]
+catch e
+  null

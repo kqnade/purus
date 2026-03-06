@@ -46,15 +46,18 @@ async function run() {
 
     // config.purus
     const configPurus = `-- Purus Configuration
-
 const entry be ///src///
 const output be ///dist///
 const header be true
 
 -- Linter settings
 const lint.no-var be ///warn///
+const lint.no-nil be ///warn///
 const lint.indent-size be 2
 const lint.max-line-length be ///off///
+const lint.no-trailing-whitespace be ///warn///
+const lint.no-unused-import be ///warn///
+const lint.consistent-naming be ///warn///
 `;
     fs.writeFileSync(path.join(projectDir, "config.purus"), configPurus);
 

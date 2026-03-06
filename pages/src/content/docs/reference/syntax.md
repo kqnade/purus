@@ -66,6 +66,64 @@ const arr2 be [1; 2; 3]   -- semicolons also work
 const empty be []
 ```
 
+### Array ranges
+
+```
+const inclusive be [0..5]   -- [0, 1, 2, 3, 4, 5]
+const exclusive be [0...5]  -- [0, 1, 2, 3, 4]
+```
+
+### Slicing
+
+Extract a portion of an array using `..` (inclusive) or `...` (exclusive):
+
+```
+const numbers be [0, 1, 2, 3, 4, 5, 6]
+const middle be numbers[2..4]    -- [2, 3, 4]
+const partial be numbers[1...4]  -- [1, 2, 3]
+```
+
+Compiles to:
+
+```js
+const middle = numbers.slice(2, 4 + 1);
+const partial = numbers.slice(1, 4);
+```
+
+### Splicing
+
+Replace a portion of an array by assigning to a slice:
+
+```
+numbers[2..4] be [///a///; ///b///; ///c///]
+-- numbers is now [0, 1, "a", "b", "c", 5, 6]
+```
+
+Compiles to:
+
+```js
+numbers.splice(2, 4 - 2 + 1, "a", "b", "c");
+```
+
+### Destructuring
+
+Extract values from arrays into variables:
+
+```
+const weather be [///Sunny///; ///Rainy///]
+const [today; tomorrow] be weather
+
+-- Swap variables
+[today; tomorrow] be [tomorrow; today]
+```
+
+Compiles to:
+
+```js
+const [today, tomorrow] = weather;
+[today, tomorrow] = [tomorrow, today];
+```
+
 ## Objects
 
 ```

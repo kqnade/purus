@@ -7,8 +7,7 @@ const { compile } = require("./purus-core.js");
 
 const args = process.argv.slice(3);
 
-let file = null;
-let directory = null;
+let entry = null;
 let output = null;
 let noHeader = false;
 let toStdout = false;
@@ -18,18 +17,18 @@ for (let i = 0; i < args.length; i++) {
     noHeader = true;
   } else if (args[i] === "--stdout") {
     toStdout = true;
-  } else if (args[i] === "--directory" || args[i] === "-d") {
-    directory = args[++i];
+  } else if (args[i] === "--entry" || args[i] === "-e") {
+    entry = args[++i];
   } else if (args[i] === "--output" || args[i] === "-o") {
     output = args[++i];
   } else if (!args[i].startsWith("-")) {
-    file = args[i];
+    entry = args[i];
   }
 }
 
-if (file) {
+if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile() && /\.(c|m)?purus$/.test(entry)) {
   // Single file - handle directly via compile API
-  const source = fs.readFileSync(file, "utf8");
+  const source = fs.readFileSync(entry, "utf8");
   const useHeader = !noHeader;
   const js = compile(source, { header: useHeader });
 
@@ -37,9 +36,9 @@ if (file) {
     process.stdout.write(js);
   } else {
     let ext = ".js";
-    if (file.endsWith(".cpurus")) ext = ".cjs";
-    else if (file.endsWith(".mpurus")) ext = ".mjs";
-    const base = file.replace(/\.(c|m)?purus$/, "");
+    if (entry.endsWith(".cpurus")) ext = ".cjs";
+    else if (entry.endsWith(".mpurus")) ext = ".mjs";
+    const base = entry.replace(/\.(c|m)?purus$/, "");
     const outputFile = output
       ? path.join(path.resolve(output), path.basename(base) + ext)
       : base + ext;
@@ -47,15 +46,15 @@ if (file) {
       fs.mkdirSync(path.resolve(output), { recursive: true });
     }
     fs.writeFileSync(outputFile, js);
-    console.log(`Compiled ${file} -> ${outputFile}`);
+    console.log(`Compiled ${entry} -> ${outputFile}`);
   }
 } else {
   let entryDir;
   let outputDir;
   let useHeader;
 
-  if (directory) {
-    entryDir = path.resolve(directory);
+  if (entry) {
+    entryDir = path.resolve(entry);
     outputDir = output ? path.resolve(output) : path.resolve("dist");
     useHeader = !noHeader;
 
@@ -75,10 +74,8 @@ if (file) {
       console.log("Error: no input file specified and no config.purus found");
       console.log("");
       console.log("Usage:");
-      console.log("  purus build <file>              Compile a single file");
-      console.log(
-        "  purus build --directory <dir>   Compile all files in directory"
-      );
+      console.log("  purus build <file|dir>           Compile a file or directory");
+      console.log("  purus build --entry <file|dir>   Specify entry");
       console.log(
         "  purus build                     Compile using config.purus"
       );

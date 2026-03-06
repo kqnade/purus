@@ -8,18 +8,19 @@ function printHelp() {
   console.log(`purus v${VERSION} - A language that compiles to JavaScript`);
   console.log("");
   console.log("Usage:");
-  console.log("  purus build [file]                  Compile to JavaScript");
-  console.log("  purus build --directory <dir>        Compile all files in directory");
+  console.log("  purus build [file|dir]               Compile to JavaScript");
+  console.log("  purus build --entry <file|dir>       Specify entry file or directory");
   console.log("  purus build --output <dir>           Specify output directory");
   console.log("  purus build                          Compile using config.purus");
   console.log("    .purus  -> .js");
   console.log("    .cpurus -> .cjs (CommonJS)");
   console.log("    .mpurus -> .mjs (ES Module)");
   console.log("  purus build --no-header [file]       Compile without header comment");
-  console.log("  purus run [file]                     Run without generating files");
-  console.log("  purus run --directory <dir>           Run all files in directory");
+  console.log("  purus run [file|dir]                 Run without generating files");
+  console.log("  purus run --entry <file|dir>         Run entry file or directory");
   console.log("  purus run                            Run using config.purus");
-  console.log("  purus check <file>                   Syntax check only");
+  console.log("  purus check [file|dir]               Syntax check only");
+  console.log("  purus check --entry <file|dir>       Check entry file or directory");
   console.log("  purus new [name] [-y]                Create a new project");
   console.log("  purus init                           Initialize project in current directory");
   console.log("  purus version                        Show version");
@@ -39,6 +40,9 @@ switch (cmd) {
     break;
   case "run":
     require("../lib/run-wrapper.js");
+    break;
+  case "check":
+    require("../lib/check-wrapper.js");
     break;
   case "version":
   case "--version":

@@ -11,6 +11,8 @@ pub(all) enum Expr {
   NullLit                   // null / nil
   UndefinedLit
   ArrayLit(Array[Expr])
+  RangeArray(Expr, Expr, Bool)  // [start..end] (inclusive=true) or [start...end] (inclusive=false)
+  Slice(Expr, Expr, Expr, Bool) // obj[start..end] (inclusive) or obj[start...end] (exclusive)
   ObjectLit(Array[(String, Expr)])
   
   // Identifiers & access
@@ -69,8 +71,9 @@ pub(all) enum BinOp {
   Mul
   Div
   Mod
+  Pow
   Eq
-  Ne
+  Neq
   Lt
   Gt
   Le
@@ -102,6 +105,7 @@ pub(all) enum MatchBody {
 pub(all) enum Stmt {
   // Variable declarations
   VarDecl(DeclKind, String, Expr)
+  DestructDecl(DeclKind, Array[String], Expr) // const/let/var [a, b] = expr
 
   // Assignment
   Assign(Expr, Expr)

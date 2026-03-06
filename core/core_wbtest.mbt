@@ -65,7 +65,7 @@ test "lexer: keywords" {
 }
 
 test "lexer: operators" {
-  let lexer = Lexer::new("add sub mul div mod eq ne lt gt le ge and or not neg")
+  let lexer = Lexer::new("add sub mul div mod pow eq neq lt gt le ge and or not neg")
   let tokens = lexer.tokenize()
   assert_eq(tokens[0].kind, Indent(0))
   assert_eq(tokens[1].kind, Add)
@@ -73,16 +73,17 @@ test "lexer: operators" {
   assert_eq(tokens[3].kind, Mul)
   assert_eq(tokens[4].kind, Div)
   assert_eq(tokens[5].kind, Mod)
-  assert_eq(tokens[6].kind, Eq)
-  assert_eq(tokens[7].kind, Ne)
-  assert_eq(tokens[8].kind, Lt)
-  assert_eq(tokens[9].kind, Gt)
-  assert_eq(tokens[10].kind, Le)
-  assert_eq(tokens[11].kind, Ge)
-  assert_eq(tokens[12].kind, And)
-  assert_eq(tokens[13].kind, Or)
-  assert_eq(tokens[14].kind, Not)
-  assert_eq(tokens[15].kind, Neg)
+  assert_eq(tokens[6].kind, Pow)
+  assert_eq(tokens[7].kind, Eq)
+  assert_eq(tokens[8].kind, Neq)
+  assert_eq(tokens[9].kind, Lt)
+  assert_eq(tokens[10].kind, Gt)
+  assert_eq(tokens[11].kind, Le)
+  assert_eq(tokens[12].kind, Ge)
+  assert_eq(tokens[13].kind, And)
+  assert_eq(tokens[14].kind, Or)
+  assert_eq(tokens[15].kind, Not)
+  assert_eq(tokens[16].kind, Neg)
 }
 
 test "lexer: punctuation" {
@@ -669,4 +670,221 @@ test "parser: import default" {
 test "parser: multiple statements" {
   let stmts = parse("const x be 1\nconst y be 2\nconst z be x add y")
   assert_eq(stmts.length(), 3)
+}
+
+// ============================================================
+// New feature tests
+// ============================================================
+
+test "lexer: neq keyword" {
+  let lexer = Lexer::new("neq")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[1].kind, Neq)
+}
+
+test "lexer: pow keyword" {
+  let lexer = Lexer::new("pow")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[1].kind, Pow)
+}
+
+test "lexer: dot dot" {
+  let lexer = Lexer::new("[0..10]")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[0].kind, Indent(0))
+  assert_eq(tokens[1].kind, LBracket)
+  assert_eq(tokens[2].kind, Int(0))
+  assert_eq(tokens[3].kind, DotDot)
+  assert_eq(tokens[4].kind, Int(10))
+  assert_eq(tokens[5].kind, RBracket)
+}
+
+test "lexer: dot dot dot" {
+  let lexer = Lexer::new("[0...10]")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[0].kind, Indent(0))
+  assert_eq(tokens[1].kind, LBracket)
+  assert_eq(tokens[2].kind, Int(0))
+  assert_eq(tokens[3].kind, DotDotDot)
+  assert_eq(tokens[4].kind, Int(10))
+  assert_eq(tokens[5].kind, RBracket)
+}
+
+test "lexer: namespace keyword" {
+  let lexer = Lexer::new("namespace")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[1].kind, Mod_)
+}
+
+test "parser: neq operator" {
+  let stmts = parse("const r be x neq y")
+  match stmts[0] {
+    VarDecl(Const_, _, BinOp(Neq, Ident(l), Ident(r))) => {
+      assert_eq(l, "x")
+      assert_eq(r, "y")
+    }
+    _ => fail("expected BinOp Neq")
+  }
+}
+
+test "parser: not eq operator" {
+  let stmts = parse("const r be x not eq y")
+  match stmts[0] {
+    VarDecl(Const_, _, BinOp(Neq, Ident(l), Ident(r))) => {
+      assert_eq(l, "x")
+      assert_eq(r, "y")
+    }
+    _ => fail("expected BinOp Neq from not eq")
+  }
+}
+
+test "parser: lt eq becomes Le" {
+  let stmts = parse("const r be x lt eq y")
+  match stmts[0] {
+    VarDecl(Const_, _, BinOp(Le, Ident(l), Ident(r))) => {
+      assert_eq(l, "x")
+      assert_eq(r, "y")
+    }
+    _ => fail("expected BinOp Le from lt eq")
+  }
+}
+
+test "parser: gt eq becomes Ge" {
+  let stmts = parse("const r be x gt eq y")
+  match stmts[0] {
+    VarDecl(Const_, _, BinOp(Ge, Ident(l), Ident(r))) => {
+      assert_eq(l, "x")
+      assert_eq(r, "y")
+    }
+    _ => fail("expected BinOp Ge from gt eq")
+  }
+}
+
+test "parser: pow operator" {
+  let stmts = parse("const r be 2 pow 3")
+  match stmts[0] {
+    VarDecl(Const_, _, BinOp(Pow, IntLit(2), IntLit(3))) => ()
+    _ => fail("expected BinOp Pow")
+  }
+}
+
+test "parser: pow right-associative" {
+  let stmts = parse("const r be 2 pow 3 pow 4")
+  match stmts[0] {
+    VarDecl(Const_, _, BinOp(Pow, IntLit(2), BinOp(Pow, IntLit(3), IntLit(4)))) => ()
+    _ => fail("expected right-associative Pow")
+  }
+}
+
+test "parser: inclusive range [0..5]" {
+  let stmts = parse("const r be [0..5]")
+  match stmts[0] {
+    VarDecl(Const_, _, RangeArray(IntLit(0), IntLit(5), inclusive)) =>
+      assert_true(inclusive)
+    _ => fail("expected RangeArray inclusive")
+  }
+}
+
+test "parser: exclusive range [0...5]" {
+  let stmts = parse("const r be [0...5]")
+  match stmts[0] {
+    VarDecl(Const_, _, RangeArray(IntLit(0), IntLit(5), inclusive)) =>
+      assert_true(not(inclusive))
+    _ => fail("expected RangeArray exclusive")
+  }
+}
+
+// ===== Slice tests =====
+
+test "parser: inclusive slice" {
+  let stmts = Parser::new(Lexer::new("numbers[2..4]").tokenize()).parse()
+  match stmts[0] {
+    ExprStmt(Slice(Ident(name), IntLit(2), IntLit(4), inclusive)) => {
+      assert_eq(name, "numbers")
+      assert_true(inclusive)
+    }
+    _ => fail("expected Slice inclusive")
+  }
+}
+
+test "parser: exclusive slice" {
+  let stmts = Parser::new(Lexer::new("numbers[2...4]").tokenize()).parse()
+  match stmts[0] {
+    ExprStmt(Slice(Ident(name), IntLit(2), IntLit(4), inclusive)) => {
+      assert_eq(name, "numbers")
+      assert_true(not(inclusive))
+    }
+    _ => fail("expected Slice exclusive")
+  }
+}
+
+test "parser: slice with dot access" {
+  let stmts = Parser::new(Lexer::new("obj.arr[1..3]").tokenize()).parse()
+  match stmts[0] {
+    ExprStmt(Slice(DotAccess(Ident(obj), field), IntLit(1), IntLit(3), _)) => {
+      assert_eq(obj, "obj")
+      assert_eq(field, "arr")
+    }
+    _ => fail("expected Slice on dot access")
+  }
+}
+
+test "parser: splice assignment" {
+  let stmts = Parser::new(
+    Lexer::new("numbers[2..4] be [///a///; ///b///]").tokenize(),
+  ).parse()
+  match stmts[0] {
+    Assign(Slice(Ident(name), IntLit(2), IntLit(4), inclusive), ArrayLit(elems)) => {
+      assert_eq(name, "numbers")
+      assert_true(inclusive)
+      assert_eq(elems.length(), 2)
+    }
+    _ => fail("expected Assign with Slice target")
+  }
+}
+
+// ===== Destructuring tests =====
+
+test "parser: const destructuring" {
+  let stmts = Parser::new(
+    Lexer::new("const [a; b] be weather").tokenize(),
+  ).parse()
+  match stmts[0] {
+    DestructDecl(Const_, names, Ident(src)) => {
+      assert_eq(names.length(), 2)
+      assert_eq(names[0], "a")
+      assert_eq(names[1], "b")
+      assert_eq(src, "weather")
+    }
+    _ => fail("expected DestructDecl")
+  }
+}
+
+test "parser: let destructuring" {
+  let stmts = Parser::new(
+    Lexer::new("let [x; y; z] be arr").tokenize(),
+  ).parse()
+  match stmts[0] {
+    DestructDecl(Let_, names, Ident(src)) => {
+      assert_eq(names.length(), 3)
+      assert_eq(names[0], "x")
+      assert_eq(names[1], "y")
+      assert_eq(names[2], "z")
+      assert_eq(src, "arr")
+    }
+    _ => fail("expected DestructDecl let")
+  }
+}
+
+test "parser: destructuring swap" {
+  let stmts = Parser::new(
+    Lexer::new("[a; b] be [b; a]").tokenize(),
+  ).parse()
+  match stmts[0] {
+    Assign(ArrayLit(lhs), ArrayLit(rhs)) => {
+      assert_eq(lhs.length(), 2)
+      assert_eq(rhs.length(), 2)
+    }
+    _ => fail("expected Assign with ArrayLit swap")
+  }
 }

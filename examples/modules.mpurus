@@ -1,0 +1,26 @@
+-- Modules and Imports
+
+-- ES Module imports
+import express from ///express///
+import [useState; useEffect] from ///react///
+import all as fs from ///fs///
+
+-- Use (dot path imports)
+use std.math
+from std.math use sin; cos
+
+-- Module namespace
+namespace utils
+  pub fn helper to 42
+  pub const VERSION be ///1.0///
+
+-- Export
+pub fn greet name to ///Hello, /// add name
+pub const MAX-SIZE be 100
+
+-- Default export
+export default fn main
+  console.log[///running///]
+
+-- CommonJS
+const path be require[///path///]

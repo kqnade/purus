@@ -88,6 +88,35 @@ add(1, 2);
 console.log("hello");
 ```
 
+### ネストされた関数呼び出し
+
+JavaScriptでは `a(b(c), d)` のようにネストした呼び出しには `()` を使います。Purusでは `[]` を配列と呼び出しの両方に使うため、引数の区切りに `;` を使います:
+
+```
+-- JS: a(b(c), d)
+a[b[c]; d]
+
+-- JS: a(b, c(d, e))
+a[b; c[d; e]]
+
+-- JS: console.log(Math.max(1, 2))
+console.log[Math.max[1; 2]]
+
+-- JS: fn(a(1, 2), b(3, 4), c)
+fn[a[1; 2]; b[3; 4]; c]
+
+-- JS: outer(inner1(x), inner2(y, z))
+outer[inner1[x]; inner2[y; z]]
+```
+
+```js
+a(b(c), d);
+a(b, c(d, e));
+console.log(Math.max(1, 2));
+fn(a(1, 2), b(3, 4), c);
+outer(inner1(x), inner2(y, z));
+```
+
 ## 型注釈（消去される）
 
 ```

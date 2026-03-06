@@ -64,7 +64,7 @@ sidebar:
 | `default` | `default` | デフォルトエクスポート |
 | `require` | `require()` | CJS require |
 | `use` | `import` | ドットパスインポート |
-| `mod` | IIFE | モジュール名前空間 |
+| `namespace` | IIFE | モジュール名前空間 |
 | `pub` | `export` | 公開エクスポート |
 | `all` | `* as` | 名前空間インポート |
 
@@ -79,6 +79,7 @@ sidebar:
 | `mul` | `*` |
 | `div` | `/` |
 | `mod` | `%` |
+| `pow` | `**` |
 | `neg` | `-`（単項） |
 
 ### 比較
@@ -86,11 +87,11 @@ sidebar:
 | キーワード | JS出力 |
 |---|---|
 | `eq` | `===` |
-| `ne` | `!==` |
+| `neq` / `not eq` | `!==` |
 | `lt` | `<` |
 | `gt` | `>` |
-| `le` | `<=` |
-| `ge` | `>=` |
+| `le` / `lt eq` | `<=` |
+| `ge` / `gt eq` | `>=` |
 
 ### 論理
 

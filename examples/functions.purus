@@ -1,0 +1,30 @@
+-- Functions
+
+-- Named function with block body
+fn greet name
+  console.log[///Hello, /// add name add ///!///]
+
+-- Named function with expression body
+fn double x to x mul 2
+
+-- Multiple parameters (separated by semicolons)
+fn add-numbers a; b to a add b
+
+-- Anonymous function
+const square be fn x to x mul 2
+
+-- Async function
+async fn fetch-data url
+  const res be await fetch[url]
+  return res
+
+-- Function calls
+greet[///World///]
+const result be add-numbers[3; 4]
+
+-- Nested function calls use semicolons to separate args
+console.log[Math.max[1; 2]]
+console.log[add-numbers[10; 20]]
+
+-- Type annotations (erased in output)
+fn multiply a of Number; b of Number gives Number to a mul b

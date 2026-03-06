@@ -66,6 +66,64 @@ const arr2 be [1; 2; 3]   -- セミコロンも使用可能
 const empty be []
 ```
 
+### 配列の範囲
+
+```
+const inclusive be [0..5]   -- [0, 1, 2, 3, 4, 5]
+const exclusive be [0...5]  -- [0, 1, 2, 3, 4]
+```
+
+### スライス（切り出し）
+
+`..`（包含）または `...`（排他）を使って配列の一部を切り出します:
+
+```
+const numbers be [0, 1, 2, 3, 4, 5, 6]
+const middle be numbers[2..4]    -- [2, 3, 4]
+const partial be numbers[1...4]  -- [1, 2, 3]
+```
+
+コンパイル結果:
+
+```js
+const middle = numbers.slice(2, 4 + 1);
+const partial = numbers.slice(1, 4);
+```
+
+### スプライス（部分置換）
+
+スライスに代入することで配列の一部を置換できます:
+
+```
+numbers[2..4] be [///a///; ///b///; ///c///]
+-- numbers は [0, 1, "a", "b", "c", 5, 6] になります
+```
+
+コンパイル結果:
+
+```js
+numbers.splice(2, 4 - 2 + 1, "a", "b", "c");
+```
+
+### 分割代入
+
+配列から変数に値を取り出します:
+
+```
+const weather be [///Sunny///; ///Rainy///]
+const [today; tomorrow] be weather
+
+-- 変数の値を入れ替える
+[today; tomorrow] be [tomorrow; today]
+```
+
+コンパイル結果:
+
+```js
+const [today, tomorrow] = weather;
+[today, tomorrow] = [tomorrow, today];
+```
+
 ## オブジェクト
 
 ```

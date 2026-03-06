@@ -70,12 +70,64 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.gen_expr(value)
       self.write(";\n")
     }
-    Assign(target, value) => {
+    DestructDecl(kind, names, value) => {
+      let kw = match kind {
+        Const_ => "const"
+        Let_ => "let"
+        Var_ => "var"
+      }
       self.write_indent()
-      self.gen_expr(target)
-      self.write(" = ")
+      self.write(kw)
+      self.write(" [")
+      let mut first = true
+      for n in names {
+        if not(first) {
+          self.write(", ")
+        }
+        self.write(js_ident(n))
+        first = false
+      }
+      self.write("] = ")
       self.gen_expr(value)
       self.write(";\n")
+    }
+    Assign(target, value) => {
+      match target {
+        Slice(obj, start, end, inclusive) => {
+          // Splice: arr[start..end] be value → arr.splice(start, end - start + 1, ...value)
+          self.write_indent()
+          self.gen_expr(obj)
+          self.write(".splice(")
+          self.gen_expr(start)
+          self.write(", ")
+          self.gen_expr_wrap(end)
+          self.write(" - ")
+          self.gen_expr_wrap(start)
+          if inclusive {
+            self.write(" + 1")
+          }
+          match value {
+            ArrayLit(elems) => {
+              for e in elems {
+                self.write(", ")
+                self.gen_expr(e)
+              }
+            }
+            _ => {
+              self.write(", ...")
+              self.gen_expr(value)
+            }
+          }
+          self.write(");\n")
+        }
+        _ => {
+          self.write_indent()
+          self.gen_expr(target)
+          self.write(" = ")
+          self.gen_expr(value)
+          self.write(";\n")
+        }
+      }
     }
     FnDecl(decl) => self.gen_fn_decl(decl)
     If(cond, body, elifs, else_body) =>
@@ -352,10 +404,39 @@ fn JsCodegen::gen_stmt_inline(self : JsCodegen, stmt : Stmt) -> Unit {
       self.write(";")
     }
     Assign(target, value) => {
-      self.gen_expr(target)
-      self.write(" = ")
-      self.gen_expr(value)
-      self.write(";")
+      match target {
+        Slice(obj, start, end, inclusive) => {
+          self.gen_expr(obj)
+          self.write(".splice(")
+          self.gen_expr(start)
+          self.write(", ")
+          self.gen_expr_wrap(end)
+          self.write(" - ")
+          self.gen_expr_wrap(start)
+          if inclusive {
+            self.write(" + 1")
+          }
+          match value {
+            ArrayLit(elems) => {
+              for e in elems {
+                self.write(", ")
+                self.gen_expr(e)
+              }
+            }
+            _ => {
+              self.write(", ...")
+              self.gen_expr(value)
+            }
+          }
+          self.write(");")
+        }
+        _ => {
+          self.gen_expr(target)
+          self.write(" = ")
+          self.gen_expr(value)
+          self.write(";")
+        }
+      }
     }
     _ => self.gen_stmt(stmt) // fallback
   }

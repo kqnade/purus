@@ -64,7 +64,7 @@ sidebar:
 | `default` | `default` | Default export |
 | `require` | `require()` | CJS require |
 | `use` | `import` | Dot-path import |
-| `mod` | IIFE | Module namespace |
+| `namespace` | IIFE | Module namespace |
 | `pub` | `export` | Public export |
 | `all` | `* as` | Namespace import |
 
@@ -79,6 +79,7 @@ sidebar:
 | `mul` | `*` |
 | `div` | `/` |
 | `mod` | `%` |
+| `pow` | `**` |
 | `neg` | `-` (unary) |
 
 ### Comparison
@@ -86,11 +87,11 @@ sidebar:
 | Keyword | JS Output |
 |---|---|
 | `eq` | `===` |
-| `ne` | `!==` |
+| `neq` / `not eq` | `!==` |
 | `lt` | `<` |
 | `gt` | `>` |
-| `le` | `<=` |
-| `ge` | `>=` |
+| `le` / `lt eq` | `<=` |
+| `ge` / `gt eq` | `>=` |
 
 ### Logical
 
