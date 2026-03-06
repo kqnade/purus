@@ -35,7 +35,8 @@
    - 5.4 [Logical](#54-logical)
    - 5.5 [Nullish Coalescing](#55-nullish-coalescing)
    - 5.6 [Pipeline](#56-pipeline)
-   - 5.7 [Type Check and Cast](#57-type-check-and-cast)
+   - 5.7 [Optional Chaining](#57-optional-chaining)
+   - 5.8 [Type Check and Cast](#58-type-check-and-cast)
 6. [Declarations](#6-declarations)
    - 6.1 [Variable Declaration](#61-variable-declaration)
    - 6.2 [Array Destructuring](#62-array-destructuring)
@@ -50,7 +51,10 @@
    - 7.5 [Anonymous Functions](#75-anonymous-functions)
    - 7.6 [Async Functions](#76-async-functions)
    - 7.7 [Function Calls](#77-function-calls)
-   - 7.8 [Type Annotations](#78-type-annotations)
+   - 7.8 [Computed Access](#78-computed-access)
+   - 7.9 [Async Function Expressions](#79-async-function-expressions)
+   - 7.10 [Inline Callbacks](#710-inline-callbacks)
+   - 7.11 [Type Annotations](#711-type-annotations)
 8. [Control Flow](#8-control-flow)
    - 8.1 [If / Elif / Else](#81-if--elif--else)
    - 8.2 [Unless](#82-unless)
@@ -70,18 +74,20 @@
     - 10.2 [Use (Dot-path Import)](#102-use-dot-path-import)
     - 10.3 [Export / Pub](#103-export--pub)
     - 10.4 [Namespace](#104-namespace)
-    - 10.5 [CommonJS](#105-commonjs)
-    - 10.6 [Dynamic Import](#106-dynamic-import)
+    - 10.5 [Side-Effect Import](#105-side-effect-import)
+    - 10.6 [CommonJS](#106-commonjs)
+    - 10.7 [Dynamic Import](#107-dynamic-import)
 11. [Array Operations](#11-array-operations)
     - 11.1 [Ranges](#111-ranges)
     - 11.2 [Slicing](#112-slicing)
     - 11.3 [Splicing](#113-splicing)
-12. [Indentation and Block Structure](#12-indentation-and-block-structure)
-13. [Code Generation](#13-code-generation)
-    - 13.1 [Identifier Mapping](#131-identifier-mapping)
-    - 13.2 [Type Erasure](#132-type-erasure)
-14. [Keyword Reference Table](#14-keyword-reference-table)
-15. [Grammar Summary (EBNF-like)](#15-grammar-summary-ebnf-like)
+12. [Multi-line Brackets](#12-multi-line-brackets)
+13. [Indentation and Block Structure](#13-indentation-and-block-structure)
+14. [Code Generation](#14-code-generation)
+    - 14.1 [Identifier Mapping](#141-identifier-mapping)
+    - 14.2 [Type Erasure](#142-type-erasure)
+15. [Keyword Reference Table](#15-keyword-reference-table)
+16. [Grammar Summary (EBNF-like)](#16-grammar-summary-ebnf-like)
 
 ---
 
@@ -178,7 +184,7 @@ The following words are reserved and cannot be used as identifiers:
 | Null | `null` / `nil` | `null` |
 | Undefined | `undefined` | `undefined` |
 
-**Negative number literals** are recognized after these tokens: `[`, `,`, `;`, `be`, newline, indent, `return`, `to`, `then`, `coal`.
+**Negative number literals** are recognized after these tokens: `[`, `,`, `;`, `be`, `\`, newline, indent, `return`, `to`, `then`, `coal`.
 
 ### 3.5 Punctuation
 
@@ -189,6 +195,8 @@ The following words are reserved and cannot be used as identifiers:
 | `,` | Comma | Separator (arrays, objects) |
 | `;` | Semicolon | Separator (function args, params, destructuring) |
 | `.` | Dot | Property access |
+| `\.` | Optional dot | Optional chaining (`?.`) |
+| `\` | Backslash | Computed access prefix (`[...]`) |
 | `..` | Double dot | Inclusive range |
 | `...` | Triple dot | Exclusive range |
 
@@ -370,7 +378,7 @@ From lowest to highest:
 | 8 | `mul` / `div` / `mod` | Multiplication / Division / Modulo |
 | 9 | `pow` | Exponentiation (right-associative) |
 | 10 | `not` / `neg` / `typeof` / `await` / `delete` / `new` | Unary |
-| 11 | `.` access / `[args]` call / `as` cast | Postfix |
+| 11 | `.` access / `\.` optional / `[args]` call / `[\expr]` access / `as` cast | Postfix |
 | 12 | Literals, identifiers, brackets | Primary |
 
 ### 5.2 Arithmetic
@@ -443,7 +451,31 @@ Compilation rules:
 - `a pipe f[x; y]` → `f(a, x, y)` (prepends `a` as first argument)
 - `a pipe .method[x]` → `a.method(x)` (method call on `a`)
 
-### 5.7 Type Check and Cast
+### 5.7 Optional Chaining
+
+The `\.` operator provides safe property access on potentially null/undefined values. It compiles to JavaScript's optional chaining operator `?.`:
+
+```
+const name be user\.profile\.name
+const result be obj\.method[arg]
+```
+
+```js
+const name = user?.profile?.name;
+const result = obj?.method(arg);
+```
+
+`\.` can be used for:
+- **Property access:** `obj\.prop` → `obj?.prop`
+- **Method calls:** `obj\.method[args]` → `obj?.method(args)`
+
+Combine with `coal` for default values:
+
+```
+const display be user\.name coal ///anonymous///
+```
+
+### 5.8 Type Check and Cast
 
 **Type check with `is` / `eq`:**
 
@@ -686,7 +718,83 @@ a[b[c]; d]               -- a(b(c), d)
 outer[inner1[x]; inner2[y; z]]  -- outer(inner1(x), inner2(y, z))
 ```
 
-### 7.8 Type Annotations
+### 7.8 Computed Access
+
+To access array elements or object properties with a computed key, use `\` inside brackets to distinguish from function calls:
+
+```
+const item be arr[\index]
+const value be obj[\key]
+const first be arr[\0]
+```
+
+```js
+const item = arr[index];
+const value = obj[key];
+const first = arr[0];
+```
+
+Without the `\` prefix, brackets are interpreted as a function call: `arr[index]` → `arr(index)`.
+
+### 7.9 Async Function Expressions
+
+Async anonymous functions can be used as expressions:
+
+**Expression body:**
+
+```
+const fetch-data be async fn url to await fetch[url]
+```
+
+```js
+const fetchData = async (url) => await fetch(url);
+```
+
+**Block body:**
+
+```
+const process be async fn data
+  const result be await transform[data]
+  return result
+```
+
+```js
+const process = async (data) => {
+  const result = await transform(data);
+  return result;
+};
+```
+
+### 7.10 Inline Callbacks
+
+Anonymous functions (including async) can be passed directly as arguments in function calls, enabling method chaining with callbacks:
+
+```
+promise.then[fn result
+  console.log[result]
+].catch[fn err
+  console.error[err]
+]
+```
+
+```js
+promise.then((result) => {
+  console.log(result);
+}).catch((err) => {
+  console.error(err);
+});
+```
+
+With multi-line brackets, complex callback patterns become natural:
+
+```
+app.get[///path///; async fn req; res
+  const data be await fetch-data[]
+  res.json[data]
+]
+```
+
+### 7.11 Type Annotations
 
 Type annotations are erased in JavaScript:
 
@@ -955,7 +1063,23 @@ const utils = (() => {
 
 Compiles to an IIFE (Immediately Invoked Function Expression).
 
-### 10.5 CommonJS
+### 10.5 Side-Effect Import
+
+Import a module purely for its side effects (e.g., polyfills, configuration):
+
+```
+import ///dotenv/config///
+import ///./setup///
+```
+
+```js
+import "dotenv/config";
+import "./setup";
+```
+
+No bindings are introduced — the module is simply executed.
+
+### 10.6 CommonJS
 
 ```
 const fs be require[///fs///]
@@ -965,7 +1089,7 @@ const fs be require[///fs///]
 const fs = require("fs");
 ```
 
-### 10.6 Dynamic Import
+### 10.7 Dynamic Import
 
 Dynamic imports are supported through standard function call syntax:
 
@@ -1001,8 +1125,8 @@ const exclusive = Array.from({ length: 5 - 0 }, (_, i) => i + 0);
 Extract a portion of an array:
 
 ```
-const middle be numbers[2..4]     -- numbers.slice(2, 5)  — inclusive
-const partial be numbers[1...4]   -- numbers.slice(1, 4)  — exclusive
+const middle be numbers[\2..4]     -- numbers.slice(2, 5)  — inclusive
+const partial be numbers[\1...4]   -- numbers.slice(1, 4)  — exclusive
 ```
 
 ### 11.3 Splicing
@@ -1010,7 +1134,7 @@ const partial be numbers[1...4]   -- numbers.slice(1, 4)  — exclusive
 Assign to a slice to replace elements:
 
 ```
-numbers[2..4] be [///a///; ///b///; ///c///]
+numbers[\2..4] be [///a///; ///b///; ///c///]
 ```
 
 ```js
@@ -1019,7 +1143,44 @@ numbers.splice(2, 4 - 2 + 1, "a", "b", "c");
 
 ---
 
-## 12. Indentation and Block Structure
+## 12. Multi-line Brackets
+
+Bracket expressions (function calls, arrays, objects) can span multiple lines. Newlines, indentation, and comments inside brackets are treated as whitespace:
+
+**Multi-line array:**
+
+```
+const items be [
+  ///apple///,
+  ///banana///,
+  ///cherry///
+]
+```
+
+**Multi-line function call:**
+
+```
+server.listen[
+  port;
+  fn to console.log[///started///]
+]
+```
+
+**Multi-line object:**
+
+```
+const config be object[
+  host be ///localhost///,
+  port be 3000,
+  debug be true
+]
+```
+
+This enables naturally readable code for complex data structures and function calls with multiple arguments or inline callbacks.
+
+---
+
+## 13. Indentation and Block Structure
 
 Purus uses **indentation-based block structure** (off-side rule):
 
@@ -1039,9 +1200,9 @@ fn example x
 
 ---
 
-## 13. Code Generation
+## 14. Code Generation
 
-### 13.1 Identifier Mapping
+### 14.1 Identifier Mapping
 
 All hyphens in Purus identifiers are replaced with underscores in JavaScript output:
 
@@ -1051,7 +1212,7 @@ All hyphens in Purus identifiers are replaced with underscores in JavaScript out
 | `my_variable` | `my_variable` |
 | `get-user-name` | `get_user_name` |
 
-### 13.2 Type Erasure
+### 14.2 Type Erasure
 
 The following constructs are removed during code generation:
 - `of Type` — parameter type annotations
@@ -1061,7 +1222,7 @@ The following constructs are removed during code generation:
 
 ---
 
-## 14. Keyword Reference Table
+## 15. Keyword Reference Table
 
 ### Declaration
 
@@ -1117,6 +1278,7 @@ The following constructs are removed during code generation:
 | Keyword | JS Output | Description |
 |---------|-----------|-------------|
 | `import` | `import` | ESM import |
+| `import ///mod///` | `import "mod"` | Side-effect import |
 | `from` | `from` | Import source |
 | `export` | `export` | ESM export |
 | `default` | `default` | Default export |
@@ -1197,9 +1359,19 @@ The following constructs are removed during code generation:
 | `nil` | `null` | Null alias |
 | `undefined` | `undefined` | Undefined value |
 
+### Punctuation
+
+| Symbol | JS Output | Description |
+|--------|-----------|-------------|
+| `\.` | `?.` | Optional chaining |
+| `\` | _(computed prefix)_ | Computed access marker |
+| `.` | `.` | Property access |
+| `..` | _(inclusive range)_ | Inclusive range |
+| `...` | _(exclusive range)_ | Exclusive range |
+
 ---
 
-## 15. Grammar Summary (EBNF-like)
+## 16. Grammar Summary (EBNF-like)
 
 ```ebnf
 Program       = { Statement } ;
@@ -1255,7 +1427,8 @@ TryCatch      = "try" INDENT Block DEDENT
                 "catch" [Ident] INDENT Block DEDENT
                 ["finally" INDENT Block DEDENT] ;
 
-ImportDecl    = "import" ("all" "as" Ident | "[" IdentList "]" | Ident ["," "[" IdentList "]"])
+ImportDecl    = "import" String                          (* side-effect import *)
+              | "import" ("all" "as" Ident | "[" IdentList "]" | Ident ["," "[" IdentList "]"])
                 "from" String ;
 
 UseDecl       = "use" DottedName
@@ -1277,7 +1450,11 @@ Addition      = Multiplication { ("add" | "sub") Multiplication } ;
 Multiplication = Power { ("mul" | "div" | "mod") Power } ;
 Power         = Unary [ "pow" Power ] ;     (* right-associative *)
 Unary         = ("not" | "neg" | "typeof" | "await" | "new") Unary | Postfix ;
-Postfix       = Primary { "." Ident ["[" ArgList "]"] | "[" ArgList "]" | "as" Ident } ;
+Postfix       = Primary { "." Ident ["[" ArgList "]"]
+              | "\." Ident ["[" ArgList "]"]
+              | "[" ArgList "]"
+              | "[\\" Expr "]"
+              | "as" Ident } ;
 Primary       = IntLit | FloatLit | StrLit | InterpStr | Regex
               | "true" | "false" | "null" | "nil" | "undefined" | "this"
               | Ident
@@ -1285,6 +1462,7 @@ Primary       = IntLit | FloatLit | StrLit | InterpStr | Regex
               | "object" "[" ObjEntries "]"
               | "[" BracketExpr "]"
               | "fn" ParamList ("to" Expr | INDENT Block DEDENT)
+              | "async" "fn" ParamList ("to" Expr | INDENT Block DEDENT)
               | "if" Expr "then" Expr "else" Expr
               | "match" Expr INDENT { MatchArm } DEDENT
               | "try" INDENT Block DEDENT "catch" [Ident] INDENT Block DEDENT
