@@ -2,44 +2,44 @@
 const {
   package: pkg = "purus",
   versionLabel = "Latest Version",
-  downloadsLabel = "Monthly Downloads",
+  downloadsLabel = "Monthly DLs",
   updatedLabel = "Last Updated",
 } = Astro.props;
 ---
 <npm-stats data-package={pkg}>
-  <div class="npm-stat">
-    <span class="npm-stat-label">{versionLabel}</span>
-    <span class="npm-stat-value" data-field="version">...</span>
-  </div>
-  <div class="npm-stat">
-    <span class="npm-stat-label">{downloadsLabel}</span>
-    <span class="npm-stat-value" data-field="downloads">...</span>
-  </div>
-  <div class="npm-stat">
-    <span class="npm-stat-label">{updatedLabel}</span>
-    <span class="npm-stat-value" data-field="updated">...</span>
+  <div class="npm-stats-grid">
+    <div class="npm-stat">
+      <span class="npm-stat-label">{versionLabel}</span>
+      <span class="npm-stat-value" data-field="version">...</span>
+    </div>
+    <div class="npm-stat">
+      <span class="npm-stat-label">{downloadsLabel}</span>
+      <span class="npm-stat-value" data-field="downloads">...</span>
+    </div>
+    <div class="npm-stat">
+      <span class="npm-stat-label">{updatedLabel}</span>
+      <span class="npm-stat-value" data-field="updated">...</span>
+    </div>
   </div>
 </npm-stats>
 
 <style>
-  npm-stats {
-    display: flex;
+  .npm-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 1fr;
     gap: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin: 1.5rem 0;
   }
   .npm-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 1 1 0;
+    display: grid;
+    place-items: center;
+    place-content: center;
+    margin-top: 0;
     padding: 0.75rem 1.5rem;
     border-radius: 0.5rem;
     background: var(--sl-color-bg-nav);
     border: 1px solid var(--sl-color-hairline);
-    min-width: 10rem;
+    box-sizing: border-box;
   }
   .npm-stat-label {
     font-size: 0.75rem;
@@ -47,6 +47,7 @@ const {
     letter-spacing: 0.05em;
     color: var(--sl-color-gray-3);
     margin-bottom: 0.25rem;
+    white-space: nowrap;
   }
   .npm-stat-value {
     font-size: 1.25rem;
@@ -68,9 +69,7 @@ class NpmStatsElement extends HTMLElement {
     const safePkg = encodeURIComponent(pkg);
 
     const [regResult, dlResult] = await Promise.allSettled([
-      fetch(`https://registry.npmjs.org/${safePkg}`, {
-        headers: { "Accept": "application/vnd.npm.install-v1+json" },
-      }).then(r => r.ok ? r.json() : null),
+      fetch(`https://registry.npmjs.org/${safePkg}`).then(r => r.ok ? r.json() : null),
       fetch(`https://api.npmjs.org/downloads/point/last-month/${safePkg}`).then(r => r.ok ? r.json() : null),
     ]);
 

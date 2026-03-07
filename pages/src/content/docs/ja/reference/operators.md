@@ -82,6 +82,17 @@ a eq string -- typeof a === "string"（型チェック）
 a is string -- typeof a === "string"（型チェック）
 ```
 
+:::tip
+`not eq` は `neq` のエイリアスです。どちらも同じ動作をします:
+
+```purus
+a neq b     -- a !== b
+a not eq b  -- a !== b
+```
+
+同様に、`lt eq` は `le` のエイリアス、`gt eq` は `ge` のエイリアスです。
+:::
+
 ## 配列の範囲
 
 `..`（包含）と `...`（排他）を使って数値範囲から配列を生成します:

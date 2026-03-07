@@ -7,7 +7,7 @@ sidebar:
 
 ## If / Elif / Else
 
-Purus uses indentation to define blocks 窶・no curly braces `{}` needed.
+Purus uses indentation to define blocks — no curly braces `{}` needed.
 
 ```purus
 if x lt 0

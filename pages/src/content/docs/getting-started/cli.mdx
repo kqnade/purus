@@ -226,10 +226,10 @@ purus new my-project -y
 
 When prompted (or with `-y`), the following packages are installed:
 
-- `purus` 窶・Compiler
-- `@puruslang/linter` 窶・Linter
-- `@puruslang/prettier-plugin-purus` 窶・Prettier plugin
-- `prettier` 窶・Code formatter
+- `purus` — Compiler
+- `@puruslang/linter` — Linter
+- `@puruslang/prettier-plugin-purus` — Prettier plugin
+- `prettier` — Code formatter
 
 ---
 
@@ -251,7 +251,7 @@ Display the installed Purus version.
 purus version
 ```
 
-Output: `purus v`<NpmVersion package="purus" />
+Output: <code>purus v <NpmVersion package="purus" /></code>
 
 Aliases: `purus --version`, `purus -v`
 
@@ -315,10 +315,10 @@ const lint.consistent-naming be ///off///
 
 The following commands read `config.purus` automatically when no file arguments are given:
 
-- **`purus build`** 窶・Uses `entry`, `output`, `header`, and `strict` settings
-- **`purus run`** 窶・Uses `entry` setting
-- **`purus check`** 窶・Uses `entry` setting
-- **`purus-lint`** 窶・Uses `lint.*` settings and `entry` for file discovery
+- **`purus build`** — Uses `entry`, `output`, `header`, and `strict` settings
+- **`purus run`** — Uses `entry` setting
+- **`purus check`** — Uses `entry` setting
+- **`purus-lint`** — Uses `lint.*` settings and `entry` for file discovery
 
 Command-line options (e.g. `--output`, `--entry`) override config values.
 

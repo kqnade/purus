@@ -1,7 +1,8 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
 
-const JA_DOCS_DIR = join(import.meta.dirname, "..", "src", "content", "docs", "ja");
+const DOCS_DIR = join(import.meta.dirname, "..", "src", "content", "docs");
+const JA_DOCS_DIR = join(DOCS_DIR, "ja");
 
 // Unicode replacement character (indicates failed decode)
 const REPLACEMENT_CHAR = /\uFFFD/;
@@ -10,7 +11,10 @@ const REPLACEMENT_CHAR = /\uFFFD/;
 const CONTROL_CHARS = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/;
 
 // Common Shift-JIS → UTF-8 mojibake sequences
-const MOJIBAKE_PATTERNS = /[\u8E7B\u89B3\u7E4A\u7E4B\u7E4C]\u{FF64}|繝[ｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺ]/u;
+const MOJIBAKE_PATTERNS = /[\u8E7B\u89B3\u7E4A\u7E4B\u7E4C]\u{FF64}|繝[ｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺ]|窶[・｢｣]/u;
+
+// CJK Unified Ideographs + CJK Compatibility Ideographs
+const CJK_CHARS = /[\u3000-\u9FFF\uF900-\uFAFF]/;
 
 // Hiragana or Katakana range (JA files must contain Japanese)
 const JAPANESE_CHARS = /[\u3040-\u309F\u30A0-\u30FF]/;
@@ -29,7 +33,7 @@ async function collectFiles(dir) {
   return files;
 }
 
-async function checkFile(filePath) {
+async function checkFile(filePath, isJa) {
   const content = await readFile(filePath, "utf-8");
   const errors = [];
 
@@ -43,25 +47,50 @@ async function checkFile(filePath) {
   }
 
   if (MOJIBAKE_PATTERNS.test(content)) {
-    errors.push("Contains suspected Shift-JIS mojibake sequences");
+    errors.push("Contains suspected mojibake sequences");
   }
 
-  if (!JAPANESE_CHARS.test(content)) {
-    errors.push("No Japanese characters found (hiragana/katakana missing)");
+  if (isJa) {
+    if (!JAPANESE_CHARS.test(content)) {
+      errors.push("No Japanese characters found (hiragana/katakana missing)");
+    }
+  } else {
+    if (CJK_CHARS.test(content)) {
+      const match = content.match(CJK_CHARS);
+      errors.push(`Contains unexpected CJK character: U+${match[0].codePointAt(0).toString(16).toUpperCase().padStart(4, "0")} "${match[0]}"`);
+    }
   }
 
   return errors;
 }
 
 async function main() {
-  const files = await collectFiles(JA_DOCS_DIR);
+  const jaFiles = await collectFiles(JA_DOCS_DIR);
+  const allFiles = await collectFiles(DOCS_DIR);
+  const enFiles = allFiles.filter(f => !f.startsWith(JA_DOCS_DIR));
   let hasError = false;
 
-  console.log(`Checking ${files.length} JA doc files for encoding issues...\n`);
+  console.log(`Checking ${enFiles.length} EN + ${jaFiles.length} JA doc files...\n`);
 
-  for (const file of files.sort()) {
+  console.log("--- EN docs ---");
+  for (const file of enFiles.sort()) {
+    const rel = relative(DOCS_DIR, file);
+    const errors = await checkFile(file, false);
+    if (errors.length > 0) {
+      hasError = true;
+      console.error(`FAIL  ${rel}`);
+      for (const e of errors) {
+        console.error(`      - ${e}`);
+      }
+    } else {
+      console.log(`OK    ${rel}`);
+    }
+  }
+
+  console.log("\n--- JA docs ---");
+  for (const file of jaFiles.sort()) {
     const rel = relative(JA_DOCS_DIR, file);
-    const errors = await checkFile(file);
+    const errors = await checkFile(file, true);
     if (errors.length > 0) {
       hasError = true;
       console.error(`FAIL  ${rel}`);

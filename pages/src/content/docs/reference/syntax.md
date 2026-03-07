@@ -183,7 +183,7 @@ const { name, age } = person;
 
 ## Brackets only
 
-Purus uses `[]` for everything 窶・function calls, arrays, objects, and grouping. No `()` or `{}`.
+Purus uses `[]` for everything — function calls, arrays, objects, and grouping. No `()` or `{}`.
 
 ### Computed Access
 
@@ -260,7 +260,7 @@ const my_variable2 be 43
 -- compiles to: const my_variable2 = 43;
 ```
 
-Hyphens and underscores are interchangeable 窶・`my-var` and `my_var` refer to the same JavaScript variable (`my_var`). If you need to work with JS libraries that use underscores, you can use either form in Purus.
+Hyphens and underscores are interchangeable — `my-var` and `my_var` refer to the same JavaScript variable (`my_var`). If you need to work with JS libraries that use underscores, you can use either form in Purus.
 
 :::caution
 Since `a-b` and `a_b` both compile to `a_b`, avoid defining both forms in the same scope. They will refer to the same variable.

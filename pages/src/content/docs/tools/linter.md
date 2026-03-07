@@ -1,6 +1,6 @@
 ---
 title: Linter
-description: "@puruslang/linter 窶・static analysis for Purus."
+description: "@puruslang/linter — static analysis for Purus."
 sidebar:
   order: 2
 ---

@@ -7,15 +7,15 @@ sidebar:
 
 ## Operator Precedence (low to high)
 
-1. `pipe` 窶・Pipeline
-2. `coal` 窶・Nullish coalescing
-3. `or` 窶・Logical OR
-4. `and` 窶・Logical AND
-5. `eq` / `neq` / `not eq` / `is` / `instanceof` 窶・Equality / Type check
-6. `lt` / `gt` / `le` (`lt eq`) / `ge` (`gt eq`) 窶・Comparison
-7. `add` / `sub` 窶・Addition / Subtraction
-8. `mul` / `div` / `mod` 窶・Multiplication / Division / Modulo
-9. `pow` 窶・Exponentiation
+1. `pipe` — Pipeline
+2. `coal` — Nullish coalescing
+3. `or` — Logical OR
+4. `and` — Logical AND
+5. `eq` / `neq` / `not eq` / `is` / `instanceof` — Equality / Type check
+6. `lt` / `gt` / `le` (`lt eq`) / `ge` (`gt eq`) — Comparison
+7. `add` / `sub` — Addition / Subtraction
+8. `mul` / `div` / `mod` — Multiplication / Division / Modulo
+9. `pow` — Exponentiation
 10. Unary: `not` / `neg` / `typeof` / `await` / `delete` / `new`
 11. Postfix: `.` access / `\.` optional chaining / `[args]` call / `[\expr]` computed access / `as` cast
 12. Primary: literals, identifiers, brackets
@@ -81,6 +81,17 @@ a is b     -- a === b (value comparison)
 a eq string -- typeof a === "string" (type check)
 a is string -- typeof a === "string" (type check)
 ```
+
+:::tip
+`not eq` is an alias for `neq`. Both work identically:
+
+```purus
+a neq b     -- a !== b
+a not eq b  -- a !== b
+```
+
+Similarly, `lt eq` is an alias for `le`, and `gt eq` is an alias for `ge`.
+:::
 
 ## Array Ranges
 

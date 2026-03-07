@@ -1,6 +1,6 @@
 ---
 title: Prettier Plugin
-description: "@puruslang/prettier-plugin-purus 窶・format Purus code with Prettier."
+description: "@puruslang/prettier-plugin-purus — format Purus code with Prettier."
 sidebar:
   order: 3
 ---
