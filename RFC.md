@@ -424,6 +424,8 @@ From lowest to highest:
 
 **Note:** `eq` and `is` are interchangeable. When followed by a type name, they become a type check (see [5.7](#57-type-check-and-cast)). Otherwise, they compile to `===`.
 
+**Note:** `not eq` is an alias for `neq`, `lt eq` is an alias for `le`, and `gt eq` is an alias for `ge`. Both forms compile to the same JavaScript output.
+
 ### 5.4 Logical
 
 | Purus | JS | Description |
