@@ -1,12 +1,13 @@
 {
   "name": "pages",
   "type": "module",
-  "version": "0.4.0",
+  "version": "-",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "check-encoding": "node scripts/check-encoding.js"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.37.6",

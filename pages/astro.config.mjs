@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 const purusGrammar = JSON.parse(
   readFileSync(new URL('../extension/syntaxes/purus.tmLanguage.json', import.meta.url), 'utf-8')
 );
+purusGrammar.name = 'purus';
 
 // https://astro.build/config
 export default defineConfig({

@@ -1,13 +1,13 @@
 ---
-title: 蛻ｶ蠕｡繝輔Ο繝ｼ
-description: Purus縺ｮ譚｡莉ｶ蛻・ｲ舌√Ν繝ｼ繝励√ヱ繧ｿ繝ｼ繝ｳ繝槭ャ繝√・
+title: 制御フロー
+description: Purusの条件分岐、ループ、パターンマッチング。
 sidebar:
   order: 4
 ---
 
 ## If / Elif / Else
 
-Purus縺ｯ繧､繝ｳ繝・Φ繝医〒繝悶Ο繝・け繧貞ｮ夂ｾｩ縺励∪縺・窶・豕｢諡ｬ蠑ｧ `{}` 縺ｯ荳崎ｦ√〒縺吶・
+Purusはインデントでブロックを定義します。波括弧 `{}` は不要です。
 
 ```purus
 if x lt 0
@@ -17,8 +17,6 @@ elif x eq 0
 else
   console.log[///positive///]
 ```
-
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 if (x < 0) {
@@ -31,7 +29,7 @@ if (x < 0) {
 ```
 
 :::tip
-`elif` 縺ｯ `else if` 縺ｮ繧ｨ繧､繝ｪ繧｢繧ｹ縺ｧ縺吶ゅ←縺｡繧峨ｂ蜷後§繧医≧縺ｫ菴ｿ縺医∪縺・
+`elif` は `else if` のエイリアスです。どちらも同じように動作します:
 
 ```purus
 if x lt 0
@@ -42,12 +40,12 @@ else
   console.log[///positive///]
 ```
 
-縺薙ｌ縺ｯ `elif` 縺ｨ蜷後§JavaScript縺ｫ繧ｳ繝ｳ繝代う繝ｫ縺輔ｌ縺ｾ縺吶・
+これは `elif` と同じJavaScriptにコンパイルされます。
 :::
 
-### 隍・焚陦後ヶ繝ｭ繝・け
+### 複数行ブロック
 
-`if`縲～elif`縲～else` 縺ｮ荳九↓繧､繝ｳ繝・Φ繝医＆繧後◆譁・・縺吶∋縺ｦ縺昴・繝悶Ο繝・け縺ｫ螻槭＠縺ｾ縺・
+`if`、`elif`、`else` の下にインデントされた文はそのブロックに属します:
 
 ```purus
 if logged-in
@@ -58,8 +56,6 @@ else
   console.log[///Please log in///]
   redirect[///login///]
 ```
-
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 if (loggedIn) {
@@ -74,7 +70,7 @@ if (loggedIn) {
 
 ## Unless
 
-`if` 縺ｮ蜷ｦ螳・
+否定の `if`:
 
 ```purus
 unless done
@@ -87,7 +83,7 @@ if (!(done)) {
 }
 ```
 
-## 繧､繝ｳ繝ｩ繧､繝ｳif・井ｸ蛾・ｼ皮ｮ怜ｭ撰ｼ・
+## インラインif（三項演算子）
 
 ```purus
 const result be if condition then 1 else 2
@@ -97,17 +93,15 @@ const result be if condition then 1 else 2
 const result = condition ? 1 : 2;
 ```
 
-## 蠕檎ｽｮ菫ｮ鬟ｾ蟄・
+## 後置修飾子
 
-遏ｭ縺・擅莉ｶ蛻・ｲ舌ｄ繝ｫ繝ｼ繝励ｒ1陦後〒譖ｸ縺代∪縺・
+短い条件分岐やループを1行で書けます:
 
 ```purus
 console.log[///debug///] if verbose
 console.log[///skip///] unless done
 console.log[item] for item in list
 ```
-
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 if (verbose) {
@@ -131,8 +125,6 @@ until finished
   do-work[]
 ```
 
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
-
 ```js
 while (i < 10) {
   i = i + 1;
@@ -155,7 +147,7 @@ for (const item of items) {
 }
 ```
 
-繧､繝ｳ繝・ャ繧ｯ繧ｹ莉倥″:
+インデックス付き:
 
 ```purus
 for i; item in items
@@ -190,8 +182,6 @@ match x
   else ///other///
 ```
 
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
-
 ```js
 if (x === 1) {
   "one";
@@ -202,7 +192,7 @@ if (x === 1) {
 }
 ```
 
-繧ｬ繝ｼ繝我ｻ倥″:
+ガード付き:
 
 ```purus
 match value
@@ -211,8 +201,6 @@ match value
   else
     console.log[///non-positive///]
 ```
-
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 if (value > 0) {
@@ -233,8 +221,6 @@ finally
   cleanup[]
 ```
 
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
-
 ```js
 try {
   risky();
@@ -245,7 +231,7 @@ try {
 }
 ```
 
-### 蠑上→縺励※縺ｮtry
+### 式としてのtry
 
 ```purus
 const result be try
@@ -253,8 +239,6 @@ const result be try
 catch e
   default-value
 ```
-
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 let result;
@@ -271,8 +255,6 @@ try {
 throw new Error[///something went wrong///]
 throw err if condition
 ```
-
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 throw new Error("something went wrong");

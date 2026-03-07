@@ -1,11 +1,11 @@
 ---
-title: 繝｢繧ｸ繝･繝ｼ繝ｫ
-description: Purus縺ｮ繧､繝ｳ繝昴・繝医√お繧ｯ繧ｹ繝昴・繝医√Δ繧ｸ繝･繝ｼ繝ｫ繧ｷ繧ｹ繝・Β縲・
+title: モジュール
+description: Purusのインポート、エクスポート、モジュールシステム。
 sidebar:
   order: 6
 ---
 
-## ESM繧､繝ｳ繝昴・繝・
+## ESMインポート
 
 ```purus
 import express from ///express///
@@ -14,9 +14,9 @@ import React, [Component] from ///react///
 import all as fs from ///fs///
 ```
 
-### 蜑ｯ菴懃畑縺ｮ縺ｿ縺ｮ繧､繝ｳ繝昴・繝・
+### 副作用インポート
 
-繝舌う繝ｳ繝・ぅ繝ｳ繧ｰ縺ｪ縺励〒繝｢繧ｸ繝･繝ｼ繝ｫ縺ｮ蜑ｯ菴懃畑縺縺代ｒ繧､繝ｳ繝昴・繝医＠縺ｾ縺・
+バインディングなしでモジュールの副作用のみをインポートします:
 
 ```purus
 import ///dotenv/config///
@@ -28,7 +28,7 @@ import "dotenv/config";
 import "./polyfills";
 ```
 
-## Use・医ラ繝・ヨ繝代せ繧､繝ｳ繝昴・繝茨ｼ・
+## Use（ドットパスインポート）
 
 ```purus
 use std.math
@@ -40,7 +40,7 @@ import * as math from "std/math";
 import { sin, cos } from "std/math";
 ```
 
-## 繧ｨ繧ｯ繧ｹ繝昴・繝・
+## エクスポート
 
 ```purus
 pub fn helper to 42
@@ -49,7 +49,7 @@ export default fn main
   console.log[///hi///]
 ```
 
-## 繝｢繧ｸ繝･繝ｼ繝ｫ蜷榊燕遨ｺ髢・
+## モジュール名前空間
 
 ```purus
 namespace utils

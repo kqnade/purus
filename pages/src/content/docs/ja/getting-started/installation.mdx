@@ -1,51 +1,51 @@
 ---
-title: 繧､繝ｳ繧ｹ繝医・繝ｫ
-description: Purus繧ｳ繝ｳ繝代う繝ｩ縺ｮ繧､繝ｳ繧ｹ繝医・繝ｫ譁ｹ豕輔・
+title: インストール
+description: Purusコンパイラのインストール方法。
 sidebar:
   order: 1
 ---
 
 import NpmVersion from '../../../../components/NpmVersion.astro';
 
-## npm縺ｧ繧､繝ｳ繧ｹ繝医・繝ｫ
+## npmでインストール
 
-譛譁ｰ繝舌・繧ｸ繝ｧ繝ｳ: <NpmVersion package="purus" />
+最新バージョン: <NpmVersion package="purus" />
 
 ```sh
 npm install -g purus
 ```
 
-## 遒ｺ隱・
+## 確認
 
 ```sh
 purus version
 ```
 
-## 譛蛻昴・繝励Ο繧ｰ繝ｩ繝
+## 最初のプログラム
 
-`hello.purus` 繧剃ｽ懈・:
+`hello.purus` を作成:
 
 ```purus
 const message be ///Hello, World///
 console.log[message]
 ```
 
-繧ｳ繝ｳ繝代う繝ｫ縺励※螳溯｡・
+コンパイルして実行:
 
 ```sh
 purus build hello.purus
 node hello.js
 ```
 
-縺ｾ縺溘・繝輔ぃ繧､繝ｫ繧堤函謌舌○縺壹↓逶ｴ謗･螳溯｡・
+またはファイルを生成せずに直接実行:
 
 ```sh
 purus run hello.purus
 ```
 
-## 繝励Ο繧ｸ繧ｧ繧ｯ繝医ｒ菴懈・
+## プロジェクトを作成
 
-`purus new` 縺ｧ險ｭ螳壹√せ繧ｯ繝ｪ繝励ヨ縲∽ｾ晏ｭ倬未菫ゅｒ蜷ｫ繧繝励Ο繧ｸ繧ｧ繧ｯ繝医ｒ繧ｻ繝・ヨ繧｢繝・・:
+`purus new` で設定、スクリプト、依存関係を含むプロジェクトをセットアップ:
 
 ```sh
 purus new my-project
@@ -53,10 +53,10 @@ cd my-project
 npm run build
 ```
 
-## 繝輔ぃ繧､繝ｫ諡｡蠑ｵ蟄・
+## ファイル拡張子
 
-| 諡｡蠑ｵ蟄・| 蜃ｺ蜉・| 逕ｨ騾・|
+| 拡張子 | 出力 | 用途 |
 |---|---|---|
-| `.purus` | `.js` | 讓呎ｺ褒avaScript |
-| `.cpurus` | `.cjs` | CommonJS繝｢繧ｸ繝･繝ｼ繝ｫ |
-| `.mpurus` | `.mjs` | ES繝｢繧ｸ繝･繝ｼ繝ｫ |
+| `.purus` | `.js` | 標準JavaScript |
+| `.cpurus` | `.cjs` | CommonJSモジュール |
+| `.mpurus` | `.mjs` | ESモジュール |

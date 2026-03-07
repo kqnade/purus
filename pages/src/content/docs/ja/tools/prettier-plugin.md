@@ -1,17 +1,17 @@
 ---
-title: Prettier繝励Λ繧ｰ繧､繝ｳ
-description: "@puruslang/prettier-plugin-purus 窶・Prettier縺ｧPurus繧ｳ繝ｼ繝峨ｒ繝輔か繝ｼ繝槭ャ繝医・
+title: Prettierプラグイン
+description: "@puruslang/prettier-plugin-purus  PrettierでPurusコードをフォーマット。"
 sidebar:
   order: 3
 ---
 
-## 繧､繝ｳ繧ｹ繝医・繝ｫ
+## インストール
 
 ```sh
 npm install -D prettier @puruslang/prettier-plugin-purus
 ```
 
-## 菴ｿ縺・婿
+## 使い方
 
 ### CLI
 
@@ -19,9 +19,9 @@ npm install -D prettier @puruslang/prettier-plugin-purus
 npx prettier --plugin @puruslang/prettier-plugin-purus --write "**/*.{purus,cpurus,mpurus}"
 ```
 
-### 險ｭ螳壹ヵ繧｡繧､繝ｫ
+### 設定ファイル
 
-`.prettierrc` 縺ｫ霑ｽ蜉:
+`.prettierrc` に追加:
 
 ```json
 {
@@ -30,18 +30,18 @@ npx prettier --plugin @puruslang/prettier-plugin-purus --write "**/*.{purus,cpur
 }
 ```
 
-## 繝輔か繝ｼ繝槭ャ繝亥・螳ｹ
+## フォーマット内容
 
-- **繧､繝ｳ繝・Φ繝・*: 荳雋ｫ縺励◆繧､繝ｳ繝・Φ繝医↓豁｣隕丞喧・医せ繝壹・繧ｹ縺ｾ縺溘・繧ｿ繝厄ｼ・
-- **繧ｹ繝壹・繧ｹ**: 繝医・繧ｯ繝ｳ髢薙・遨ｺ逋ｽ繧呈ｭ｣隕丞喧
-- **諡ｬ蠑ｧ**: 髢｢謨ｰ蜻ｼ縺ｳ蜃ｺ縺励・ `[]` 蜀・↓繧ｹ繝壹・繧ｹ繧貞・繧後↑縺・
-- **蛹ｺ蛻・ｊ譁・ｭ・*: `,` 縺ｨ `;` 縺ｮ蠕後↓繧ｹ繝壹・繧ｹ繧堤｢ｺ菫・
-- **譛ｫ蟆ｾ縺ｮ遨ｺ逋ｽ**: 譛ｫ蟆ｾ縺ｮ繧ｹ繝壹・繧ｹ繧貞炎髯､
-- **譛ｫ蟆ｾ縺ｮ謾ｹ陦・*: 繝輔ぃ繧､繝ｫ縺梧隼陦後〒邨ゅｏ繧九％縺ｨ繧剃ｿ晁ｨｼ
+- **インデント**: 一貫したインデント（スペースまたはタブ）に正規化
+- **スペース**: トークン間の空白を正規化
+- **ブラケット**: 関数呼び出しの `[]` 内のスペースなし
+- **区切り文字**: `,` と `;` の後にスペースを確保
+- **末尾空白**: 末尾のスペースを削除
+- **末尾改行**: ファイル末尾に改行を確保
 
-## 萓・
+## 例
 
-繝輔か繝ｼ繝槭ャ繝亥燕:
+フォーマット前:
 
 ```purus
 const x   be   42
@@ -49,7 +49,7 @@ fn greet   name
     console.log[  name  ]
 ```
 
-繝輔か繝ｼ繝槭ャ繝亥ｾ・
+フォーマット後:
 
 ```purus
 const x be 42

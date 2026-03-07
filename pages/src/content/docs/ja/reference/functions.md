@@ -1,18 +1,18 @@
 ---
-title: 髢｢謨ｰ
-description: Purus縺ｮ髢｢謨ｰ螳｣險縺ｨ蠑上・
+title: 関数
+description: Purusの関数宣言と関数式。
 sidebar:
   order: 5
 ---
 
-## 蜷榊燕莉倥″髢｢謨ｰ・医ヶ繝ｭ繝・け譛ｬ菴難ｼ・
+## 名前付き関数（ブロック本体）
 
 ```purus
 fn greet name
   console.log[name]
 ```
 
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
+コンパイル結果:
 
 ```js
 function greet(name) {
@@ -20,7 +20,7 @@ function greet(name) {
 }
 ```
 
-## 蜷榊燕莉倥″髢｢謨ｰ・亥ｼ乗悽菴難ｼ・
+## 名前付き関数（式本体）
 
 ```purus
 fn double x to x mul 2
@@ -32,9 +32,9 @@ function double(x) {
 }
 ```
 
-## 蠑墓焚縺ｪ縺鈴未謨ｰ
+## 引数なしの関数
 
-繝代Λ繝｡繝ｼ繧ｿ繧堤怐逡･縺吶ｋ縺縺代〒縺・
+パラメータを省略するだけです:
 
 ```purus
 fn say-hello
@@ -47,7 +47,7 @@ function sayHello() {
 }
 ```
 
-蠑乗悽菴薙・蝣ｴ蜷・
+式本体の場合:
 
 ```purus
 fn get-timestamp to Date.now[]
@@ -57,9 +57,9 @@ fn get-timestamp to Date.now[]
 function getTimestamp() { return Date.now(); }
 ```
 
-## 隍・焚繝代Λ繝｡繝ｼ繧ｿ
+## 複数パラメータ
 
-繝代Λ繝｡繝ｼ繧ｿ縺ｮ蛹ｺ蛻・ｊ縺ｫ縺ｯ `;` 繧剃ｽｿ縺・∪縺・
+`;` でパラメータを区切ります:
 
 ```purus
 fn add a; b
@@ -72,7 +72,7 @@ function add(a, b) {
 }
 ```
 
-## 辟｡蜷埼未謨ｰ
+## 無名関数
 
 ```purus
 const double be fn x to x mul 2
@@ -82,7 +82,7 @@ const double be fn x to x mul 2
 const double = (x) => x * 2;
 ```
 
-### 蠑墓焚縺ｪ縺礼┌蜷埼未謨ｰ
+### 引数なしの無名関数
 
 ```purus
 const get-time be fn to Date.now[]
@@ -92,7 +92,7 @@ const get-time be fn to Date.now[]
 const getTime = () => Date.now();
 ```
 
-### 繝悶Ο繝・け譛ｬ菴謎ｻ倥″辟｡蜷埼未謨ｰ
+### ブロック本体の無名関数
 
 ```purus
 const process be fn data
@@ -107,7 +107,7 @@ const process = (data) => {
 };
 ```
 
-## 髱槫酔譛滄未謨ｰ
+## 非同期関数
 
 ```purus
 async fn fetch-data url
@@ -122,9 +122,9 @@ async function fetchData(url) {
 }
 ```
 
-### 髱槫酔譛滄未謨ｰ蠑・
+### 非同期関数式
 
-`async` 繝励Ξ繝輔ぅ繝・け繧ｹ縺ｧ辟｡蜷阪・髱槫酔譛滄未謨ｰ繧剃ｽ懈・縺ｧ縺阪∪縺・
+非同期無名関数は通常の無名関数と同様に `async` プレフィックスを付けます:
 
 ```purus
 const handler be async fn event to await process[event]
@@ -143,15 +143,15 @@ const fetcher = async (url) => {
 };
 ```
 
-## 繧､繝ｳ繝ｩ繧､繝ｳ繧ｳ繝ｼ繝ｫ繝舌ャ繧ｯ
+## インラインコールバック
 
-隍・焚陦梧峡蠑ｧ縺ｮ繧ｵ繝昴・繝医↓繧医ｊ縲√Γ繧ｽ繝・ラ繝√ぉ繝ｼ繝ｳ蜀・〒辟｡蜷埼未謨ｰ繧貞ｼ墓焚縺ｨ縺励※貂｡縺帙∪縺・
+複数行括弧のサポートにより、無名関数をメソッドチェーンの引数として渡せます:
 
 ```purus
 promise.then[fn result to console.log[result]].catch[fn err to console.error[err]]
 ```
 
-隍・焚陦悟ｽ｢蠑・
+複数行形式:
 
 ```purus
 fetch[url].then[
@@ -176,9 +176,9 @@ fetch(url).then((response) => {
 });
 ```
 
-## 髢｢謨ｰ蜻ｼ縺ｳ蜃ｺ縺・
+## 関数呼び出し
 
-`()` 縺ｮ莉｣繧上ｊ縺ｫ `[]` 繧剃ｽｿ縺・∪縺・
+`()` の代わりに `[]` を使います:
 
 ```purus
 greet[///world///]
@@ -192,9 +192,9 @@ add(1, 2);
 console.log("hello");
 ```
 
-### 繝阪せ繝医＆繧後◆髢｢謨ｰ蜻ｼ縺ｳ蜃ｺ縺・
+### ネストされた関数呼び出し
 
-JavaScript縺ｧ縺ｯ `a(b(c), d)` 縺ｮ繧医≧縺ｫ繝阪せ繝医＠縺溷他縺ｳ蜃ｺ縺励↓縺ｯ `()` 繧剃ｽｿ縺・∪縺吶１urus縺ｧ縺ｯ `[]` 繧帝・蛻励→蜻ｼ縺ｳ蜃ｺ縺励・荳｡譁ｹ縺ｫ菴ｿ縺・◆繧√∝ｼ墓焚縺ｮ蛹ｺ蛻・ｊ縺ｫ `;` 繧剃ｽｿ縺・∪縺・
+JavaScriptでの `a(b(c), d)` のようなネストされた呼び出しでは、`[]` が配列と呼び出しの両方に使われるため、`;` で引数を区切ります:
 
 ```purus
 -- JS: a(b(c), d)
@@ -221,15 +221,15 @@ fn(a(1, 2), b(3, 4), c);
 outer(inner1(x), inner2(y, z));
 ```
 
-## 蝙区ｳｨ驥茨ｼ域ｶ亥悉縺輔ｌ繧具ｼ・
+## 型アノテーション（消去される）
 
 ```purus
 fn add a of Number; b of Number gives Number to a add b
 ```
 
-`of` 縺ｨ `gives` 縺ｫ繧医ｋ蝙区ｳｨ驥医・JavaScript蜃ｺ蜉帙〒縺ｯ豸亥悉縺輔ｌ縺ｾ縺吶・
+`of` と `gives` による型アノテーションはJavaScript出力では消去されます。
 
-## return
+## Return
 
 ```purus
 fn get-value

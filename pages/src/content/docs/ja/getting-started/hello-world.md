@@ -1,6 +1,6 @@
 ---
 title: Hello World
-description: 蛻昴ａ縺ｦ縺ｮPurus繝励Ο繧ｰ繝ｩ繝縲・
+description: はじめてのPurusプログラム。
 sidebar:
   order: 3
 ---
@@ -12,42 +12,42 @@ const message be ///Hello, World///
 console.log[message]
 ```
 
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
+コンパイル結果:
 
 ```js
 const message = "Hello, World";
 console.log(message);
 ```
 
-## 螳溯｡梧婿豕・
+## 実行方法
 
-繝輔ぃ繧､繝ｫ縺ｫ繧ｳ繝ｳ繝代う繝ｫ:
+ファイルにコンパイル:
 
 ```sh
 purus build hello.purus
 node hello.js
 ```
 
-縺ｾ縺溘・逶ｴ謗･螳溯｡・
+または直接実行:
 
 ```sh
 purus run hello.purus
 ```
 
-## JavaScript縺ｨ縺ｮ荳ｻ縺ｪ驕輔＞
+## JavaScriptとの主な違い
 
 | JavaScript | Purus |
 |---|---|
 | `=` | `be` |
 | `"string"` | `///string///` |
 | `fn(args)` | `fn[args]` |
-| `{ }` 繝悶Ο繝・け | 繧､繝ｳ繝・Φ繝・|
+| `{ }` ブロック | インデント |
 | `function` | `fn` |
 | `+` `-` `*` `/` | `add` `sub` `mul` `div` |
 | `===` `!==` | `eq` `ne` |
 | `&&` `\|\|` `!` | `and` `or` `not` |
 
-## 螟画焚
+## 変数
 
 ```purus
 const x be 42
@@ -55,7 +55,7 @@ let y be 3.14
 y be 100
 ```
 
-## 髢｢謨ｰ
+## 関数
 
 ```purus
 fn greet name
@@ -64,7 +64,7 @@ fn greet name
 greet[///World///]
 ```
 
-蠑乗悽菴難ｼ・to`繧剃ｽｿ逕ｨ・・
+式本体（`to`を使用）:
 
 ```purus
 fn double x to x mul 2

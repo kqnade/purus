@@ -1,6 +1,6 @@
 ---
 title: VS Code拡張機能
-description: Visual Studio Code向けPurus言語サポート。
+description: Visual Studio CodeのPurus言語サポート。
 sidebar:
   order: 1
 ---
@@ -17,13 +17,13 @@ code --install-extension otoneko1102.purus
 
 ### シンタックスハイライト
 
-`.purus`、`.cpurus`、`.mpurus` ファイル向けの完全なTextMate文法:
+`.purus`、`.cpurus`、`.mpurus` ファイル用の完全なTextMate文法:
 
-- キーワード (`fn`, `const`, `let`, `if`, `for`, `match` など)
-- 演算子 (`be`, `add`, `sub`, `eq`, `and`, `pipe` など)
-- 文字列 (`///...///`)
-- コメント (`--` 行コメント, `---` ブロックコメント)
-- 数値（整数、浮動小数点数）
+- キーワード（`fn`, `const`, `let`, `if`, `for`, `match` など）
+- 演算子（`be`, `add`, `sub`, `eq`, `and`, `pipe` など）
+- 文字列（`///...///`）
+- コメント（`--` 行コメント、`---` ブロックコメント）
+- 数値（整数、浮動小数点）
 - 関数定義と呼び出し
 - 正規表現
 
@@ -46,8 +46,8 @@ code --install-extension otoneko1102.purus
 | `match` | マッチ式 |
 | `try` | try-catchブロック |
 | `imp` | import文 |
-| `impn` | 名前付きimport |
-| `pub` | エクスポート (pub) |
+| `impn` | 名前付きインポート |
+| `pub` | エクスポート（pub） |
 | `mod` | モジュール名前空間 |
 | `log` | console.log |
 
@@ -59,6 +59,6 @@ code --install-extension otoneko1102.purus
 
 - **コメントトグル**: `Ctrl+/` で `--` 行コメントを挿入
 - **ブロックコメント**: `--- ... ---`
-- **自動閉じ**: `[]` 括弧と `///` 文字列
+- **自動閉じ**: `[]` ブラケットと `///` 文字列
 - **折りたたみ**: インデントベースの折りたたみ（オフサイドルール）
 - **ワードパターン**: `kebab-case` 識別子をサポート

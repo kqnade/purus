@@ -1,19 +1,17 @@
 ---
-title: 繧ｯ繝ｩ繧ｹ
-description: Purus縺ｮ繧ｯ繝ｩ繧ｹ螳｣險縲・
+title: クラス
+description: Purusのクラス宣言。
 sidebar:
   order: 7
 ---
 
-## 蝓ｺ譛ｬ逧・↑繧ｯ繝ｩ繧ｹ
+## 基本クラス
 
 ```purus
 class Animal
   fn speak
     console.log[///hello///]
 ```
-
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 class Animal {
@@ -23,17 +21,15 @@ class Animal {
 }
 ```
 
-## 繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ
+## コンストラクタ
 
-`fn new` 縺ｧ繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ繧貞ｮ｣險縺励∪縺・
+`fn new` でコンストラクタを宣言します:
 
 ```purus
 class Animal
   fn new name
     this.name be name
 ```
-
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 class Animal {
@@ -43,9 +39,9 @@ class Animal {
 }
 ```
 
-## 繝励Λ繧､繝吶・繝医ヵ繧｣繝ｼ繝ｫ繝・
+## プライベートフィールド
 
-`private` 縺ｧ繝励Λ繧､繝吶・繝医ヵ繧｣繝ｼ繝ｫ繝峨ｒ螳｣險縺励∪縺吶・avaScript縺ｧ縺ｯ `#` 縺ｧ繝励Λ繧､繝吶・繝医ヵ繧｣繝ｼ繝ｫ繝峨ｒ螳｣險縺励∪縺吶′縲￣urus縺ｧ縺ｯ `#` 縺御ｽｿ縺医↑縺・◆繧・`private` 繧ｭ繝ｼ繝ｯ繝ｼ繝峨ｒ菴ｿ縺・∪縺吶・
+`private` でプライベートフィールドを宣言します。JavaScriptではプライベートフィールドに `#` を使いますが、Purusでは `#` が使えないため `private` キーワードを使用します。
 
 ```purus
 class Counter
@@ -57,8 +53,6 @@ class Counter
   get fn value to this.count
 ```
 
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
-
 ```js
 class Counter {
   #count = 0;
@@ -69,11 +63,11 @@ class Counter {
 }
 ```
 
-`private` 縺ｧ螳｣險縺輔ｌ縺溘ヵ繧｣繝ｼ繝ｫ繝峨∈縺ｮ `this` 邨檎罰縺ｮ繧｢繧ｯ繧ｻ繧ｹ縺ｯ縲∬・蜍慕噪縺ｫ `#` 繝励Ξ繝輔ぅ繝・け繧ｹ莉倥″縺ｫ繧ｳ繝ｳ繝代う繝ｫ縺輔ｌ縺ｾ縺吶・
+`private` で宣言されたフィールドは、`this` 経由のアクセスが自動的に `#` プレフィックス付きにコンパイルされます。
 
-## 邯呎価
+## 継承
 
-`extends` 縺ｧ繧ｵ繝悶け繝ｩ繧ｹ繧剃ｽ懈・縺励∪縺吶ゅさ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ蜀・〒 `super[args]` 繧貞他縺ｳ蜃ｺ縺励∪縺・
+`extends` でサブクラスを作成します。コンストラクタで `super[args]` を呼び出します:
 
 ```purus
 class Dog extends Animal
@@ -83,8 +77,6 @@ class Dog extends Animal
   fn bark
     console.log[///woof///]
 ```
-
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 class Dog extends Animal {
@@ -97,16 +89,14 @@ class Dog extends Animal {
 }
 ```
 
-## 髱咏噪繝｡繧ｽ繝・ラ
+## 静的メソッド
 
-`static fn` 縺ｧ髱咏噪繝｡繧ｽ繝・ラ繧貞ｮ｣險縺励∪縺・
+`static fn` で静的メソッドを宣言します:
 
 ```purus
 class MathUtil
   static fn sum a; b to a add b
 ```
-
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 class MathUtil {
@@ -114,9 +104,9 @@ class MathUtil {
 }
 ```
 
-## 繧ｲ繝・ち繝ｼ縺ｨ繧ｻ繝・ち繝ｼ
+## ゲッターとセッター
 
-`get fn` 縺ｨ `set fn` 繧剃ｽｿ縺・∪縺・
+`get fn` と `set fn` を使用します:
 
 ```purus
 class Temperature
@@ -131,8 +121,6 @@ class Temperature
     this.celsius be value sub 32 div 1.8
 ```
 
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
-
 ```js
 class Temperature {
   #celsius;
@@ -146,7 +134,7 @@ class Temperature {
 }
 ```
 
-## 髱槫酔譛溘Γ繧ｽ繝・ラ
+## 非同期メソッド
 
 ```purus
 class Api
@@ -154,8 +142,6 @@ class Api
     const res be await fetch[url]
     return res.json[]
 ```
-
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 class Api {
@@ -166,16 +152,14 @@ class Api {
 }
 ```
 
-## 蠑乗悽菴薙Γ繧ｽ繝・ラ
+## 式本体メソッド
 
-繝｡繧ｽ繝・ラ縺ｧ繧・`to` 繧剃ｽｿ縺｣縺ｦ蠑乗悽菴薙ｒ險倩ｿｰ縺ｧ縺阪∪縺・
+メソッドも `to` で式本体をサポートします:
 
 ```purus
 class Greeter
   fn greet name to console.log[///Hello, [name]///]
 ```
-
-繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 class Greeter {
