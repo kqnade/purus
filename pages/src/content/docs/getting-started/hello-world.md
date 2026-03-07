@@ -7,7 +7,7 @@ sidebar:
 
 ## Hello World
 
-```
+```purus
 const message be ///Hello, World///
 console.log[message]
 ```
@@ -49,7 +49,7 @@ purus run hello.purus
 
 ## Variables
 
-```
+```purus
 const x be 42
 let y be 3.14
 y be 100
@@ -57,7 +57,7 @@ y be 100
 
 ## Functions
 
-```
+```purus
 fn greet name
   console.log[///Hello/// add name]
 
@@ -66,6 +66,6 @@ greet[///World///]
 
 Expression body with `to`:
 
-```
+```purus
 fn double x to x mul 2
 ```

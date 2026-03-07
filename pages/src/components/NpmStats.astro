@@ -1,0 +1,98 @@
+---
+const {
+  package: pkg = "purus",
+  versionLabel = "Latest Version",
+  downloadsLabel = "Monthly Downloads",
+  updatedLabel = "Last Updated",
+} = Astro.props;
+---
+<npm-stats data-package={pkg}>
+  <div class="npm-stat">
+    <span class="npm-stat-label">{versionLabel}</span>
+    <span class="npm-stat-value" data-field="version">...</span>
+  </div>
+  <div class="npm-stat">
+    <span class="npm-stat-label">{downloadsLabel}</span>
+    <span class="npm-stat-value" data-field="downloads">...</span>
+  </div>
+  <div class="npm-stat">
+    <span class="npm-stat-label">{updatedLabel}</span>
+    <span class="npm-stat-value" data-field="updated">...</span>
+  </div>
+</npm-stats>
+
+<style>
+  npm-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 1.5rem 0;
+  }
+  .npm-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    background: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-hairline);
+    min-width: 10rem;
+  }
+  .npm-stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--sl-color-gray-3);
+    margin-bottom: 0.25rem;
+  }
+  .npm-stat-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--sl-color-text);
+  }
+</style>
+
+<script>
+class NpmStatsElement extends HTMLElement {
+  async connectedCallback() {
+    const pkg = this.dataset.package;
+
+    const versionEl = this.querySelector('[data-field="version"]');
+    const downloadsEl = this.querySelector('[data-field="downloads"]');
+    const updatedEl = this.querySelector('[data-field="updated"]');
+
+    // @ts-ignore
+    const safePkg = encodeURIComponent(pkg);
+
+    const [regResult, dlResult] = await Promise.allSettled([
+      fetch(`https://registry.npmjs.org/${safePkg}`, {
+        headers: { "Accept": "application/vnd.npm.install-v1+json" },
+      }).then(r => r.ok ? r.json() : null),
+      fetch(`https://api.npmjs.org/downloads/point/last-month/${safePkg}`).then(r => r.ok ? r.json() : null),
+    ]);
+
+    if (regResult.status === "fulfilled" && regResult.value) {
+      const data = regResult.value;
+      const latest = data["dist-tags"]?.latest;
+      if (versionEl) versionEl.textContent = latest || "—";
+      if (updatedEl && data.time && latest) {
+        updatedEl.textContent = (data.time[latest] || data.time.modified || "").slice(0, 10) || "—";
+      } else {
+        if (updatedEl) updatedEl.textContent = "—";
+      }
+    } else {
+      if (versionEl) versionEl.textContent = "—";
+      if (updatedEl) updatedEl.textContent = "—";
+    }
+
+    if (dlResult.status === "fulfilled" && dlResult.value) {
+      const dl = dlResult.value.downloads;
+      if (downloadsEl) downloadsEl.textContent = dl != null ? dl.toLocaleString() : "—";
+    } else {
+      if (downloadsEl) downloadsEl.textContent = "—";
+    }
+  }
+}
+customElements.define("npm-stats", NpmStatsElement);
+</script>

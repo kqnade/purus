@@ -5,7 +5,11 @@ sidebar:
   order: 1
 ---
 
+import NpmVersion from '../../../components/NpmVersion.astro';
+
 ## Install via npm
+
+Latest version: <NpmVersion package="purus" />
 
 ```sh
 npm install -g purus
@@ -21,7 +25,7 @@ purus version
 
 Create a file `hello.purus`:
 
-```
+```purus
 const message be ///Hello, World///
 console.log[message]
 ```

@@ -7,22 +7,22 @@ sidebar:
 
 ## Operator Precedence (low to high)
 
-1. `pipe` — Pipeline
-2. `coal` — Nullish coalescing
-3. `or` — Logical OR
-4. `and` — Logical AND
-5. `eq` / `neq` / `not eq` / `is` / `instanceof` — Equality / Type check
-6. `lt` / `gt` / `le` (`lt eq`) / `ge` (`gt eq`) — Comparison
-7. `add` / `sub` — Addition / Subtraction
-8. `mul` / `div` / `mod` — Multiplication / Division / Modulo
-9. `pow` — Exponentiation
+1. `pipe` 窶・Pipeline
+2. `coal` 窶・Nullish coalescing
+3. `or` 窶・Logical OR
+4. `and` 窶・Logical AND
+5. `eq` / `neq` / `not eq` / `is` / `instanceof` 窶・Equality / Type check
+6. `lt` / `gt` / `le` (`lt eq`) / `ge` (`gt eq`) 窶・Comparison
+7. `add` / `sub` 窶・Addition / Subtraction
+8. `mul` / `div` / `mod` 窶・Multiplication / Division / Modulo
+9. `pow` 窶・Exponentiation
 10. Unary: `not` / `neg` / `typeof` / `await` / `delete` / `new`
 11. Postfix: `.` access / `\.` optional chaining / `[args]` call / `[\expr]` computed access / `as` cast
 12. Primary: literals, identifiers, brackets
 
 ## Pipeline
 
-```
+```purus
 data pipe filter
 data pipe filter pipe map
 data pipe transform[extra-arg]
@@ -40,7 +40,7 @@ data.method(arg)
 
 ## Assignment
 
-```
+```purus
 const x be 42
 let y be 10
 y be 20
@@ -48,7 +48,7 @@ y be 20
 
 ## Arithmetic
 
-```
+```purus
 a add b    -- a + b
 a sub b    -- a - b
 a mul b    -- a * b
@@ -64,7 +64,7 @@ neg x      -- -x
 
 For not-equal, use `neq` or `not eq`. For less-than-or-equal, both `le` and `lt eq` work. For greater-than-or-equal, both `ge` and `gt eq` work.
 
-```
+```purus
 a eq b      -- a === b
 a neq b     -- a !== b
 a not eq b  -- a !== b (alternative)
@@ -86,7 +86,7 @@ a is string -- typeof a === "string" (type check)
 
 Generate arrays from numeric ranges using `..` (inclusive) and `...` (exclusive):
 
-```
+```purus
 const a be [0..5]     -- [0, 1, 2, 3, 4, 5]
 const b be [0...5]    -- [0, 1, 2, 3, 4]
 const c be [1..10]    -- [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -97,7 +97,7 @@ const d be [1...10]   -- [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 Extract a portion of an array using `\` prefix with `..` (inclusive) or `...` (exclusive) inside bracket access:
 
-```
+```purus
 const numbers be [0, 1, 2, 3, 4, 5, 6]
 const middle be numbers[\2..4]    -- [2, 3, 4]
 const partial be numbers[\1...4]  -- [1, 2, 3]
@@ -107,7 +107,7 @@ const partial be numbers[\1...4]  -- [1, 2, 3]
 
 Replace a portion of an array by assigning to a slice:
 
-```
+```purus
 numbers[\2..4] be [///a///; ///b///; ///c///]
 -- numbers is now [0, 1, "a", "b", "c", 5, 6]
 ```
@@ -116,7 +116,7 @@ numbers[\2..4] be [///a///; ///b///; ///c///]
 
 Use `\` inside brackets to access array elements or object properties by expression:
 
-```
+```purus
 const val be arr[\i]       -- arr[i]
 const item be obj[\key]    -- obj[key]
 arr[\0] be ///new///        -- arr[0] = "new"
@@ -128,7 +128,7 @@ The `\` prefix distinguishes computed access from function calls: `f[x]` is a ca
 
 Use `\.` for optional chaining (JS `?.`):
 
-```
+```purus
 const name be user\.name          -- user?.name
 const val be obj\.method[1; 2]    -- obj?.method(1, 2)
 const deep be a\.b\.c             -- a?.b?.c
@@ -146,7 +146,7 @@ const deep = a?.b?.c;
 
 Extract values from arrays into variables:
 
-```
+```purus
 const weather be [///Sunny///; ///Rainy///]
 const [today; tomorrow] be weather
 
@@ -158,7 +158,7 @@ const [today; tomorrow] be weather
 
 Use `object[...]` to destructure properties from an object:
 
-```
+```purus
 const config be [host be ///localhost///, port be 8080]
 const object[host; port] be config
 ```
@@ -172,7 +172,7 @@ const { host, port } = config;
 
 ## Logical
 
-```
+```purus
 a and b    -- a && b
 a or b     -- a || b
 not x      -- !x
@@ -182,7 +182,7 @@ not x      -- !x
 
 The `coal` operator returns the right-hand side when the left-hand side is `null` or `undefined`:
 
-```
+```purus
 a coal b           -- a ?? b
 a coal b coal c    -- a ?? b ?? c
 ```
@@ -196,7 +196,7 @@ a ?? b ?? c;
 
 This is different from `or`: `or` treats all falsy values (`false`, `0`, `""`, `null`, `undefined`) as false, while `coal` only treats `null` and `undefined` as "empty". Use `coal` when you want to preserve values like `0`, `false`, or `""`.
 
-```
+```purus
 const port be config.port coal 3000      -- uses 3000 only if port is null/undefined
 const name be user.name coal ///guest///  -- uses "guest" only if name is null/undefined
 ```
@@ -205,7 +205,7 @@ const name be user.name coal ///guest///  -- uses "guest" only if name is null/u
 
 `eq` and `is` both work for type checks when followed by a type name.
 
-```
+```purus
 x is string          -- typeof x === "string"
 x eq string          -- typeof x === "string"
 x is null            -- x === null

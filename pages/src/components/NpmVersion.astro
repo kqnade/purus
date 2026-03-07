@@ -1,0 +1,25 @@
+---
+const pkg = Astro.props.package || "purus";
+---
+<npm-version data-package={pkg}>...</npm-version>
+
+<script>
+class NpmVersionElement extends HTMLElement {
+  async connectedCallback() {
+    const pkg = this.dataset.package;
+    try {
+      // @ts-ignore
+      const res = await fetch(`https://registry.npmjs.org/${encodeURIComponent(pkg)}/latest`);
+      if (res.ok) {
+        const data = await res.json();
+        this.textContent = data.version;
+      } else {
+        this.textContent = "latest";
+      }
+    } catch {
+      this.textContent = "latest";
+    }
+  }
+}
+customElements.define("npm-version", NpmVersionElement);
+</script>

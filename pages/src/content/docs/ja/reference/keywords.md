@@ -124,6 +124,18 @@ sidebar:
 | `instanceof` | `instanceof` | インスタンスチェック |
 | `type` | _(消去)_ | 型エイリアス |
 
+## クラス
+
+| キーワード | JS出力 | 説明 |
+|---|---|---|
+| `class` | `class` | クラス宣言 |
+| `extends` | `extends` | クラス継承 |
+| `super` | `super` | 親クラス参照 |
+| `static` | `static` | 静的メソッド |
+| `private` | `#`（プレフィックス） | プライベートフィールド |
+| `get` | `get` | ゲッターアクセサ |
+| `set` | `set` | セッターアクセサ |
+
 ## その他
 
 | キーワード | JS出力 |
@@ -131,6 +143,7 @@ sidebar:
 | `new` | `new` |
 | `delete` | `delete` |
 | `this` | `this` |
+| `super` | `super` |
 | `throw` | `throw` |
 | `try` | `try` |
 | `catch` | `catch` |

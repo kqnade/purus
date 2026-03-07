@@ -7,7 +7,7 @@ sidebar:
 
 ## Named function (block body)
 
-```
+```purus
 fn greet name
   console.log[name]
 ```
@@ -22,7 +22,7 @@ function greet(name) {
 
 ## Named function (expression body)
 
-```
+```purus
 fn double x to x mul 2
 ```
 
@@ -36,7 +36,7 @@ function double(x) {
 
 Simply omit the parameters:
 
-```
+```purus
 fn say-hello
   console.log[///Hello!///]
 ```
@@ -49,7 +49,7 @@ function sayHello() {
 
 With expression body:
 
-```
+```purus
 fn get-timestamp to Date.now[]
 ```
 
@@ -61,7 +61,7 @@ function getTimestamp() { return Date.now(); }
 
 Use `;` to separate parameters:
 
-```
+```purus
 fn add a; b
   return a add b
 ```
@@ -74,7 +74,7 @@ function add(a, b) {
 
 ## Anonymous functions
 
-```
+```purus
 const double be fn x to x mul 2
 ```
 
@@ -84,7 +84,7 @@ const double = (x) => x * 2;
 
 ### Anonymous function with no arguments
 
-```
+```purus
 const get-time be fn to Date.now[]
 ```
 
@@ -94,7 +94,7 @@ const getTime = () => Date.now();
 
 ### Anonymous function with block body
 
-```
+```purus
 const process be fn data
   console.log[data]
   return data
@@ -109,7 +109,7 @@ const process = (data) => {
 
 ## Async functions
 
-```
+```purus
 async fn fetch-data url
   const res be await fetch[url]
   return res
@@ -126,7 +126,7 @@ async function fetchData(url) {
 
 Async anonymous functions work like regular anonymous functions with `async` prefix:
 
-```
+```purus
 const handler be async fn event to await process[event]
 
 const fetcher be async fn url
@@ -147,13 +147,13 @@ const fetcher = async (url) => {
 
 With multi-line bracket support, anonymous functions can be passed as arguments in method chains:
 
-```
+```purus
 promise.then[fn result to console.log[result]].catch[fn err to console.error[err]]
 ```
 
 Multi-line form:
 
-```
+```purus
 fetch[url].then[
   fn response
     return response.json[]
@@ -180,7 +180,7 @@ fetch(url).then((response) => {
 
 Use `[]` instead of `()`:
 
-```
+```purus
 greet[///world///]
 add[1; 2]
 console.log[///hello///]
@@ -196,7 +196,7 @@ console.log("hello");
 
 In JavaScript, nested calls like `a(b(c), d)` use `()`. In Purus, since `[]` is used for both arrays and calls, use `;` to separate arguments:
 
-```
+```purus
 -- JS: a(b(c), d)
 a[b[c]; d]
 
@@ -223,7 +223,7 @@ outer(inner1(x), inner2(y, z));
 
 ## Type annotations (erased)
 
-```
+```purus
 fn add a of Number; b of Number gives Number to a add b
 ```
 
@@ -231,7 +231,7 @@ Type annotations with `of` and `gives` are erased in the JavaScript output.
 
 ## Return
 
-```
+```purus
 fn get-value
   return 42
 ```

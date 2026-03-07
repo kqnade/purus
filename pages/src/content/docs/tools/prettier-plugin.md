@@ -1,6 +1,6 @@
 ---
 title: Prettier Plugin
-description: "@puruslang/prettier-plugin-purus — format Purus code with Prettier."
+description: "@puruslang/prettier-plugin-purus 窶・format Purus code with Prettier."
 sidebar:
   order: 3
 ---
@@ -43,7 +43,7 @@ Add to your `.prettierrc`:
 
 Before:
 
-```
+```purus
 const x   be   42
 fn greet   name
     console.log[  name  ]
@@ -51,7 +51,7 @@ fn greet   name
 
 After:
 
-```
+```purus
 const x be 42
 fn greet name
   console.log[name]

@@ -1,6 +1,11 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import { readFileSync } from 'node:fs';
+
+const purusGrammar = JSON.parse(
+  readFileSync(new URL('../extension/syntaxes/purus.tmLanguage.json', import.meta.url), 'utf-8')
+);
 
 // https://astro.build/config
 export default defineConfig({
@@ -9,6 +14,11 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Purus',
+      expressiveCode: {
+        shiki: {
+          langs: [purusGrammar],
+        },
+      },
       logo: {
         src: './src/assets/icon.png',
       },

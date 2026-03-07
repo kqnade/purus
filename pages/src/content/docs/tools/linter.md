@@ -1,6 +1,6 @@
 ---
 title: Linter
-description: "@puruslang/linter — static analysis for Purus."
+description: "@puruslang/linter 窶・static analysis for Purus."
 sidebar:
   order: 2
 ---
@@ -59,7 +59,7 @@ You can pass files and directories as positional arguments.
 
 Linter settings can be configured in `config.purus` alongside build settings:
 
-```
+```purus
 -- Linter settings
 const lint.no-var be ///warn///
 const lint.no-nil be ///off///

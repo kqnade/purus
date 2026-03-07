@@ -1,35 +1,35 @@
 ---
-title: 演算子
-description: Purusの演算子と優先順位。
+title: 貍皮ｮ怜ｭ・
+description: Purus縺ｮ貍皮ｮ怜ｭ舌→蜆ｪ蜈磯・ｽ阪・
 sidebar:
   order: 3
 ---
 
-## 演算子の優先順位（低い順）
+## 貍皮ｮ怜ｭ舌・蜆ｪ蜈磯・ｽ搾ｼ井ｽ弱＞鬆・ｼ・
 
-1. `pipe` — パイプライン
-2. `coal` — Null合体
-3. `or` — 論理OR
-4. `and` — 論理AND
-5. `eq` / `neq` / `not eq` / `is` / `instanceof` — 等価 / 型チェック
-6. `lt` / `gt` / `le`（`lt eq`） / `ge`（`gt eq`） — 比較
-7. `add` / `sub` — 加算 / 減算
-8. `mul` / `div` / `mod` — 乗算 / 除算 / 剰余
-9. `pow` — べき乗
-10. 単項: `not` / `neg` / `typeof` / `await` / `delete` / `new`
-11. 後置: `.` アクセス / `\.` オプショナルチェイニング / `[args]` 呼び出し / `[\expr]` 計算アクセス / `as` キャスト
-12. 基本: リテラル、識別子、括弧
+1. `pipe` 窶・繝代う繝励Λ繧､繝ｳ
+2. `coal` 窶・Null蜷井ｽ・
+3. `or` 窶・隲也炊OR
+4. `and` 窶・隲也炊AND
+5. `eq` / `neq` / `not eq` / `is` / `instanceof` 窶・遲我ｾ｡ / 蝙九メ繧ｧ繝・け
+6. `lt` / `gt` / `le`・・lt eq`・・/ `ge`・・gt eq`・・窶・豈碑ｼ・
+7. `add` / `sub` 窶・蜉邂・/ 貂帷ｮ・
+8. `mul` / `div` / `mod` 窶・荵礼ｮ・/ 髯､邂・/ 蜑ｰ菴・
+9. `pow` 窶・縺ｹ縺堺ｹ・
+10. 蜊倬・ `not` / `neg` / `typeof` / `await` / `delete` / `new`
+11. 蠕檎ｽｮ: `.` 繧｢繧ｯ繧ｻ繧ｹ / `\.` 繧ｪ繝励す繝ｧ繝翫Ν繝√ぉ繧､繝九Φ繧ｰ / `[args]` 蜻ｼ縺ｳ蜃ｺ縺・/ `[\expr]` 險育ｮ励い繧ｯ繧ｻ繧ｹ / `as` 繧ｭ繝｣繧ｹ繝・
+12. 蝓ｺ譛ｬ: 繝ｪ繝・Λ繝ｫ縲∬ｭ伜挨蟄舌∵峡蠑ｧ
 
-## パイプライン
+## 繝代う繝励Λ繧､繝ｳ
 
-```
+```purus
 data pipe filter
 data pipe filter pipe map
 data pipe transform[extra-arg]
 data pipe .method[arg]
 ```
 
-コンパイル結果:
+繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 filter(data)
@@ -38,17 +38,17 @@ transform(data, extraArg)
 data.method(arg)
 ```
 
-## 代入
+## 莉｣蜈･
 
-```
+```purus
 const x be 42
 let y be 10
 y be 20
 ```
 
-## 算術
+## 邂苓｡・
 
-```
+```purus
 a add b    -- a + b
 a sub b    -- a - b
 a mul b    -- a * b
@@ -58,83 +58,83 @@ a pow b    -- a ** b
 neg x      -- -x
 ```
 
-## 比較
+## 豈碑ｼ・
 
-`eq` と `is` は同じように使えます。右辺が型名（`string`, `number`, `null`, 大文字始まりのクラス名など）の場合は型チェックになり、それ以外は厳密等価比較（`===`）になります。
+`eq` 縺ｨ `is` 縺ｯ蜷後§繧医≧縺ｫ菴ｿ縺医∪縺吶ょ承霎ｺ縺悟梛蜷搾ｼ・string`, `number`, `null`, 螟ｧ譁・ｭ怜ｧ九∪繧翫・繧ｯ繝ｩ繧ｹ蜷阪↑縺ｩ・峨・蝣ｴ蜷医・蝙九メ繧ｧ繝・け縺ｫ縺ｪ繧翫√◎繧御ｻ･螟悶・蜴ｳ蟇・ｭ我ｾ｡豈碑ｼ・ｼ・===`・峨↓縺ｪ繧翫∪縺吶・
 
-不等価には `neq` または `not eq` を使います。以下はどちらも `le` と同じ意味です: `lt eq`。以下はどちらも `ge` と同じ意味です: `gt eq`。
+荳咲ｭ我ｾ｡縺ｫ縺ｯ `neq` 縺ｾ縺溘・ `not eq` 繧剃ｽｿ縺・∪縺吶ゆｻ･荳九・縺ｩ縺｡繧峨ｂ `le` 縺ｨ蜷後§諢丞袖縺ｧ縺・ `lt eq`縲ゆｻ･荳九・縺ｩ縺｡繧峨ｂ `ge` 縺ｨ蜷後§諢丞袖縺ｧ縺・ `gt eq`縲・
 
-```
+```purus
 a eq b      -- a === b
 a neq b     -- a !== b
-a not eq b  -- a !== b（別の書き方）
+a not eq b  -- a !== b・亥挨縺ｮ譖ｸ縺肴婿・・
 a lt b      -- a < b
 a gt b      -- a > b
 a le b      -- a <= b
-a lt eq b   -- a <= b（別の書き方）
+a lt eq b   -- a <= b・亥挨縺ｮ譖ｸ縺肴婿・・
 a ge b      -- a >= b
-a gt eq b   -- a >= b（別の書き方）
+a gt eq b   -- a >= b・亥挨縺ｮ譖ｸ縺肴婿・・
 
--- eq と is は混同して使える
-a eq b     -- a === b（値の比較）
-a is b     -- a === b（値の比較）
-a eq string -- typeof a === "string"（型チェック）
-a is string -- typeof a === "string"（型チェック）
+-- eq 縺ｨ is 縺ｯ豺ｷ蜷後＠縺ｦ菴ｿ縺医ｋ
+a eq b     -- a === b・亥､縺ｮ豈碑ｼ・ｼ・
+a is b     -- a === b・亥､縺ｮ豈碑ｼ・ｼ・
+a eq string -- typeof a === "string"・亥梛繝√ぉ繝・け・・
+a is string -- typeof a === "string"・亥梛繝√ぉ繝・け・・
 ```
 
-## 配列の範囲
+## 驟榊・縺ｮ遽・峇
 
-`..`（包含）と `...`（排他）を使って数値範囲から配列を生成します:
+`..`・亥桁蜷ｫ・峨→ `...`・域賜莉厄ｼ峨ｒ菴ｿ縺｣縺ｦ謨ｰ蛟､遽・峇縺九ｉ驟榊・繧堤函謌舌＠縺ｾ縺・
 
-```
+```purus
 const a be [0..5]     -- [0, 1, 2, 3, 4, 5]
 const b be [0...5]    -- [0, 1, 2, 3, 4]
 const c be [1..10]    -- [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 const d be [1...10]   -- [1, 2, 3, 4, 5, 6, 7, 8, 9]
 ```
 
-## スライス（切り出し）
+## 繧ｹ繝ｩ繧､繧ｹ・亥・繧雁・縺暦ｼ・
 
-`\` プレフィックスと `..`（包含）または `...`（排他）をブラケットアクセス内で使い、配列の一部を切り出します:
+`\` 繝励Ξ繝輔ぅ繝・け繧ｹ縺ｨ `..`・亥桁蜷ｫ・峨∪縺溘・ `...`・域賜莉厄ｼ峨ｒ繝悶Λ繧ｱ繝・ヨ繧｢繧ｯ繧ｻ繧ｹ蜀・〒菴ｿ縺・・・蛻励・荳驛ｨ繧貞・繧雁・縺励∪縺・
 
-```
+```purus
 const numbers be [0, 1, 2, 3, 4, 5, 6]
 const middle be numbers[\2..4]    -- [2, 3, 4]
 const partial be numbers[\1...4]  -- [1, 2, 3]
 ```
 
-## スプライス（部分置換）
+## 繧ｹ繝励Λ繧､繧ｹ・磯Κ蛻・ｽｮ謠幢ｼ・
 
-スライスに代入することで配列の一部を置換できます:
+繧ｹ繝ｩ繧､繧ｹ縺ｫ莉｣蜈･縺吶ｋ縺薙→縺ｧ驟榊・縺ｮ荳驛ｨ繧堤ｽｮ謠帙〒縺阪∪縺・
 
-```
+```purus
 numbers[\2..4] be [///a///; ///b///; ///c///]
--- numbers は [0, 1, "a", "b", "c", 5, 6] になります
+-- numbers 縺ｯ [0, 1, "a", "b", "c", 5, 6] 縺ｫ縺ｪ繧翫∪縺・
 ```
 
-## 計算プロパティアクセス
+## 險育ｮ励・繝ｭ繝代ユ繧｣繧｢繧ｯ繧ｻ繧ｹ
 
-`\` を括弧内で使うことで、式による配列・オブジェクトアクセスを行います:
+`\` 繧呈峡蠑ｧ蜀・〒菴ｿ縺・％縺ｨ縺ｧ縲∝ｼ上↓繧医ｋ驟榊・繝ｻ繧ｪ繝悶ず繧ｧ繧ｯ繝医い繧ｯ繧ｻ繧ｹ繧定｡後＞縺ｾ縺・
 
-```
+```purus
 const val be arr[\i]       -- arr[i]
 const item be obj[\key]    -- obj[key]
 arr[\0] be ///new///        -- arr[0] = "new"
 ```
 
-`\` プレフィックスにより、関数呼び出し(`f[x]`)とプロパティアクセス(`arr[\x]`)を区別します。
+`\` 繝励Ξ繝輔ぅ繝・け繧ｹ縺ｫ繧医ｊ縲・未謨ｰ蜻ｼ縺ｳ蜃ｺ縺・`f[x]`)縺ｨ繝励Ο繝代ユ繧｣繧｢繧ｯ繧ｻ繧ｹ(`arr[\x]`)繧貞玄蛻･縺励∪縺吶・
 
-## オプショナルチェイニング
+## 繧ｪ繝励す繝ｧ繝翫Ν繝√ぉ繧､繝九Φ繧ｰ
 
-`\.` でオプショナルチェイニング（JS の `?.`）を表現します:
+`\.` 縺ｧ繧ｪ繝励す繝ｧ繝翫Ν繝√ぉ繧､繝九Φ繧ｰ・・S 縺ｮ `?.`・峨ｒ陦ｨ迴ｾ縺励∪縺・
 
-```
+```purus
 const name be user\.name          -- user?.name
 const val be obj\.method[1; 2]    -- obj?.method(1, 2)
 const deep be a\.b\.c             -- a?.b?.c
 ```
 
-コンパイル結果:
+繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 const name = user?.name;
@@ -142,70 +142,70 @@ const val = obj?.method(1, 2);
 const deep = a?.b?.c;
 ```
 
-## 分割代入
+## 蛻・牡莉｣蜈･
 
-配列から変数に値を取り出します:
+驟榊・縺九ｉ螟画焚縺ｫ蛟､繧貞叙繧雁・縺励∪縺・
 
-```
+```purus
 const weather be [///Sunny///; ///Rainy///]
 const [today; tomorrow] be weather
 
--- 変数の値を入れ替える
+-- 螟画焚縺ｮ蛟､繧貞・繧梧崛縺医ｋ
 [today; tomorrow] be [tomorrow; today]
 ```
 
-### オブジェクト分割代入
+### 繧ｪ繝悶ず繧ｧ繧ｯ繝亥・蜑ｲ莉｣蜈･
 
-`object[...]` を使ってオブジェクトからプロパティを取り出します:
+`object[...]` 繧剃ｽｿ縺｣縺ｦ繧ｪ繝悶ず繧ｧ繧ｯ繝医°繧峨・繝ｭ繝代ユ繧｣繧貞叙繧雁・縺励∪縺・
 
-```
+```purus
 const config be [host be ///localhost///, port be 8080]
 const object[host; port] be config
 ```
 
-コンパイル結果:
+繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 const config = { host: "localhost", port: 8080 };
 const { host, port } = config;
 ```
 
-## 論理
+## 隲也炊
 
-```
+```purus
 a and b    -- a && b
 a or b     -- a || b
 not x      -- !x
 ```
 
-## Null合体（Nullish Coalescing）
+## Null蜷井ｽ難ｼ・ullish Coalescing・・
 
-`coal` 演算子は、左辺が `null` または `undefined` の場合に右辺の値を返します:
+`coal` 貍皮ｮ怜ｭ舌・縲∝ｷｦ霎ｺ縺・`null` 縺ｾ縺溘・ `undefined` 縺ｮ蝣ｴ蜷医↓蜿ｳ霎ｺ縺ｮ蛟､繧定ｿ斐＠縺ｾ縺・
 
-```
+```purus
 a coal b           -- a ?? b
 a coal b coal c    -- a ?? b ?? c
 ```
 
-コンパイル結果:
+繧ｳ繝ｳ繝代う繝ｫ邨先棡:
 
 ```js
 a ?? b;
 a ?? b ?? c;
 ```
 
-`or` との違い: `or` はすべてのfalsy値（`false`, `0`, `""`, `null`, `undefined`）をfalseとして扱いますが、`coal` は `null` と `undefined` のみを「空」として扱います。`0` や `false` や `""` を保持したい場合は `coal` を使ってください。
+`or` 縺ｨ縺ｮ驕輔＞: `or` 縺ｯ縺吶∋縺ｦ縺ｮfalsy蛟､・・false`, `0`, `""`, `null`, `undefined`・峨ｒfalse縺ｨ縺励※謇ｱ縺・∪縺吶′縲～coal` 縺ｯ `null` 縺ｨ `undefined` 縺ｮ縺ｿ繧偵檎ｩｺ縲阪→縺励※謇ｱ縺・∪縺吶Ａ0` 繧・`false` 繧・`""` 繧剃ｿ晄戟縺励◆縺・ｴ蜷医・ `coal` 繧剃ｽｿ縺｣縺ｦ縺上□縺輔＞縲・
 
+```purus
+const port be config.port coal 3000      -- port縺系ull/undefined縺ｮ蝣ｴ蜷医・縺ｿ3000繧剃ｽｿ逕ｨ
+const name be user.name coal ///guest///  -- name縺系ull/undefined縺ｮ蝣ｴ蜷医・縺ｿ"guest"繧剃ｽｿ逕ｨ
 ```
-const port be config.port coal 3000      -- portがnull/undefinedの場合のみ3000を使用
-const name be user.name coal ///guest///  -- nameがnull/undefinedの場合のみ"guest"を使用
-```
 
-## 型チェック
+## 蝙九メ繧ｧ繝・け
 
-`eq` と `is` はどちらも型名の前に置くと型チェックとして機能します。
+`eq` 縺ｨ `is` 縺ｯ縺ｩ縺｡繧峨ｂ蝙句錐縺ｮ蜑阪↓鄂ｮ縺上→蝙九メ繧ｧ繝・け縺ｨ縺励※讖溯・縺励∪縺吶・
 
-```
+```purus
 x is string          -- typeof x === "string"
 x eq string          -- typeof x === "string"
 x is null            -- x === null

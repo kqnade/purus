@@ -15,7 +15,7 @@ sidebar:
 
 ## Comments
 
-```
+```purus
 -- This is a line comment
 
 --- This is a
@@ -26,7 +26,7 @@ block comment ---
 
 Strings use triple slashes `///`:
 
-```
+```purus
 const greeting be ///Hello, World///
 ```
 
@@ -45,7 +45,7 @@ const greeting be ///Hello, World///
 
 Use `[expr]` inside a string to embed expressions:
 
-```
+```purus
 const name be ///Alice///
 const age be 30
 const msg be ///Hello, [name]! You are [age] years old.///
@@ -61,7 +61,7 @@ const msg = `Hello, ${name}! You are ${age} years old.`;
 
 You can use any expression inside the brackets:
 
-```
+```purus
 const x be 10
 const result be ///[x] times 2 is [x mul 2]///
 ```
@@ -77,14 +77,14 @@ To include a literal `[` or `]` in a string, use the escape sequences `\[` and `
 
 ## Numbers
 
-```
+```purus
 const i be 42
 const f be 3.14
 ```
 
 ## Booleans and null
 
-```
+```purus
 const a be true
 const b be false
 const c be null
@@ -94,7 +94,7 @@ const e be undefined
 
 ## Arrays
 
-```
+```purus
 const arr be [1, 2, 3]
 const arr2 be [1; 2; 3]   -- semicolons also work
 const empty be []
@@ -102,7 +102,7 @@ const empty be []
 
 ### Array ranges
 
-```
+```purus
 const inclusive be [0..5]   -- [0, 1, 2, 3, 4, 5]
 const exclusive be [0...5]  -- [0, 1, 2, 3, 4]
 ```
@@ -111,7 +111,7 @@ const exclusive be [0...5]  -- [0, 1, 2, 3, 4]
 
 Extract a portion of an array using `\` prefix with `..` (inclusive) or `...` (exclusive):
 
-```
+```purus
 const numbers be [0, 1, 2, 3, 4, 5, 6]
 const middle be numbers[\2..4]    -- [2, 3, 4]
 const partial be numbers[\1...4]  -- [1, 2, 3]
@@ -128,7 +128,7 @@ const partial = numbers.slice(1, 4);
 
 Replace a portion of an array by assigning to a slice:
 
-```
+```purus
 numbers[\2..4] be [///a///; ///b///; ///c///]
 -- numbers is now [0, 1, "a", "b", "c", 5, 6]
 ```
@@ -143,7 +143,7 @@ numbers.splice(2, 4 - 2 + 1, "a", "b", "c");
 
 Extract values from arrays into variables:
 
-```
+```purus
 const weather be [///Sunny///; ///Rainy///]
 const [today; tomorrow] be weather
 
@@ -160,7 +160,7 @@ const [today, tomorrow] = weather;
 
 ## Objects
 
-```
+```purus
 const obj be [name be ///Alice///, age be 30]
 const empty-obj be [be]    -- empty object
 ```
@@ -169,7 +169,7 @@ const empty-obj be [be]    -- empty object
 
 Use `object[...]` to destructure properties from an object:
 
-```
+```purus
 const person be [name be ///Alice///, age be 30]
 const object[name; age] be person
 ```
@@ -183,13 +183,13 @@ const { name, age } = person;
 
 ## Brackets only
 
-Purus uses `[]` for everything — function calls, arrays, objects, and grouping. No `()` or `{}`.
+Purus uses `[]` for everything 窶・function calls, arrays, objects, and grouping. No `()` or `{}`.
 
 ### Computed Access
 
 Use `\` inside brackets to access array indices or object properties by expression:
 
-```
+```purus
 const val be arr[\0]        -- arr[0]
 const item be obj[\key]     -- obj[key]
 const x be matrix[\i][\j]  -- matrix[i][j]
@@ -207,7 +207,7 @@ This `\` prefix distinguishes computed access from function calls:
 
 Use `\.` for optional chaining (JS `?.`):
 
-```
+```purus
 const name be user\.name          -- user?.name
 const val be obj\.method[1; 2]    -- obj?.method(1, 2)
 ```
@@ -216,7 +216,7 @@ const val be obj\.method[1; 2]    -- obj?.method(1, 2)
 
 Brackets `[...]` can span multiple lines. Newlines and indentation between items are ignored:
 
-```
+```purus
 const items be [
   1;
   2;
@@ -241,7 +241,7 @@ fetch[url].then[
 
 Blocks are defined by indentation (2 spaces recommended):
 
-```
+```purus
 if x gt 0
   console.log[///positive///]
 else
@@ -252,7 +252,7 @@ else
 
 Identifiers can contain hyphens (`-`) and underscores (`_`), which are both converted to underscores in JavaScript output:
 
-```
+```purus
 const my-variable be 42
 -- compiles to: const my_variable = 42;
 
@@ -260,8 +260,115 @@ const my_variable2 be 43
 -- compiles to: const my_variable2 = 43;
 ```
 
-Hyphens and underscores are interchangeable — `my-var` and `my_var` refer to the same JavaScript variable (`my_var`). If you need to work with JS libraries that use underscores, you can use either form in Purus.
+Hyphens and underscores are interchangeable 窶・`my-var` and `my_var` refer to the same JavaScript variable (`my_var`). If you need to work with JS libraries that use underscores, you can use either form in Purus.
 
 :::caution
 Since `a-b` and `a_b` both compile to `a_b`, avoid defining both forms in the same scope. They will refer to the same variable.
 :::
+
+## JavaScript Comparison
+
+Purus replaces many JavaScript symbols with words. Here is a quick reference for common JavaScript patterns and their Purus equivalents:
+
+### Template literals (`${}`)
+
+JavaScript uses backticks and `${}` for template literals. Purus uses `///` strings with `[]`:
+
+```purus
+-- JavaScript: `Hello, ${name}! You are ${age} years old.`
+const msg be ///Hello, [name]! You are [age] years old.///
+
+-- JavaScript: `${a} + ${b} = ${a + b}`
+const result be ///[a] + [b] = [a add b]///
+```
+
+```js
+const msg = `Hello, ${name}! You are ${age} years old.`;
+const result = `${a} + ${b} = ${a + b}`;
+```
+
+### Nullish coalescing (`??`)
+
+JavaScript's `??` operator becomes `coal` in Purus:
+
+```purus
+-- JavaScript: const port = config.port ?? 3000;
+const port be config.port coal 3000
+
+-- JavaScript: const name = user?.name ?? "Anonymous";
+const name be user\.name coal ///Anonymous///
+```
+
+```js
+const port = config.port ?? 3000;
+const name = user?.name ?? "Anonymous";
+```
+
+### Ternary operator (`? :`)
+
+JavaScript's ternary `condition ? a : b` becomes `if condition then a else b`:
+
+```purus
+-- JavaScript: const label = count > 0 ? "items" : "empty";
+const label be if count gt 0 then ///items/// else ///empty///
+```
+
+```js
+const label = count > 0 ? "items" : "empty";
+```
+
+### Optional chaining (`?.`)
+
+JavaScript's `?.` becomes `\.` in Purus:
+
+```purus
+-- JavaScript: user?.address?.city
+user\.address\.city
+
+-- JavaScript: arr?.[0]
+arr\.[\0]
+```
+
+```js
+user?.address?.city;
+arr?.[0];
+```
+
+### Strict equality (`===` / `!==`)
+
+JavaScript's `===` becomes `eq` (or `is`), and `!==` becomes `neq` (or `not eq`):
+
+```purus
+-- JavaScript: if (x === 0) {}
+if x eq 0
+  -- ...
+
+-- JavaScript: if (x !== null) {}
+if x neq null
+  -- ...
+```
+
+```js
+if (x === 0) {}
+if (x !== null) {}
+```
+
+### Arrow functions (`=>`)
+
+JavaScript's `=>` arrow functions become `fn` ... `to` (expression body) or `fn` with indented block:
+
+```purus
+-- JavaScript: const double = (x) => x * 2;
+const double be fn x to x mul 2
+
+-- JavaScript: const greet = (name) => { console.log(name); };
+const greet be fn name
+  console.log[name]
+```
+
+```js
+const double = (x) => x * 2;
+const greet = (name) => {
+  console.log(name);
+};
+```

@@ -7,7 +7,7 @@ sidebar:
 
 ## ESM Import
 
-```
+```purus
 import express from ///express///
 import [useState, useEffect] from ///react///
 import React, [Component] from ///react///
@@ -18,7 +18,7 @@ import all as fs from ///fs///
 
 Import a module for its side effects only (no bindings):
 
-```
+```purus
 import ///dotenv/config///
 import ///./polyfills///
 ```
@@ -30,7 +30,7 @@ import "./polyfills";
 
 ## Use (dot-path import)
 
-```
+```purus
 use std.math
 from std.math use sin, cos
 ```
@@ -42,7 +42,7 @@ import { sin, cos } from "std/math";
 
 ## Export
 
-```
+```purus
 pub fn helper to 42
 pub const VERSION be ///1.0///
 export default fn main
@@ -51,7 +51,7 @@ export default fn main
 
 ## Module namespace
 
-```
+```purus
 namespace utils
   fn helper to 42
 ```
@@ -64,7 +64,7 @@ const utils = (() => {
 
 ## CommonJS
 
-```
+```purus
 const fs be require[///fs///]
 ```
 

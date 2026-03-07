@@ -131,6 +131,7 @@ sidebar:
 | `new` | `new` |
 | `delete` | `delete` |
 | `this` | `this` |
+| `super` | `super` |
 | `throw` | `throw` |
 | `try` | `try` |
 | `catch` | `catch` |
@@ -138,6 +139,18 @@ sidebar:
 | `pipe` | pipeline operator |
 | `list` | array literal |
 | `object` | object literal |
+
+## Class
+
+| Keyword | JS Output | Description |
+|---|---|---|
+| `class` | `class` | Class declaration |
+| `extends` | `extends` | Class inheritance |
+| `super` | `super` | Parent class reference |
+| `static` | `static` | Static method |
+| `private` | `#field` | Private field declaration |
+| `get` | `get` | Getter accessor |
+| `set` | `set` | Setter accessor |
 
 ## Punctuation
 
