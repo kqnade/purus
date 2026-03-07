@@ -30,6 +30,11 @@ const {
     grid-auto-rows: 1fr;
     gap: 1rem;
   }
+  @media (max-width: 30rem) {
+    .npm-stats-grid {
+      grid-template-columns: 1fr;
+    }
+  }
   .npm-stat {
     display: grid;
     place-items: center;
@@ -42,7 +47,7 @@ const {
     box-sizing: border-box;
   }
   .npm-stat-label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--sl-color-gray-3);
@@ -50,7 +55,7 @@ const {
     white-space: nowrap;
   }
   .npm-stat-value {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--sl-color-text);
   }
