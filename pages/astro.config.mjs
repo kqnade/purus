@@ -72,6 +72,14 @@ export default defineConfig({
           translations: { ja: 'ツール' },
           autogenerate: { directory: 'tools' },
         },
+        {
+          label: 'Resources',
+          translations: { ja: 'リソース' },
+          items: [
+            { label: 'RFC', link: 'https://github.com/otoneko1102/purus/blob/main/RFC.md', attrs: { target: '_blank' } },
+            { label: 'Changelog', translations: { ja: '変更履歴' }, link: 'https://github.com/otoneko1102/purus/blob/main/CHANGELOG.md', attrs: { target: '_blank' } },
+          ],
+        },
       ],
     }),
   ],
