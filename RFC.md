@@ -1836,5 +1836,5 @@ DottedName    = Ident { "." Ident } ;
 
 ---
 
-_This document describes the Purus language as implemented in v0.6.0._
+_This document describes the Purus language as implemented in v0.7.0._
 _Purus is licensed under the Apache 2.0 License._
