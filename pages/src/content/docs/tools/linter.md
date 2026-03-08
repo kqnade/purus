@@ -5,6 +5,8 @@ sidebar:
   order: 2
 ---
 
+[View on npm](https://www.npmjs.com/package/@puruslang/linter)
+
 ## Installation
 
 ```sh

@@ -5,6 +5,8 @@ sidebar:
   order: 3
 ---
 
+[npmで見る](https://www.npmjs.com/package/@puruslang/prettier-plugin-purus)
+
 ## インストール
 
 ```sh

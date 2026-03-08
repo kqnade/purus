@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import { readFileSync } from 'node:fs';
+import rehypeExternalLinks from 'rehype-external-links';
 
 const purusGrammar = JSON.parse(
   readFileSync(new URL('../extension/syntaxes/purus.tmLanguage.json', import.meta.url), 'utf-8')
@@ -12,6 +13,11 @@ purusGrammar.name = 'purus';
 export default defineConfig({
   site: 'https://purus.work',
   outDir: '../docs',
+  markdown: {
+    rehypePlugins: [
+      [rehypeExternalLinks, { target: '_blank', rel: ['noopener', 'noreferrer'] }],
+    ],
+  },
   integrations: [
     starlight({
       title: 'Purus',

@@ -5,6 +5,8 @@ sidebar:
   order: 1
 ---
 
+[View on VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=otoneko1102.purus)
+
 ## Installation
 
 Search for **Purus** in the VS Code Extension Marketplace, or install from the command line:
