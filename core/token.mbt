@@ -86,6 +86,7 @@ pub(all) enum TokenKind {
   Pub_
   All_
   Type_
+  With_
 
   // Class-related
   Class_
@@ -100,6 +101,7 @@ pub(all) enum TokenKind {
   Null_
   Nil_
   Undefined_
+  Nan_
 
   // Explicit constructors (reserved keywords)
   List_

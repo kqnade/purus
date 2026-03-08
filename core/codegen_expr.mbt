@@ -41,6 +41,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       )
     NullLit => self.write("null")
     UndefinedLit => self.write("undefined")
+    NanLit => self.write("NaN")
     ArrayLit(elems) => {
       self.write("[")
       let mut first = true
@@ -344,6 +345,23 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("const __m = ")
       self.gen_expr(subject)
       self.write(";\n")
+      // Pre-declare named BindPat with guard bindings
+      for arm in arms {
+        match arm.pattern {
+          BindPat(name) => {
+            match arm.cond {
+              Some(_) => if name != "_" {
+                self.write_indent()
+                self.write("const ")
+                self.write(js_ident(name))
+                self.write(" = __m;\n")
+              }
+              None => ()
+            }
+          }
+          _ => ()
+        }
+      }
       let mut first = true
       for arm in arms {
         self.write_indent()
@@ -365,11 +383,28 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
           }
           BindPat(name) => {
             if name == "_" {
-              self.write("{\n")
+              match arm.cond {
+                Some(c) => {
+                  self.write("if (")
+                  self.gen_expr(c)
+                  self.write(") {\n")
+                }
+                None => self.write("{\n")
+              }
             } else {
-              self.write("if (true) { const ")
-              self.write(js_ident(name))
-              self.write(" = __m;\n")
+              match arm.cond {
+                Some(c) => {
+                  // Binding pre-declared, use guard as condition
+                  self.write("if (")
+                  self.gen_expr(c)
+                  self.write(") {\n")
+                }
+                None => {
+                  self.write("if (true) { const ")
+                  self.write(js_ident(name))
+                  self.write(" = __m;\n")
+                }
+              }
             }
           }
         }

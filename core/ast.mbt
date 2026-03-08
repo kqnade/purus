@@ -10,6 +10,7 @@ pub(all) enum Expr {
   BoolLit(Bool)
   NullLit                   // null / nil
   UndefinedLit
+  NanLit                    // nan → NaN
   ArrayLit(Array[Expr])
   RangeArray(Expr, Expr, Bool)  // [start..end] (inclusive=true) or [start...end] (inclusive=false)
   Slice(Expr, Expr, Expr, Bool) // obj[start..end] (inclusive) or obj[start...end] (exclusive)
@@ -201,10 +202,10 @@ pub(all) struct ElIfBranch {
 
 ///|
 pub(all) enum ImportDecl {
-  EsImport(String?, Array[String]?, String?, String) // default, named, namespace, from
+  EsImport(String?, Array[String]?, String?, String, Array[(String, Expr)]?) // default, named, namespace, from, attributes
   CjsRequire(String, String)                          // name, module
   DynImport(String)                                    // dynamic import
-  SideEffectImport(String)                             // import ///module///
+  SideEffectImport(String, Array[(String, Expr)]?)     // import ///module///, attributes
 }
 
 ///|

@@ -1,6 +1,6 @@
 # Purus Language Specification
 
-**RFC — v0.6.1**
+**RFC — v0.7.0**
 
 > Purus — _/ˈpuː.rus/_ — means _pure_ in Latin.
 > A beautiful, simple, and easy-to-use language that compiles to JavaScript.
@@ -174,7 +174,7 @@ The following words are reserved and cannot be used as identifiers:
 
 **Module:** `import`, `from`, `export`, `default`, `require`, `use`, `namespace`, `pub`, `all`
 
-**Value:** `true`, `false`, `null`, `nil`, `undefined`
+**Value:** `true`, `false`, `null`, `nil`, `undefined`, `nan`
 
 **Constructor:** `list`, `object`
 
@@ -196,6 +196,7 @@ The following words are reserved and cannot be used as identifiers:
 | Boolean | `true` / `false` | `true` |
 | Null | `null` / `nil` | `null` |
 | Undefined | `undefined` | `undefined` |
+| NaN | `nan` | `NaN` |
 
 **Negative number literals** are recognized after these tokens: `[`, `,`, `;`, `be`, `\`, newline, indent, `return`, `to`, `then`, `coal`.
 
@@ -306,9 +307,11 @@ const b be false
 const a be null
 const b be nil         -- alias for null
 const c be undefined
+const d be nan         -- NaN
 ```
 
 Both `null` and `nil` compile to JavaScript `null`.
+`nan` compiles to JavaScript `NaN`.
 
 ### 4.6 Regular Expressions
 
@@ -630,11 +633,11 @@ function sayHello() {
 With expression body:
 
 ```
-fn get-timestamp to Date.now[]
+fn say-hello to console.log[///Hello!///]
 ```
 
 ```js
-function getTimestamp() { return Date.now(); }
+function sayHello() { console.log("Hello!"); }
 ```
 
 ### 7.3 Multiple Parameters
@@ -654,14 +657,14 @@ function add(a, b) {
 
 ### 7.4 Expression Body
 
-Use `to` for single-expression functions:
+Use `to` for single-expression function bodies. Named functions do not have implicit return — use explicit `return` to return values.
 
 ```
-fn double x to x mul 2
+fn greet name to console.log[name]
 ```
 
 ```js
-function double(x) { return x * 2; }
+function greet(name) { console.log(name); }
 ```
 
 ### 7.5 Anonymous Functions
@@ -1020,15 +1023,17 @@ throw err if condition    -- postfix if
 
 ```
 import express from ///express///
-import [useState; useEffect] from ///react///
-import React, [Component] from ///react///
+import [Hono] from ///hono///
+import [describe; it; expect] from ///vitest///
+import axios, [AxiosError] from ///axios///
 import all as fs from ///fs///
 ```
 
 ```js
 import express from "express";
-import { useState, useEffect } from "react";
-import React, { Component } from "react";
+import { Hono } from "hono";
+import { describe, it, expect } from "vitest";
+import axios, { AxiosError } from "axios";
 import * as fs from "fs";
 ```
 
@@ -1094,7 +1099,23 @@ import "./setup";
 
 No bindings are introduced — the module is simply executed.
 
-### 10.6 CommonJS
+### 10.6 Import Attributes
+
+Import attributes allow specifying additional metadata for module imports using the `with` keyword:
+
+```
+import package from ///./package.json/// with [ type be ///json/// ]
+import [name; version] from ///./package.json/// with [ type be ///json/// ]
+```
+
+```js
+import package from "./package.json" with { type: "json" };
+import { name, version } from "./package.json" with { type: "json" };
+```
+
+The `with` clause uses Purus's bracket syntax `[ key be value ]`, which compiles to JavaScript's `with { key: value }`. Multiple attributes can be separated by `;` or `,`.
+
+### 10.7 CommonJS
 
 ```
 const fs be require[///fs///]
@@ -1104,7 +1125,7 @@ const fs be require[///fs///]
 const fs = require("fs");
 ```
 
-### 10.7 Dynamic Import
+### 10.8 Dynamic Import
 
 Dynamic imports are supported through standard function call syntax:
 
@@ -1329,7 +1350,7 @@ class Wrapper
 
 ```js
 class Wrapper {
-  constructor(value) { return this.value = value; }
+  constructor(value) { this.value = value; }
 }
 ```
 
@@ -1540,7 +1561,7 @@ class Secret {
 |---------|-----------|-------------|
 | `fn` | `function` / `=>` | Function declaration/expression |
 | `return` | `return` | Return value |
-| `to` | `=> expr` / `{ return expr; }` | Expression body |
+| `to` | `{ expr; }` / `=> expr` | Expression body |
 | `gives` | _(erased)_ | Return type annotation |
 | `async` | `async` | Async function modifier |
 | `await` | `await` | Await expression |
@@ -1671,6 +1692,7 @@ class Secret {
 | `null` | `null` | Null value |
 | `nil` | `null` | Null alias |
 | `undefined` | `undefined` | Undefined value |
+| `nan` | `NaN` | NaN value |
 
 ### Punctuation
 

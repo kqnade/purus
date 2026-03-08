@@ -44,7 +44,7 @@ purus run hello.purus
 | `{ }` blocks | indentation |
 | `function` | `fn` |
 | `+` `-` `*` `/` | `add` `sub` `mul` `div` |
-| `===` `!==` | `eq` `ne` |
+| `===` `!==` | `eq` `neq` |
 | `&&` `\|\|` `!` | `and` `or` `not` |
 
 ## Variables
@@ -67,5 +67,5 @@ greet[///World///]
 Expression body with `to`:
 
 ```purus
-fn double x to x mul 2
+fn greet name to console.log[name]
 ```

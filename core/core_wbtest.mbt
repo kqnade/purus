@@ -659,7 +659,7 @@ test "parser: import default" {
   let stmts = parse("import fs from ///fs///")
   assert_eq(stmts.length(), 1)
   match stmts[0] {
-    ImportDecl(EsImport(Some(default_name), None, None, module_name)) => {
+    ImportDecl(EsImport(Some(default_name), None, None, module_name, _)) => {
       assert_eq(default_name, "fs")
       assert_eq(module_name, "fs")
     }
@@ -942,10 +942,37 @@ test "parser: computed access with number" {
 test "parser: side-effect import" {
   let stmts = Parser::new(Lexer::new("import ///dotenv/config///").tokenize()).parse()
   match stmts[0] {
-    ImportDecl(SideEffectImport(path)) => {
+    ImportDecl(SideEffectImport(path, _)) => {
       assert_eq(path, "dotenv/config")
     }
     _ => fail("expected SideEffectImport")
+  }
+}
+
+// ===== Import attributes tests =====
+
+test "parser: import with attributes" {
+  let stmts = Parser::new(Lexer::new("import pkg from ///./package.json/// with [ type be ///json/// ]").tokenize()).parse()
+  match stmts[0] {
+    ImportDecl(EsImport(Some(default_name), None, None, module_name, Some(attrs))) => {
+      assert_eq(default_name, "pkg")
+      assert_eq(module_name, "./package.json")
+      assert_eq(attrs.length(), 1)
+      assert_eq(attrs[0].0, "type")
+    }
+    _ => fail("expected EsImport with attributes")
+  }
+}
+
+test "parser: named import with attributes" {
+  let stmts = Parser::new(Lexer::new("import [name; version] from ///./package.json/// with [ type be ///json/// ]").tokenize()).parse()
+  match stmts[0] {
+    ImportDecl(EsImport(None, Some(names), None, module_name, Some(attrs))) => {
+      assert_eq(names.length(), 2)
+      assert_eq(module_name, "./package.json")
+      assert_eq(attrs.length(), 1)
+    }
+    _ => fail("expected named EsImport with attributes")
   }
 }
 

@@ -44,7 +44,7 @@ purus run hello.purus
 | `{ }` ブロック | インデント |
 | `function` | `fn` |
 | `+` `-` `*` `/` | `add` `sub` `mul` `div` |
-| `===` `!==` | `eq` `ne` |
+| `===` `!==` | `eq` `neq` |
 | `&&` `\|\|` `!` | `and` `or` `not` |
 
 ## 変数
@@ -67,5 +67,5 @@ greet[///World///]
 式本体（`to`を使用）:
 
 ```purus
-fn double x to x mul 2
+fn greet name to console.log[name]
 ```

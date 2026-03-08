@@ -9,8 +9,9 @@ sidebar:
 
 ```purus
 import express from ///express///
-import [useState, useEffect] from ///react///
-import React, [Component] from ///react///
+import [Hono] from ///hono///
+import [describe, it, expect] from ///vitest///
+import axios, [AxiosError] from ///axios///
 import all as fs from ///fs///
 ```
 
@@ -28,6 +29,20 @@ import "dotenv/config";
 import "./polyfills";
 ```
 
+### インポート属性
+
+`with` キーワードを使用してインポート属性を指定できます:
+
+```purus
+import package from ///./package.json/// with [ type be ///json/// ]
+import [name; version] from ///./package.json/// with [ type be ///json/// ]
+```
+
+```js
+import package from "./package.json" with { type: "json" };
+import { name, version } from "./package.json" with { type: "json" };
+```
+
 ## Use（ドットパスインポート）
 
 ```purus
@@ -43,7 +58,7 @@ import { sin, cos } from "std/math";
 ## エクスポート
 
 ```purus
-pub fn helper to 42
+pub fn greet name to console.log[name]
 pub const VERSION be ///1.0///
 export default fn main
   console.log[///hi///]
@@ -53,12 +68,15 @@ export default fn main
 
 ```purus
 namespace utils
-  fn helper to 42
+  fn helper
+    return 42
 ```
 
 ```js
 const utils = (() => {
-  function helper() { return 42; }
+  function helper() {
+    return 42;
+  }
 })();
 ```
 

@@ -1,9 +1,13 @@
 -- Modules and Imports
 
 -- ES Module imports
-import express from ///express///
-import [useState; useEffect] from ///react///
+import [Hono] from ///hono///
+import [describe; it; expect] from ///vitest///
 import all as fs from ///fs///
+
+-- Import attributes
+import package from ///./package.json/// with [ type be ///json/// ]
+import [name; version] from ///./package.json/// with [ type be ///json/// ]
 
 -- Use (dot path imports)
 use std.math

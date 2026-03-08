@@ -495,7 +495,7 @@ fn JsCodegen::gen_fn_decl(self : JsCodegen, decl : FnDecl) -> Unit {
   self.write(") ")
   match decl.body {
     ToExpr(expr) => {
-      self.write("{ return ")
+      self.write("{ ")
       self.gen_expr(expr)
       self.write("; }\n")
     }
@@ -613,7 +613,7 @@ fn JsCodegen::gen_class_decl(self : JsCodegen, decl : ClassDecl) -> Unit {
 fn JsCodegen::gen_class_body(self : JsCodegen, body : FnBody) -> Unit {
   match body {
     ToExpr(expr) => {
-      self.write("{ return ")
+      self.write("{ ")
       self.gen_expr(expr)
       self.write("; }\n")
     }
@@ -677,14 +677,49 @@ fn JsCodegen::gen_match(
   subject : Expr,
   arms : Array[MatchArm]
 ) -> Unit {
+  // Check if any arm has named BindPat with guard (needs pre-declaration)
+  let mut has_bind_guard = false
+  for arm in arms {
+    match arm.pattern {
+      BindPat(name) => {
+        match arm.cond {
+          Some(_) => if name != "_" { has_bind_guard = true }
+          None => ()
+        }
+      }
+      _ => ()
+    }
+  }
+  if has_bind_guard {
+    // Wrap in block scope and pre-declare bindings
+    self.write_indent()
+    self.write("{\n")
+    self.indent_level += 1
+    for arm in arms {
+      match arm.pattern {
+        BindPat(name) => {
+          match arm.cond {
+            Some(_) => if name != "_" {
+              self.write_indent()
+              self.write("const ")
+              self.write(js_ident(name))
+              self.write(" = ")
+              self.gen_expr(subject)
+              self.write(";\n")
+            }
+            None => ()
+          }
+        }
+        _ => ()
+      }
+    }
+  }
   // Compile match to if-else chain
   self.write_indent()
   let mut first = true
   for arm in arms {
     if not(first) {
       self.write(" else ")
-    } else {
-      // don't write indent for first
     }
     match arm.pattern {
       LitPat(lit) => {
@@ -703,18 +738,30 @@ fn JsCodegen::gen_match(
       }
       BindPat(name) => {
         if name == "_" {
-          // Default/else case
-          if not(first) {
-            self.write("{\n")
-          } else {
-            self.write("{\n")
+          match arm.cond {
+            Some(c) => {
+              self.write("if (")
+              self.gen_expr(c)
+              self.write(") {\n")
+            }
+            None => self.write("{\n")
           }
         } else {
-          self.write("if (true) { const ")
-          self.write(js_ident(name))
-          self.write(" = ")
-          self.gen_expr(subject)
-          self.write(";\n")
+          match arm.cond {
+            Some(c) => {
+              // Binding pre-declared, use guard as condition
+              self.write("if (")
+              self.gen_expr(c)
+              self.write(") {\n")
+            }
+            None => {
+              self.write("if (true) { const ")
+              self.write(js_ident(name))
+              self.write(" = ")
+              self.gen_expr(subject)
+              self.write(";\n")
+            }
+          }
         }
       }
     }
@@ -737,12 +784,17 @@ fn JsCodegen::gen_match(
     first = false
   }
   self.write("\n")
+  if has_bind_guard {
+    self.indent_level -= 1
+    self.write_indent()
+    self.write("}\n")
+  }
 }
 
 ///|
 fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
   match decl {
-    EsImport(default_name, named, ns_name, module_name) => {
+    EsImport(default_name, named, ns_name, module_name, attrs) => {
       self.write_indent()
       self.write("import ")
       let mut has_prev = false
@@ -784,7 +836,9 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
       }
       self.write(" from \"")
       self.write(module_name)
-      self.write("\";\n")
+      self.write("\"")
+      self.gen_import_attributes(attrs)
+      self.write(";\n")
     }
     CjsRequire(name, module_name) => {
       self.write_indent()
@@ -800,11 +854,34 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
       self.write(module_name)
       self.write("\");\n")
     }
-    SideEffectImport(module_name) => {
+    SideEffectImport(module_name, attrs) => {
       self.write_indent()
       self.write("import \"")
       self.write(module_name)
-      self.write("\";\n")
+      self.write("\"")
+      self.gen_import_attributes(attrs)
+      self.write(";\n")
     }
+  }
+}
+
+///|
+fn JsCodegen::gen_import_attributes(self : JsCodegen, attrs : Array[(String, Expr)]?) -> Unit {
+  match attrs {
+    Some(pairs) => {
+      self.write(" with { ")
+      let mut first = true
+      for pair in pairs {
+        if not(first) {
+          self.write(", ")
+        }
+        self.write(pair.0)
+        self.write(": ")
+        self.gen_expr(pair.1)
+        first = false
+      }
+      self.write(" }")
+    }
+    None => ()
   }
 }

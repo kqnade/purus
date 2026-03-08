@@ -22,14 +22,14 @@ function greet(name) {
 
 ## 名前付き関数（式本体）
 
+`to` 形式はワンライナーの関数本体を作成します。名前付き関数には暗黙のreturnはありません — 値を返すには明示的に `return` を使用してください。
+
 ```purus
-fn double x to x mul 2
+fn greet name to console.log[name]
 ```
 
 ```js
-function double(x) {
-  return x * 2;
-}
+function greet(name) { console.log(name); }
 ```
 
 ## 引数なしの関数
@@ -50,11 +50,11 @@ function sayHello() {
 式本体の場合:
 
 ```purus
-fn get-timestamp to Date.now[]
+fn say-hello to console.log[///Hello!///]
 ```
 
 ```js
-function getTimestamp() { return Date.now(); }
+function sayHello() { console.log("Hello!"); }
 ```
 
 ## 複数パラメータ

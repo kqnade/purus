@@ -67,6 +67,7 @@ sidebar:
 | `namespace` | IIFE | Module namespace |
 | `pub` | `export` | Public export |
 | `all` | `* as` | Namespace import |
+| `with` | `with` | Import attributes |
 
 ## Operators
 
@@ -139,6 +140,7 @@ sidebar:
 | `pipe` | pipeline operator |
 | `list` | array literal |
 | `object` | object literal |
+| `nan` | `NaN` |
 
 ## Class
 

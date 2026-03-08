@@ -92,6 +92,71 @@ const d be nil       -- nullのエイリアス
 const e be undefined
 ```
 
+## 区切り文字: `;` と `,`
+
+Purusには異なる役割を持つ2つの区切り文字があります:
+
+| 区切り文字 | 用途 | JS出力 |
+|---|---|---|
+| `;` | 関数の引数、パラメータ、分割代入 | `,` |
+| `,` | 配列の要素、オブジェクトのプロパティ | `,` |
+
+どちらもJavaScriptでは `,` にコンパイルされますが、Purusでは異なる目的で使い分けます:
+
+### `;` — 引数とパラメータ
+
+`;` は**関数の引数**（呼び出し時）と**パラメータ**（宣言時）の区切りに使用します:
+
+```purus
+-- 関数パラメータ
+fn add a; b
+  return a add b
+
+-- 関数の引数
+add[1; 2]
+console.log[///hello///; ///world///]
+Math.max[1; 2; 3]
+
+-- 分割代入
+const [a; b; c] be arr
+const object[name; age] be person
+```
+
+### `,` — データの区切り
+
+`,` は**配列の要素**と**オブジェクトのプロパティ**の区切りに使用します:
+
+```purus
+-- 配列
+const arr be [1, 2, 3]
+
+-- オブジェクト
+const obj be [name be ///Alice///, age be 30]
+```
+
+### なぜ2つの区切り文字があるのか？
+
+Purusでは `[]` を関数呼び出しと配列の両方に使うため、2つの区切り文字で区別します:
+
+```purus
+-- `;` は3つの引数を持つ関数呼び出し
+fn[a; b; c]        -- fn(a, b, c)
+
+-- `,` は3つの要素を持つ配列
+[a, b, c]          -- [a, b, c]
+
+-- ネストされた呼び出しでは `;` で引数を区切る
+outer[inner[x]; y]  -- outer(inner(x), y)
+```
+
+:::tip
+配列リテラルでは `;` も区切り文字として使え、`,` と同じにコンパイルされます。ただし、データには `,`、引数には `;` を使うのが可読性のための推奨規則です。
+
+```purus
+const arr be [1; 2; 3]   -- 動作する、[1, 2, 3]と同じ
+```
+:::
+
 ## 配列
 
 ```purus
@@ -113,15 +178,15 @@ const exclusive be [0...5]  -- [0, 1, 2, 3, 4]
 
 ```purus
 const numbers be [0, 1, 2, 3, 4, 5, 6]
-const middle be numbers[\2..4]    -- [2, 3, 4]
-const partial be numbers[\1...4]  -- [1, 2, 3]
+const middle be numbers[\2..5]    -- [2, 3, 4, 5]
+const partial be numbers[\2...5]  -- [2, 3, 4]
 ```
 
 コンパイル結果:
 
 ```js
-const middle = numbers.slice(2, 4 + 1);
-const partial = numbers.slice(1, 4);
+const middle = numbers.slice(2, 5 + 1);
+const partial = numbers.slice(2, 5);
 ```
 
 ### スプライス（部分置換）

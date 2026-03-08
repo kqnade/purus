@@ -625,7 +625,8 @@ fn Parser::parse_import_stmt(self : Parser) -> Stmt {
   match self.peek() {
     Str(s) => {
       self.pos += 1
-      return ImportDecl(SideEffectImport(s))
+      let attrs = self.parse_import_attributes()
+      return ImportDecl(SideEffectImport(s, attrs))
     }
     _ => ()
   }
@@ -639,14 +640,16 @@ fn Parser::parse_import_stmt(self : Parser) -> Stmt {
     let ns = self.parse_ident_name()
     self.expect(From_)
     let module_name = self.parse_string_value()
-    return ImportDecl(EsImport(None, None, Some(ns), module_name))
+    let attrs = self.parse_import_attributes()
+    return ImportDecl(EsImport(None, None, Some(ns), module_name, attrs))
   }
   if self.peek() == LBracket {
     // named imports
     let named = self.parse_bracket_names()
     self.expect(From_)
     let module_name = self.parse_string_value()
-    return ImportDecl(EsImport(None, Some(named), None, module_name))
+    let attrs = self.parse_import_attributes()
+    return ImportDecl(EsImport(None, Some(named), None, module_name, attrs))
   }
   let default_name = self.parse_ident_name()
   if self.peek() == Comma {
@@ -654,11 +657,43 @@ fn Parser::parse_import_stmt(self : Parser) -> Stmt {
     let named = self.parse_bracket_names()
     self.expect(From_)
     let module_name = self.parse_string_value()
-    return ImportDecl(EsImport(Some(default_name), Some(named), None, module_name))
+    let attrs = self.parse_import_attributes()
+    return ImportDecl(EsImport(Some(default_name), Some(named), None, module_name, attrs))
   }
   self.expect(From_)
   let module_name = self.parse_string_value()
-  ImportDecl(EsImport(Some(default_name), None, None, module_name))
+  let attrs = self.parse_import_attributes()
+  ImportDecl(EsImport(Some(default_name), None, None, module_name, attrs))
+}
+
+///|
+fn Parser::parse_import_attributes(self : Parser) -> Array[(String, Expr)]? {
+  if self.peek() != With_ {
+    return None
+  }
+  self.pos += 1 // skip with
+  self.expect(LBracket)
+  let attrs : Array[(String, Expr)] = []
+  self.skip_bracket_ws()
+  while self.pos < self.tokens.length() && self.peek() != RBracket {
+    let key = match self.advance() {
+      Ident(s) => s
+      Type_ => "type"
+      _ => "unknown"
+    }
+    self.expect(Be)
+    let value = self.parse_expr()
+    attrs.push((key, value))
+    self.skip_bracket_ws()
+    if self.peek() == Comma || self.peek() == Semicolon {
+      self.pos += 1
+    }
+    self.skip_bracket_ws()
+  }
+  if self.peek() == RBracket {
+    self.pos += 1
+  }
+  Some(attrs)
 }
 
 ///|

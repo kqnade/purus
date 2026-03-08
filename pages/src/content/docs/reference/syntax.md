@@ -92,6 +92,71 @@ const d be nil       -- alias for null
 const e be undefined
 ```
 
+## Separators: `;` vs `,`
+
+Purus has two separators with distinct roles:
+
+| Separator | Usage | JS Output |
+|---|---|---|
+| `;` | Function arguments, function parameters, destructuring | `,` |
+| `,` | Array elements, object properties | `,` |
+
+Both compile to `,` in JavaScript, but they serve different purposes in Purus:
+
+### `;` — Arguments and Parameters
+
+Use `;` to separate **function arguments** when calling functions and **parameters** in function declarations:
+
+```purus
+-- Function parameters
+fn add a; b
+  return a add b
+
+-- Function arguments
+add[1; 2]
+console.log[///hello///; ///world///]
+Math.max[1; 2; 3]
+
+-- Destructuring
+const [a; b; c] be arr
+const object[name; age] be person
+```
+
+### `,` — Data Separators
+
+Use `,` to separate **array elements** and **object properties**:
+
+```purus
+-- Arrays
+const arr be [1, 2, 3]
+
+-- Objects
+const obj be [name be ///Alice///, age be 30]
+```
+
+### Why two separators?
+
+Since Purus uses `[]` for both function calls and arrays, the two separators help distinguish between them:
+
+```purus
+-- `;` makes this a function call with 3 arguments
+fn[a; b; c]        -- fn(a, b, c)
+
+-- `,` makes this an array with 3 elements
+[a, b, c]          -- [a, b, c]
+
+-- Nested calls use `;` to separate arguments
+outer[inner[x]; y]  -- outer(inner(x), y)
+```
+
+:::tip
+In array literals, `;` also works as a separator and compiles identically to `,`. However, using `,` for data and `;` for arguments is the recommended convention for readability.
+
+```purus
+const arr be [1; 2; 3]   -- works, same as [1, 2, 3]
+```
+:::
+
 ## Arrays
 
 ```purus
@@ -113,15 +178,15 @@ Extract a portion of an array using `\` prefix with `..` (inclusive) or `...` (e
 
 ```purus
 const numbers be [0, 1, 2, 3, 4, 5, 6]
-const middle be numbers[\2..4]    -- [2, 3, 4]
-const partial be numbers[\1...4]  -- [1, 2, 3]
+const middle be numbers[\2..5]    -- [2, 3, 4, 5]
+const partial be numbers[\2...5]  -- [2, 3, 4]
 ```
 
 Compiles to:
 
 ```js
-const middle = numbers.slice(2, 4 + 1);
-const partial = numbers.slice(1, 4);
+const middle = numbers.slice(2, 5 + 1);
+const partial = numbers.slice(2, 5);
 ```
 
 ### Splicing

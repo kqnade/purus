@@ -170,7 +170,7 @@ test "codegen: named function" {
 
 test "codegen: arrow function with to" {
   let js = compile("fn double x to x mul 2")
-  assert_true(js.contains("function double(x) { return x * 2; }"))
+  assert_true(js.contains("function double(x) { x * 2; }"))
 }
 
 test "codegen: if-else" {
@@ -227,6 +227,16 @@ test "codegen: import default" {
   assert_eq(js, "import express from \"express\";\n")
 }
 
+test "codegen: import with attributes" {
+  let js = compile("import pkg from ///./package.json/// with [ type be ///json/// ]")
+  assert_eq(js, "import pkg from \"./package.json\" with { type: \"json\" };\n")
+}
+
+test "codegen: named import with attributes" {
+  let js = compile("import [name; version] from ///./package.json/// with [ type be ///json/// ]")
+  assert_eq(js, "import { name, version } from \"./package.json\" with { type: \"json\" };\n")
+}
+
 test "codegen: array literal" {
   let js = compile("const arr be [1, 2, 3]")
   assert_eq(js, "const arr = [1, 2, 3];\n")
@@ -243,6 +253,11 @@ test "codegen: boolean and null" {
   assert_eq(js, "const a = true;\n")
   let js2 = compile("const b be null")
   assert_eq(js2, "const b = null;\n")
+}
+
+test "codegen: nan literal" {
+  let js = compile("const x be nan")
+  assert_eq(js, "const x = NaN;\n")
 }
 
 test "codegen: return statement" {
@@ -550,7 +565,7 @@ test "codegen: class with getter and setter" {
   assert_true(js.contains("class Person {"))
   assert_true(js.contains("#name;"))
   assert_true(js.contains("get name()"))
-  assert_true(js.contains("return this.#name"))
+  assert_true(js.contains("this.#name"))
   assert_true(js.contains("set name(value)"))
   assert_true(js.contains("this.#name = value"))
 }

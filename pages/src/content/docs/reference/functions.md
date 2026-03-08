@@ -22,14 +22,14 @@ function greet(name) {
 
 ## Named function (expression body)
 
+The `to` form creates a one-liner function body. Named functions do not have implicit return — use explicit `return` to return values.
+
 ```purus
-fn double x to x mul 2
+fn greet name to console.log[name]
 ```
 
 ```js
-function double(x) {
-  return x * 2;
-}
+function greet(name) { console.log(name); }
 ```
 
 ## Function with no arguments
@@ -50,11 +50,11 @@ function sayHello() {
 With expression body:
 
 ```purus
-fn get-timestamp to Date.now[]
+fn say-hello to console.log[///Hello!///]
 ```
 
 ```js
-function getTimestamp() { return Date.now(); }
+function sayHello() { console.log("Hello!"); }
 ```
 
 ## Multiple parameters

@@ -110,8 +110,8 @@ const d be [1...10]   -- [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 ```purus
 const numbers be [0, 1, 2, 3, 4, 5, 6]
-const middle be numbers[\2..4]    -- [2, 3, 4]
-const partial be numbers[\1...4]  -- [1, 2, 3]
+const middle be numbers[\2..5]    -- [2, 3, 4, 5]
+const partial be numbers[\2...5]  -- [2, 3, 4]
 ```
 
 ## スプライス（部分置換）

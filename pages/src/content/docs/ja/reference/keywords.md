@@ -67,6 +67,7 @@ sidebar:
 | `namespace` | IIFE | モジュール名前空間 |
 | `pub` | `export` | パブリックエクスポート |
 | `all` | `* as` | 名前空間インポート |
+| `with` | `with` | インポート属性 |
 
 ## 演算子
 
@@ -139,6 +140,7 @@ sidebar:
 | `pipe` | パイプライン演算子 |
 | `list` | 配列リテラル |
 | `object` | オブジェクトリテラル |
+| `nan` | `NaN` |
 
 ## クラス
 

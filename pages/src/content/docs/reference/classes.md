@@ -50,7 +50,8 @@ class Counter
   fn increment
     this.count be this.count add 1
 
-  get fn value to this.count
+  get fn value
+    return this.count
 ```
 
 ```js
@@ -59,7 +60,9 @@ class Counter {
   increment() {
     this.#count = this.#count + 1;
   }
-  get value() { return this.#count; }
+  get value() {
+    return this.#count;
+  }
 }
 ```
 
@@ -95,12 +98,15 @@ Use `static fn` to declare static methods:
 
 ```purus
 class MathUtil
-  static fn sum a; b to a add b
+  static fn sum a; b
+    return a add b
 ```
 
 ```js
 class MathUtil {
-  static sum(a, b) { return a + b; }
+  static sum(a, b) {
+    return a + b;
+  }
 }
 ```
 
@@ -115,7 +121,8 @@ class Temperature
   fn new celsius
     this.celsius be celsius
 
-  get fn fahrenheit to this.celsius mul 1.8 add 32
+  get fn fahrenheit
+    return this.celsius mul 1.8 add 32
 
   set fn fahrenheit value
     this.celsius be value sub 32 div 1.8
@@ -127,9 +134,11 @@ class Temperature {
   constructor(celsius) {
     this.#celsius = celsius;
   }
-  get fahrenheit() { return this.#celsius * 1.8 + 32; }
+  get fahrenheit() {
+    return (this.#celsius * 1.8) + 32;
+  }
   set fahrenheit(value) {
-    this.#celsius = (value - 32) / 1.8;
+    this.#celsius = value - (32 / 1.8);
   }
 }
 ```
@@ -154,7 +163,7 @@ class Api {
 
 ## Expression body methods
 
-Methods support `to` for expression bodies:
+Methods support `to` for expression bodies. Note that named functions and methods do not have implicit return — use `to` for side-effect expressions:
 
 ```purus
 class Greeter
@@ -163,6 +172,6 @@ class Greeter
 
 ```js
 class Greeter {
-  greet(name) { return console.log(`Hello, ${name}`); }
+  greet(name) { console.log(`Hello, ${name}`); }
 }
 ```

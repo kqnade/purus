@@ -526,11 +526,13 @@ fn Lexer::scan_ident(self : Lexer) -> Unit {
     "pub" => Pub_
     "all" => All_
     "type" => Type_
+    "with" => With_
     "true" => True_
     "false" => False_
     "null" => Null_
     "nil" => Nil_
     "undefined" => Undefined_
+    "nan" => Nan_
     "coal" => Coal
     "list" => List_
     "object" => Object_

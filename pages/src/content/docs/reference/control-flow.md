@@ -194,6 +194,8 @@ if (x === 1) {
 
 With guards:
 
+In `when n if ...`, the variable `n` is bound to the match subject (`value`), allowing the guard condition to reference it.
+
 ```purus
 match value
   when n if n gt 0
@@ -203,10 +205,13 @@ match value
 ```
 
 ```js
-if (value > 0) {
-  console.log("positive");
-} else {
-  console.log("non-positive");
+{
+  const n = value;
+  if (n > 0) {
+    console.log("positive");
+  } else {
+    console.log("non-positive");
+  }
 }
 ```
 

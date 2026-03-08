@@ -194,6 +194,8 @@ if (x === 1) {
 
 ガード付き:
 
+`when n if ...` において、変数 `n` はmatchの対象（`value`）にバインドされ、ガード条件でその値を参照できます。
+
 ```purus
 match value
   when n if n gt 0
@@ -203,10 +205,13 @@ match value
 ```
 
 ```js
-if (value > 0) {
-  console.log("positive");
-} else {
-  console.log("non-positive");
+{
+  const n = value;
+  if (n > 0) {
+    console.log("positive");
+  } else {
+    console.log("non-positive");
+  }
 }
 ```
 
