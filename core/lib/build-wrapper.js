@@ -12,6 +12,7 @@ let output = null;
 let noHeader = false;
 let toStdout = false;
 let strict = null; // null = use config or default (true)
+let moduleType = null; // null = resolve from config/package.json/default
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--no-header") {
@@ -24,6 +25,10 @@ for (let i = 0; i < args.length; i++) {
     } else {
       strict = true;
     }
+  } else if (args[i] === "--type" || args[i] === "-t") {
+    if (i + 1 < args.length) {
+      moduleType = args[++i];
+    }
   } else if (args[i] === "--entry" || args[i] === "-e") {
     entry = args[++i];
   } else if (args[i] === "--output" || args[i] === "-o") {
@@ -33,12 +38,46 @@ for (let i = 0; i < args.length; i++) {
   }
 }
 
+/**
+ * Resolve module type for a file.
+ * For .cpurus → always "commonjs", .mpurus → always "module".
+ * For .purus → CLI --type > config.purus type > package.json type > "module" (default).
+ */
+function resolveModuleType(filePath, cliModuleType, configResult) {
+  if (filePath && filePath.endsWith(".cpurus")) return "commonjs";
+  if (filePath && filePath.endsWith(".mpurus")) return "module";
+
+  // CLI option takes highest priority
+  if (cliModuleType) return cliModuleType;
+
+  // config.purus type
+  if (configResult && configResult.config.type) return configResult.config.type;
+
+  // package.json type
+  try {
+    const pkgPath = configResult
+      ? path.join(configResult.configDir, "package.json")
+      : path.resolve("package.json");
+    if (fs.existsSync(pkgPath)) {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+      if (pkg.type) return pkg.type;
+    }
+  } catch {
+    // ignore
+  }
+
+  // default: ESM
+  return "module";
+}
+
 if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile() && /\.(c|m)?purus$/.test(entry)) {
   // Single file - handle directly via compile API
   const source = fs.readFileSync(entry, "utf8");
   const useHeader = !noHeader;
   const useStrict = strict !== null ? strict : true;
-  const js = compile(source, { header: useHeader, strict: useStrict });
+  const configResult = loadConfig();
+  const resolvedModule = resolveModuleType(entry, moduleType, configResult);
+  const js = compile(source, { header: useHeader, strict: useStrict, module: resolvedModule });
 
   if (toStdout) {
     process.stdout.write(js);
@@ -61,6 +100,7 @@ if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile() && /\.(c|m)?pur
   let outputDir;
   let useHeader;
   let useStrict;
+  let configResult = null;
 
   if (entry) {
     entryDir = path.resolve(entry);
@@ -68,22 +108,22 @@ if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile() && /\.(c|m)?pur
     useHeader = !noHeader;
     useStrict = strict !== null ? strict : true;
 
-    const result = loadConfig();
-    if (result) {
+    configResult = loadConfig();
+    if (configResult) {
       if (!output) {
         outputDir = path.resolve(
-          result.configDir,
-          result.config.output || "dist"
+          configResult.configDir,
+          configResult.config.output || "dist"
         );
       }
-      useHeader = result.config.header !== false && !noHeader;
+      useHeader = configResult.config.header !== false && !noHeader;
       if (strict === null) {
-        useStrict = result.config.strict !== false;
+        useStrict = configResult.config.strict !== false;
       }
     }
   } else {
-    const result = loadConfig();
-    if (!result) {
+    configResult = loadConfig();
+    if (!configResult) {
       console.log("Error: no input file specified and no config.purus found");
       console.log("");
       console.log("Usage:");
@@ -95,7 +135,7 @@ if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile() && /\.(c|m)?pur
       process.exit(1);
     }
 
-    const { config, configDir } = result;
+    const { config, configDir } = configResult;
     entryDir = path.resolve(configDir, config.entry || "src");
     outputDir = output
       ? path.resolve(output)
@@ -130,7 +170,8 @@ if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile() && /\.(c|m)?pur
   let count = 0;
   for (const f of files) {
     const source = fs.readFileSync(f, "utf8");
-    const js = compile(source, { header: useHeader, strict: useStrict });
+    const resolvedModule = resolveModuleType(f, moduleType, configResult);
+    const js = compile(source, { header: useHeader, strict: useStrict, module: resolvedModule });
     let outputPath;
 
     if (stat.isFile()) {

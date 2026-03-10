@@ -11,6 +11,7 @@ const args = process.argv.slice(3);
 let entry = null;
 let noHeader = false;
 let strict = null;
+let moduleType = null;
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--no-header") {
@@ -21,6 +22,10 @@ for (let i = 0; i < args.length; i++) {
     } else {
       strict = true;
     }
+  } else if (args[i] === "--type" || args[i] === "-t") {
+    if (i + 1 < args.length) {
+      moduleType = args[++i];
+    }
   } else if (args[i] === "--entry" || args[i] === "-e") {
     entry = args[++i];
   } else if (!args[i].startsWith("-")) {
@@ -28,11 +33,34 @@ for (let i = 0; i < args.length; i++) {
   }
 }
 
+function resolveModuleType(filePath, cliModuleType) {
+  if (filePath && filePath.endsWith(".cpurus")) return "commonjs";
+  if (filePath && filePath.endsWith(".mpurus")) return "module";
+  if (cliModuleType) return cliModuleType;
+
+  const configResult = loadConfig();
+  if (configResult && configResult.config.type) return configResult.config.type;
+
+  try {
+    const pkgDir = configResult ? configResult.configDir : process.cwd();
+    const pkgPath = path.join(pkgDir, "package.json");
+    if (fs.existsSync(pkgPath)) {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+      if (pkg.type) return pkg.type;
+    }
+  } catch {
+    // ignore
+  }
+
+  return "module";
+}
+
 if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile()) {
   // Single file - compile and run
   const source = fs.readFileSync(entry, "utf8");
   const useStrict = strict !== null ? strict : true;
-  const js = compile(source, { header: false, strict: useStrict });
+  const resolvedModule = resolveModuleType(entry, moduleType);
+  const js = compile(source, { header: false, strict: useStrict, module: resolvedModule });
   const m = new (require("module"))();
   m._compile(js, entry);
 } else {
@@ -81,7 +109,8 @@ if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile()) {
   for (const f of files) {
     const source = fs.readFileSync(f, "utf8");
     const useStrict2 = strict !== null ? strict : true;
-    const js = compile(source, { header: false, strict: useStrict2 });
+    const resolvedModule = resolveModuleType(f, moduleType);
+    const js = compile(source, { header: false, strict: useStrict2, module: resolvedModule });
 
     const tmpFile = path.join(
       require("os").tmpdir(),
