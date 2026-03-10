@@ -1,6 +1,6 @@
 # Purus Language Specification
 
-**RFC — v0.7.0**
+**RFC — v0.8.0**
 
 > Purus — _/ˈpuː.rus/_ — means _pure_ in Latin.
 > A beautiful, simple, and easy-to-use language that compiles to JavaScript.
@@ -63,8 +63,9 @@
    - 8.5 [While / Until](#85-while--until)
    - 8.6 [For-in](#86-for-in)
    - 8.7 [For-range](#87-for-range)
-   - 8.8 [Match / When](#88-match--when)
-   - 8.9 [Break / Continue / Return](#89-break--continue--return)
+   - 8.8 [Witch / Case / Default](#88-witch--case--default)
+   - 8.9 [Match / When (deprecated)](#89-match--when-deprecated)
+   - 8.10 [Break / Continue / Return](#810-break--continue--return)
 9. [Error Handling](#9-error-handling)
    - 9.1 [Try / Catch / Finally](#91-try--catch--finally)
    - 9.2 [Try as Expression](#92-try-as-expression)
@@ -77,6 +78,7 @@
     - 10.5 [Side-Effect Import](#105-side-effect-import)
     - 10.6 [CommonJS](#106-commonjs)
     - 10.7 [Dynamic Import](#107-dynamic-import)
+    - 10.8 [Module Type Configuration](#108-module-type-configuration)
 11. [Array Operations](#11-array-operations)
     - 11.1 [Ranges](#111-ranges)
     - 11.2 [Slicing](#112-slicing)
@@ -166,7 +168,7 @@ The following words are reserved and cannot be used as identifiers:
 
 **Function:** `fn`, `return`, `to`, `gives`, `async`, `await`
 
-**Control:** `if`, `elif`, `else`, `unless`, `then`, `while`, `until`, `for`, `in`, `range`, `break`, `continue`, `match`, `when`
+**Control:** `if`, `elif`, `else`, `unless`, `then`, `while`, `until`, `for`, `in`, `range`, `break`, `continue`, `witch`, `case`, `match`, `when`
 
 **Operator:** `add`, `sub`, `mul`, `div`, `mod`, `pow`, `neg`, `eq`, `neq`, `lt`, `gt`, `le`, `ge`, `and`, `or`, `not`, `coal`, `pipe`
 
@@ -657,7 +659,7 @@ function add(a, b) {
 
 ### 7.4 Expression Body
 
-Use `to` for single-expression function bodies. Named functions do not have implicit return — use explicit `return` to return values.
+Use `to` for single-expression function bodies. Named functions do not have implicit return — use `to return` for explicit return.
 
 ```
 fn greet name to console.log[name]
@@ -665,6 +667,16 @@ fn greet name to console.log[name]
 
 ```js
 function greet(name) { console.log(name); }
+```
+
+**Explicit return with `to return`:**
+
+```
+fn double x to return x mul 2
+```
+
+```js
+function double(x) { return x * 2; }
 ```
 
 ### 7.5 Anonymous Functions
@@ -934,7 +946,47 @@ for (let i = 0; i < 10; i++) {
 }
 ```
 
-### 8.8 Match / When
+### 8.8 Witch / Case / Default
+
+**Statement form:**
+
+```
+witch x
+  case 1 then ///one///
+  case 2 then ///two///
+  default ///other///
+```
+
+**Block body in arms:**
+
+```
+witch value
+  case n if n gt 0
+    console.log[///positive///]
+  default
+    console.log[///non-positive///]
+```
+
+**Expression form** (compiled to IIFE):
+
+```
+const label be witch status
+  case 200 then ///ok///
+  case 404 then ///not found///
+  default ///unknown///
+```
+
+Witch arms support:
+- **Literal patterns:** `case 1`, `case ///hello///`, `case true`
+- **Binding patterns:** `case n` (binds the value to `n`)
+- **Wildcard:** `default` (default arm, matches anything)
+- **Guards:** `case n if n gt 0` (additional condition)
+- **Body:** `then EXPR` (expression) or indented block
+
+### 8.9 Match / When (deprecated)
+
+> **Deprecated:** Use `witch` / `case` / `default` instead.
+> `match` / `when` is kept for backward compatibility.
 
 **Statement form:**
 
@@ -971,7 +1023,7 @@ Match arms support:
 - **Guards:** `when n if n gt 0` (additional condition)
 - **Body:** `then EXPR` (expression) or indented block
 
-### 8.9 Break / Continue / Return
+### 8.10 Break / Continue / Return
 
 ```
 break
@@ -1133,6 +1185,48 @@ Dynamic imports are supported through standard function call syntax:
 const mod be await import[///./module.js///]
 ```
 
+### 10.9 Module Type Configuration
+
+By default, `.purus` files compile as ES Modules (ESM). This can be configured to CommonJS via `--type` CLI option, `config.purus`, or `package.json`.
+
+**Resolution order** (highest priority first):
+
+1. CLI: `purus build --type commonjs`
+2. `config.purus`: `const type be ///commonjs///`
+3. `package.json`: `{ "type": "commonjs" }`
+4. Default: `module` (ESM)
+
+Values match `package.json`'s `type` field: `module` or `commonjs`.
+
+**CommonJS output examples:**
+
+```
+import express from ///express///
+import [Hono] from ///hono///
+import all as fs from ///fs///
+import ///dotenv/config///
+```
+
+```js
+const express = require("express");
+const { Hono } = require("hono");
+const fs = require("fs");
+require("dotenv/config");
+```
+
+```
+pub const VERSION be ///1.0///
+export default 42
+```
+
+```js
+const VERSION = "1.0";
+exports.VERSION = VERSION;
+module.exports = 42;
+```
+
+File extension overrides: `.cpurus` → always CJS, `.mpurus` → always ESM, regardless of configuration.
+
 ---
 
 ## 11. Array Operations
@@ -1273,6 +1367,28 @@ purus build --strict false   -- disables strict mode
 const strict be true         -- enables strict mode (default)
 const strict be false        -- disables strict mode
 ```
+
+### 14.4 Module Type
+
+The output module format for `.purus` files can be configured. Values are the same as `package.json`'s `type` field.
+
+**CLI flag:**
+
+```
+purus build --type module      -- ES Modules (default)
+purus build --type commonjs    -- CommonJS
+```
+
+**Configuration file** (`config.purus`):
+
+```
+const type be ///module///       -- ES Modules (default)
+const type be ///commonjs///     -- CommonJS
+```
+
+Resolution order: CLI `--type` > `config.purus` `type` > `package.json` `type` > default (`module`).
+
+File extension overrides: `.cpurus` always produces CJS, `.mpurus` always produces ESM.
 
 When strict mode is enabled, the generated output begins with:
 
@@ -1562,6 +1678,7 @@ class Secret {
 | `fn` | `function` / `=>` | Function declaration/expression |
 | `return` | `return` | Return value |
 | `to` | `{ expr; }` / `=> expr` | Expression body |
+| `to return` | `{ return expr; }` | Explicit return expression body |
 | `gives` | _(erased)_ | Return type annotation |
 | `async` | `async` | Async function modifier |
 | `await` | `await` | Await expression |
@@ -1592,8 +1709,11 @@ class Secret {
 
 | Keyword | JS Output | Description |
 |---------|-----------|-------------|
-| `match` | if-else chain / IIFE | Match expression/statement |
-| `when` | _(match arm)_ | Match case |
+| `witch` | if-else chain / IIFE | Witch expression/statement |
+| `case` | _(witch arm)_ | Witch case |
+| `default` | _(witch default)_ | Default arm |
+| `match` | if-else chain / IIFE | Match expression/statement (deprecated) |
+| `when` | _(match arm)_ | Match case (deprecated) |
 
 ### Modules
 
@@ -1712,7 +1832,7 @@ class Secret {
 Program       = { Statement } ;
 
 Statement     = VarDecl | FnDecl | ClassDecl | IfStmt | UnlessStmt
-              | WhileStmt | UntilStmt | ForStmt | MatchStmt
+              | WhileStmt | UntilStmt | ForStmt | WitchStmt | MatchStmt
               | TryCatch | Throw | Return | Break | Continue
               | ImportDecl | UseDecl | ModDecl | ExportDecl | PubDecl
               | TypeDecl | DeleteStmt
@@ -1730,7 +1850,7 @@ VarDecl       = ("const" | "let" | "var")
 IdentList     = Ident { (";" | ",") Ident } ;
 
 FnDecl        = ["async"] "fn" [Ident] ParamList ["gives" Type]
-                ( "to" Expr | INDENT Block DEDENT ) ;
+                ( "to" ["return"] Expr | INDENT Block DEDENT ) ;
 
 ParamList     = { Ident ["of" Type] ";" } [Ident ["of" Type]] ;
 
@@ -1748,6 +1868,13 @@ ForStmt       = "for" Ident [";" Ident] "in"
                 ( "range" Primary ";" Primary
                 | Expr
                 ) INDENT Block DEDENT ;
+
+WitchStmt     = "witch" Expr INDENT { WitchArm } DEDENT ;
+
+WitchArm      = "case" Pattern ["if" Expr]
+                ( "then" Expr | INDENT Block DEDENT )
+              | "default" ( Expr | INDENT Block DEDENT )
+              ;
 
 MatchStmt     = "match" Expr INDENT { MatchArm } DEDENT ;
 
@@ -1836,5 +1963,4 @@ DottedName    = Ident { "." Ident } ;
 
 ---
 
-_This document describes the Purus language as implemented in v0.7.0._
 _Purus is licensed under the Apache 2.0 License._

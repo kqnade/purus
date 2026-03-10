@@ -4,6 +4,53 @@ Purus の構文・仕様・予約語に関する変更履歴です。
 
 ---
 
+## v0.8.0 (2026-03-11)
+
+### New Features
+
+- **`witch` / `case` / `default` 構文追加**: `match` / `when` / `else` の推奨代替として新しいパターンマッチング構文を追加。
+  ```purus
+  witch x
+    case 1 then ///one///
+    case 2 then ///two///
+    default ///other///
+  ```
+  `match` と同様にif-elseチェーンにコンパイル。ガードもサポート: `case n if n gt 0`。
+
+- **`to return` による明示的リターン**: 式本体の関数に明示的なreturnを付ける `to return` 構文を追加。
+  ```purus
+  fn double x to return x mul 2
+  -- コンパイル結果: function double(x) { return x * 2; }
+  ```
+  名前付き関数、クラスメソッド、`static fn`、`get fn`、`set fn`、コンストラクタで使用可能。
+
+- **モジュールタイプ設定**: `.purus` ファイルを ES Modules の代わりに CommonJS としてコンパイルできるようになりました。
+  - CLIオプション: `purus build --type commonjs`
+  - `config.purus`: `const type be ///commonjs///`
+  - 解決順序: CLI `--type` > `config.purus` の `type` > `package.json` の `type` > デフォルト（`module`）
+  - CJSモードでは `import`/`export` が `require()`/`module.exports`/`exports.*` に変換
+  - `.cpurus` → 常にCJS、`.mpurus` → 常にESM（従来通り）
+
+- **`purus new` 改善**: 生成される `config.purus` に `type` フィールドを追加。生成される `package.json` の `main` を `"dist/main.js"` に、`type` を `"module"` に設定。
+
+- **TypeScript型定義追加**: `purus` npmパッケージに `index.d.ts` を追加。TypeScriptユーザーが `compile()`、`check()`、`version` の型情報を利用可能に。
+
+### Deprecations
+
+- **`match` / `when` 非推奨化**: `match` / `when` 構文は引き続き動作しますが、`witch` / `case` / `default` の使用を推奨。
+
+### Tooling
+
+- Linter: `0.6.0` → `0.7.0` — `witch`、`case` キーワード追加
+- Prettier Plugin: `0.6.0` → `0.7.0` — `witch`、`case` キーワード追加
+- VS Code Extension: `0.5.0` → `0.6.0` — `witch`、`case` シンタックスハイライト追加
+
+### Docs
+
+- [コミュニティプロジェクト](https://purus.work/ja/community-projects/)ページを追加（非公式のコミュニティ製プロジェクト一覧）
+
+---
+
 ## v0.7.0 (2026-03-08)
 
 ### Breaking Changes

@@ -4,6 +4,53 @@ Change history for Purus syntax, specifications, and reserved keywords.
 
 ---
 
+## v0.8.0 (2026-03-11)
+
+### New Features
+
+- **`witch` / `case` / `default` syntax**: Added a new pattern matching syntax as the recommended replacement for `match` / `when` / `else`.
+  ```purus
+  witch x
+    case 1 then ///one///
+    case 2 then ///two///
+    default ///other///
+  ```
+  Compiles identically to `match` — generates an if-else chain. Guards are supported: `case n if n gt 0`.
+
+- **`to return` for explicit return**: Added `to return` syntax for single-expression function bodies with explicit return.
+  ```purus
+  fn double x to return x mul 2
+  -- Compiled: function double(x) { return x * 2; }
+  ```
+  Works with named functions, class methods, `static fn`, `get fn`, `set fn`, and constructors.
+
+- **Module type configuration**: `.purus` files can now be compiled as CommonJS instead of ES Modules.
+  - CLI option: `purus build --type commonjs`
+  - `config.purus`: `const type be ///commonjs///`
+  - Resolution order: CLI `--type` > `config.purus` `type` > `package.json` `type` > default (`module`)
+  - CJS mode converts `import`/`export` to `require()`/`module.exports`/`exports.*`
+  - `.cpurus` → always CJS, `.mpurus` → always ESM (unchanged)
+
+- **`purus new` improvements**: Generated `config.purus` now includes a `type` field. Generated `package.json` sets `main` to `"dist/main.js"` and `type` to `"module"`.
+
+- **TypeScript type definitions**: Added `index.d.ts` for the `purus` npm package. TypeScript users now get type information for `compile()`, `check()`, and `version`.
+
+### Deprecations
+
+- **`match` / `when` deprecated**: The `match` / `when` syntax still works but is deprecated in favor of `witch` / `case` / `default`.
+
+### Tooling
+
+- Linter: `0.6.0` → `0.7.0` — added `witch`, `case` keywords
+- Prettier Plugin: `0.6.0` → `0.7.0` — added `witch`, `case` keywords
+- VS Code Extension: `0.5.0` → `0.6.0` — added `witch`, `case` syntax highlighting
+
+### Docs
+
+- Added [Community Projects](https://purus.work/community-projects/) page listing unofficial community-created projects
+
+---
+
 ## v0.7.0 (2026-03-08)
 
 ### Breaking Changes
