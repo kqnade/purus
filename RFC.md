@@ -464,7 +464,7 @@ The `pipe` operator passes the left operand as the first argument to the right o
 ```
 data pipe filter                     -- filter(data)
 data pipe filter pipe map            -- map(filter(data))
-data pipe transform[extra-arg]       -- transform(data, extraArg)
+data pipe transform[extra-arg]       -- transform(data, extra_arg)
 data pipe .method[arg]               -- data.method(arg)
 ```
 
@@ -629,7 +629,7 @@ fn say-hello
 ```
 
 ```js
-function sayHello() {
+function say_hello() {
   console.log("Hello!");
 }
 ```
@@ -641,7 +641,7 @@ fn say-hello to console.log[///Hello!///]
 ```
 
 ```js
-function sayHello() { console.log("Hello!"); }
+function say_hello() { console.log("Hello!"); }
 ```
 
 ### 7.3 Multiple Parameters
@@ -700,7 +700,7 @@ const get-time be fn to Date.now[]
 ```
 
 ```js
-const getTime = () => Date.now();
+const get_time = () => Date.now();
 ```
 
 **Arrow with block body:**
@@ -727,7 +727,7 @@ async fn fetch-data url
 ```
 
 ```js
-async function fetchData(url) {
+async function fetch_data(url) {
   const res = await fetch(url);
   return res;
 }
@@ -779,7 +779,7 @@ const fetch-data be async fn url to await fetch[url]
 ```
 
 ```js
-const fetchData = async (url) => await fetch(url);
+const fetch_data = async (url) => await fetch(url);
 ```
 
 **Block body:**
@@ -865,7 +865,7 @@ unless done
 
 ```js
 if (!(done)) {
-  keepGoing();
+  keep_going();
 }
 ```
 
@@ -1549,7 +1549,7 @@ class Api
 
 ```js
 class Api {
-  async fetchData(url) {
+  async fetch_data(url) {
     const res = await fetch(url);
     return res.json();
   }
