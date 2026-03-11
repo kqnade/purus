@@ -1,7 +1,7 @@
 {
   "name": "purus",
   "version": "0.8.0",
-  "description": "A language that compiles to JavaScript — no Shift key required",
+  "description": "Purus - /ˈpuː.rus/ means pure✨ in Latin - is a beautiful, simple, and easy-to-use language. It compiles to JavaScript. It makes your fingers free from the Shift key. With Purus, you can write code almost without pressing the Shift key.",
   "main": "index.js",
   "module": "index.mjs",
   "types": "index.d.ts",
