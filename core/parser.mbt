@@ -154,10 +154,10 @@ fn Parser::parse_stmt(self : Parser) -> Stmt? {
     From_ => Some(self.parse_from_use_stmt())
     Mod_ => Some(self.parse_mod_stmt())
     Export_ => Some(self.parse_export_stmt())
-    Pub_ => {
+    Public_ => {
       self.pos += 1
       match self.parse_stmt() {
-        Some(s) => Some(PubDecl(s))
+        Some(s) => Some(PublicDecl(s))
         None => None
       }
     }
@@ -723,6 +723,39 @@ fn Parser::parse_use_stmt(self : Parser) -> Stmt {
 ///|
 fn Parser::parse_from_use_stmt(self : Parser) -> Stmt {
   self.pos += 1 // skip from
+  // from ///module/// import ... — ES import with reversed syntax
+  match self.peek() {
+    Str(module_name) => {
+      self.pos += 1
+      self.expect(Import_)
+      // from ///mod/// import all as X
+      if self.peek() == All_ {
+        self.pos += 1
+        self.expect(As)
+        let ns = self.parse_ident_name()
+        let attrs = self.parse_import_attributes()
+        return ImportDecl(EsImport(None, None, Some(ns), module_name, attrs))
+      }
+      // from ///mod/// import [X, Y]
+      if self.peek() == LBracket {
+        let named = self.parse_bracket_names()
+        let attrs = self.parse_import_attributes()
+        return ImportDecl(EsImport(None, Some(named), None, module_name, attrs))
+      }
+      // from ///mod/// import X, [Y, Z]
+      let default_name = self.parse_ident_name()
+      if self.peek() == Comma {
+        self.pos += 1
+        let named = self.parse_bracket_names()
+        let attrs = self.parse_import_attributes()
+        return ImportDecl(EsImport(Some(default_name), Some(named), None, module_name, attrs))
+      }
+      let attrs = self.parse_import_attributes()
+      return ImportDecl(EsImport(Some(default_name), None, None, module_name, attrs))
+    }
+    _ => ()
+  }
+  // from X.Y use ... — dot-path import (deprecated)
   let path = self.parse_dotted_name()
   self.expect(Use_)
   let names : Array[String] = []

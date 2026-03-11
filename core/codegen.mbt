@@ -409,7 +409,7 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.gen_stmt_inline(inner)
       self.write("\n")
     }
-    PubDecl(inner) => {
+    PublicDecl(inner) => {
       if self.cjs {
         self.gen_stmt(inner)
         // Add exports assignment after the declaration

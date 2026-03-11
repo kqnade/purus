@@ -653,13 +653,13 @@ test "cjs: export default expression" {
   assert_eq(js, "module.exports = 42;\n")
 }
 
-test "cjs: pub const" {
-  let js = compile_cjs("pub const name be ///hello///")
+test "cjs: public const" {
+  let js = compile_cjs("public const name be ///hello///")
   assert_eq(js, "const name = \"hello\";\nexports.name = name;\n")
 }
 
-test "cjs: pub fn" {
-  let js = compile_cjs("pub fn greet x to console.log[x]")
+test "cjs: public fn" {
+  let js = compile_cjs("public fn greet x to console.log[x]")
   assert_eq(js, "function greet(x) { console.log(x); }\nexports.greet = greet;\n")
 }
 
@@ -778,4 +778,56 @@ test "codegen: class method to return" {
     #|  fn sum a; b to return a add b
   let js = compile(src)
   assert_true(js.contains("sum(a, b) { return a + b; }"))
+}
+
+// ===== public keyword tests =====
+
+test "lexer: public keyword" {
+  let lexer = @core.Lexer::new("public")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[1].kind, @core.Public_)
+}
+
+test "codegen: public const" {
+  let js = compile("public const name be ///hello///")
+  assert_true(js.contains("export const name = \"hello\";"))
+}
+
+test "codegen: public fn" {
+  let js = compile("public fn greet x to console.log[x]")
+  assert_true(js.contains("export function greet(x)"))
+}
+
+// ===== from...import tests =====
+
+test "codegen: from import default" {
+  let js = compile("from ///express/// import express")
+  assert_true(js.contains("import express from \"express\";"))
+}
+
+test "codegen: from import named" {
+  let js = compile("from ///react/// import [useState, useEffect]")
+  assert_true(js.contains("import { useState, useEffect } from \"react\";"))
+}
+
+test "codegen: from import namespace" {
+  let js = compile("from ///fs/// import all as fs")
+  assert_true(js.contains("import * as fs from \"fs\";"))
+}
+
+test "codegen: from import default and named" {
+  let js = compile("from ///react/// import React, [useState]")
+  assert_true(js.contains("import React, { useState } from \"react\";"))
+}
+
+test "cjs: from import default" {
+  let js = compile_cjs("from ///express/// import express")
+  assert_eq(js, "const express = require(\"express\");\n")
+}
+
+// ===== type check with typeof =====
+
+test "codegen: typeof type check" {
+  let js = compile("if typeof x eq ///string/// then console.log[x]")
+  assert_true(js.contains("typeof x === \"string\""))
 }

@@ -525,7 +525,7 @@ fn Lexer::scan_ident(self : Lexer) -> Unit {
     "require" => Require_
     "use" => Use_
     "namespace" => Mod_
-    "pub" => Pub_
+    "public" => Public_
     "all" => All_
     "type" => Type_
     "with" => With_

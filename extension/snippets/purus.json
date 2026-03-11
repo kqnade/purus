@@ -132,9 +132,14 @@
     "description": "Named import"
   },
   "Export": {
-    "prefix": "pub",
-    "body": "pub ${0}",
-    "description": "Export (pub)"
+    "prefix": "public",
+    "body": "public ${0}",
+    "description": "Export (public)"
+  },
+  "Import (from)": {
+    "prefix": "from",
+    "body": "from ///${1:path}/// import ${0}",
+    "description": "Import (from...import)"
   },
   "Module": {
     "prefix": "mod",

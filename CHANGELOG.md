@@ -35,9 +35,35 @@ Change history for Purus syntax, specifications, and reserved keywords.
 
 - **TypeScript type definitions**: Added `index.d.ts` for the `purus` npm package. TypeScript users now get type information for `compile()`, `check()`, and `version`.
 
+- **`public` keyword**: Replaced `pub` with `public` for named exports.
+  ```purus
+  public fn greet name to console.log[name]
+  public const VERSION be ///1.0///
+  ```
+
+- **`from...import` syntax**: Added reversed import syntax with module path first.
+  ```purus
+  from ///express/// import express
+  from ///react/// import [useState, useEffect]
+  from ///fs/// import all as fs
+  ```
+
+### Breaking Changes
+
+- **Removed `pub` keyword**: The `pub` keyword has been removed. Use `public` instead.
+
+- **Removed automatic type name detection**: `eq`/`is` with type names (e.g. `x is string`, `x eq number`) no longer auto-generates `typeof` checks. Type names are now treated as regular identifiers.
+  ```purus
+  -- Before (v0.7.x):  x is string → typeof x === "string"
+  -- After (v0.8.0):   x is string → x === string (identifier comparison)
+  -- Migration:        typeof x eq ///string///
+  ```
+
 ### Deprecations
 
 - **`match` / `when` deprecated**: The `match` / `when` syntax still works but is deprecated in favor of `witch` / `case` / `default`.
+
+- **`use` / `from...use` deprecated**: Dot-path imports (`use std.math`, `from std.math use sin, cos`) are deprecated. Use `import...from` or `from...import` with string paths instead.
 
 ### Tooling
 

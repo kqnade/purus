@@ -23,6 +23,20 @@ import axios, { AxiosError } from "axios";
 import * as fs from "fs";
 ```
 
+### `from...import` syntax
+
+You can also write imports with the module path first:
+
+```purus
+from ///express/// import express
+from ///hono/// import [Hono]
+from ///vitest/// import [describe, it, expect]
+from ///axios/// import axios, [AxiosError]
+from ///fs/// import all as fs
+```
+
+This compiles to the same JavaScript as the `import...from` syntax above.
+
 ### Side-effect Import
 
 Import a module for its side effects only (no bindings):
@@ -53,6 +67,10 @@ import { name, version } from "./package.json" with { type: "json" };
 
 ## Use (dot-path import)
 
+:::caution[Deprecated]
+`use` and `from...use` dot-path imports are deprecated. Use `import...from` or `from...import` with string paths instead.
+:::
+
 ```purus
 use std.math
 from std.math use sin, cos
@@ -66,8 +84,8 @@ import { sin, cos } from "std/math";
 ## Export
 
 ```purus
-pub fn greet name to console.log[name]
-pub const VERSION be ///1.0///
+public fn greet name to console.log[name]
+public const VERSION be ///1.0///
 export default fn main
   console.log[///hi///]
 ```
@@ -147,7 +165,7 @@ require("dotenv/config");
 ```
 
 ```purus
-pub const VERSION be ///1.0///
+public const VERSION be ///1.0///
 export default 42
 ```
 

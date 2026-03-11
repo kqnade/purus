@@ -7,7 +7,7 @@ const KEYWORDS = new Set([
   "while", "until", "for", "in", "range",
   "match", "when", "witch", "case",
   "try", "catch", "finally", "throw",
-  "import", "from", "export", "default", "require", "use", "namespace", "pub", "all", "with",
+  "import", "from", "export", "default", "require", "use", "namespace", "public", "all", "with",
   "add", "sub", "mul", "div", "mod", "neg", "pow",
   "eq", "neq", "lt", "gt", "le", "ge",
   "and", "or", "not", "pipe", "coal",

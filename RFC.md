@@ -72,13 +72,15 @@
    - 9.3 [Throw](#93-throw)
 10. [Modules](#10-modules)
     - 10.1 [ESM Import](#101-esm-import)
-    - 10.2 [Use (Dot-path Import)](#102-use-dot-path-import)
-    - 10.3 [Export / Pub](#103-export--pub)
-    - 10.4 [Namespace](#104-namespace)
-    - 10.5 [Side-Effect Import](#105-side-effect-import)
-    - 10.6 [CommonJS](#106-commonjs)
-    - 10.7 [Dynamic Import](#107-dynamic-import)
-    - 10.8 [Module Type Configuration](#108-module-type-configuration)
+    - 10.2 [From...Import](#102-fromimport)
+    - 10.3 [Use (Dot-path Import, deprecated)](#103-use-dot-path-import-deprecated)
+    - 10.4 [Export / Public](#104-export--public)
+    - 10.5 [Namespace](#105-namespace)
+    - 10.6 [Side-Effect Import](#106-side-effect-import)
+    - 10.7 [Import Attributes](#107-import-attributes)
+    - 10.8 [CommonJS](#108-commonjs)
+    - 10.9 [Dynamic Import](#109-dynamic-import)
+    - 10.10 [Module Type Configuration](#1010-module-type-configuration)
 11. [Array Operations](#11-array-operations)
     - 11.1 [Ranges](#111-ranges)
     - 11.2 [Slicing](#112-slicing)
@@ -174,7 +176,7 @@ The following words are reserved and cannot be used as identifiers:
 
 **Type:** `is`, `as`, `of`, `typeof`, `instanceof`, `type`
 
-**Module:** `import`, `from`, `export`, `default`, `require`, `use`, `namespace`, `pub`, `all`
+**Module:** `import`, `from`, `export`, `default`, `require`, `use` _(deprecated)_, `namespace`, `public`, `all`
 
 **Value:** `true`, `false`, `null`, `nil`, `undefined`, `nan`
 
@@ -390,7 +392,7 @@ From lowest to highest:
 | 2 | `coal` | Nullish coalescing |
 | 3 | `or` | Logical OR |
 | 4 | `and` | Logical AND |
-| 5 | `eq` / `neq` / `not eq` / `is` / `instanceof` | Equality / Type check |
+| 5 | `eq` / `neq` / `not eq` / `is` / `instanceof` | Equality |
 | 6 | `lt` / `gt` / `le` (`lt eq`) / `ge` (`gt eq`) | Comparison |
 | 7 | `add` / `sub` | Addition / Subtraction |
 | 8 | `mul` / `div` / `mod` | Multiplication / Division / Modulo |
@@ -427,7 +429,7 @@ From lowest to highest:
 | `a ge b` | `a >= b` | Greater than or equal |
 | `a gt eq b` | `a >= b` | Alternative GE |
 
-**Note:** `eq` and `is` are interchangeable. When followed by a type name, they become a type check (see [5.7](#57-type-check-and-cast)). Otherwise, they compile to `===`.
+**Note:** `eq` and `is` are interchangeable. Both compile to `===`.
 
 **Note:** `not eq` is an alias for `neq`, `lt eq` is an alias for `le`, and `gt eq` is an alias for `ge`. Both forms compile to the same JavaScript output.
 
@@ -1089,7 +1091,29 @@ import axios, { AxiosError } from "axios";
 import * as fs from "fs";
 ```
 
-### 10.2 Use (Dot-path Import)
+### 10.2 From...Import
+
+The `from...import` syntax places the module path first, followed by the import bindings:
+
+```
+from ///express/// import express
+from ///react/// import [useState, useEffect]
+from ///fs/// import all as fs
+from ///axios/// import axios, [AxiosError]
+```
+
+```js
+import express from "express";
+import { useState, useEffect } from "react";
+import * as fs from "fs";
+import axios, { AxiosError } from "axios";
+```
+
+This is equivalent to the `import...from` syntax in §10.1 with reversed order.
+
+### 10.3 Use (Dot-path Import, deprecated)
+
+> **Deprecated:** The `use` / `from...use` syntax is deprecated. Use `import...from` or `from...import` with string paths instead.
 
 ```
 use std.math
@@ -1103,11 +1127,11 @@ import { sin, cos } from "std/math";
 
 Dots in the path are converted to `/` in the import.
 
-### 10.3 Export / Pub
+### 10.4 Export / Public
 
 ```
-pub fn helper to 42
-pub const VERSION be ///1.0///
+public fn helper to 42
+public const VERSION be ///1.0///
 export default fn main
   console.log[///hi///]
 ```
@@ -1120,7 +1144,7 @@ export default function main() {
 }
 ```
 
-### 10.4 Namespace
+### 10.5 Namespace
 
 ```
 namespace utils
@@ -1135,7 +1159,7 @@ const utils = (() => {
 
 Compiles to an IIFE (Immediately Invoked Function Expression).
 
-### 10.5 Side-Effect Import
+### 10.6 Side-Effect Import
 
 Import a module purely for its side effects (e.g., polyfills, configuration):
 
@@ -1151,7 +1175,7 @@ import "./setup";
 
 No bindings are introduced — the module is simply executed.
 
-### 10.6 Import Attributes
+### 10.7 Import Attributes
 
 Import attributes allow specifying additional metadata for module imports using the `with` keyword:
 
@@ -1167,7 +1191,7 @@ import { name, version } from "./package.json" with { type: "json" };
 
 The `with` clause uses Purus's bracket syntax `[ key be value ]`, which compiles to JavaScript's `with { key: value }`. Multiple attributes can be separated by `;` or `,`.
 
-### 10.7 CommonJS
+### 10.8 CommonJS
 
 ```
 const fs be require[///fs///]
@@ -1177,7 +1201,7 @@ const fs be require[///fs///]
 const fs = require("fs");
 ```
 
-### 10.8 Dynamic Import
+### 10.9 Dynamic Import
 
 Dynamic imports are supported through standard function call syntax:
 
@@ -1185,7 +1209,7 @@ Dynamic imports are supported through standard function call syntax:
 const mod be await import[///./module.js///]
 ```
 
-### 10.9 Module Type Configuration
+### 10.10 Module Type Configuration
 
 By default, `.purus` files compile as ES Modules (ESM). This can be configured to CommonJS via `--type` CLI option, `config.purus`, or `package.json`.
 
@@ -1215,7 +1239,7 @@ require("dotenv/config");
 ```
 
 ```
-pub const VERSION be ///1.0///
+public const VERSION be ///1.0///
 export default 42
 ```
 
@@ -1725,9 +1749,9 @@ class Secret {
 | `export` | `export` | ESM export |
 | `default` | `default` | Default export |
 | `require` | `require()` | CommonJS require |
-| `use` | `import` | Dot-path import |
+| `use` | `import` | Dot-path import _(deprecated)_ |
 | `namespace` | IIFE | Module namespace |
-| `pub` | `export` | Public export |
+| `public` | `export` | Public export |
 | `all` | `* as` | Namespace import |
 
 ### Arithmetic Operators
@@ -1777,7 +1801,7 @@ class Secret {
 
 | Keyword | JS Output | Description |
 |---------|-----------|-------------|
-| `is` | `typeof` / `instanceof` | Type check |
+| `is` | `===` | Equality check (alias of `eq`) |
 | `as` | _(erased)_ | Type cast |
 | `of` | _(erased)_ | Type annotation |
 | `typeof` | `typeof` | Typeof operator |
@@ -1834,7 +1858,7 @@ Program       = { Statement } ;
 Statement     = VarDecl | FnDecl | ClassDecl | IfStmt | UnlessStmt
               | WhileStmt | UntilStmt | ForStmt | WitchStmt | MatchStmt
               | TryCatch | Throw | Return | Break | Continue
-              | ImportDecl | UseDecl | ModDecl | ExportDecl | PubDecl
+              | ImportDecl | FromImportDecl | UseDecl | ModDecl | ExportDecl | PublicDecl
               | TypeDecl | DeleteStmt
               | Expr "be" Expr              (* assignment *)
               | Expr                         (* expression statement *)
@@ -1893,8 +1917,13 @@ ImportDecl    = "import" String                          (* side-effect import *
               | "import" ("all" "as" Ident | "[" IdentList "]" | Ident ["," "[" IdentList "]"])
                 "from" String ;
 
-UseDecl       = "use" DottedName
-              | "from" DottedName "use" Ident { "," Ident } ;
+FromImportDecl = "from" String "import"
+              ("all" "as" Ident | "[" IdentList "]" | Ident ["," "[" IdentList "]"])
+              ;
+
+UseDecl       = "use" DottedName                                    (* deprecated *)
+              | "from" DottedName "use" Ident { "," Ident }         (* deprecated *)
+              ;
 
 ModDecl       = "namespace" Ident INDENT Block DEDENT ;
 

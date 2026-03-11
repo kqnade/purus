@@ -23,6 +23,20 @@ import axios, { AxiosError } from "axios";
 import * as fs from "fs";
 ```
 
+### `from...import` 構文
+
+モジュールパスを先に書く構文も使用できます:
+
+```purus
+from ///express/// import express
+from ///hono/// import [Hono]
+from ///vitest/// import [describe, it, expect]
+from ///axios/// import axios, [AxiosError]
+from ///fs/// import all as fs
+```
+
+上記の `import...from` 構文と同じJavaScriptにコンパイルされます。
+
 ### 副作用インポート
 
 バインディングなしでモジュールの副作用のみをインポートします:
@@ -53,6 +67,10 @@ import { name, version } from "./package.json" with { type: "json" };
 
 ## Use（ドットパスインポート）
 
+:::caution[非推奨]
+`use` および `from...use` ドットパスインポートは非推奨です。代わりに `import...from` または `from...import` を文字列パスで使用してください。
+:::
+
 ```purus
 use std.math
 from std.math use sin, cos
@@ -66,8 +84,8 @@ import { sin, cos } from "std/math";
 ## エクスポート
 
 ```purus
-pub fn greet name to console.log[name]
-pub const VERSION be ///1.0///
+public fn greet name to console.log[name]
+public const VERSION be ///1.0///
 export default fn main
   console.log[///hi///]
 ```
@@ -147,7 +165,7 @@ require("dotenv/config");
 ```
 
 ```purus
-pub const VERSION be ///1.0///
+public const VERSION be ///1.0///
 export default 42
 ```
 

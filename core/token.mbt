@@ -85,7 +85,7 @@ pub(all) enum TokenKind {
   Require_
   Use_
   Mod_
-  Pub_
+  Public_
   All_
   Type_
   With_

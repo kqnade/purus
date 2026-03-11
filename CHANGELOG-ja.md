@@ -35,9 +35,35 @@ Purus の構文・仕様・予約語に関する変更履歴です。
 
 - **TypeScript型定義追加**: `purus` npmパッケージに `index.d.ts` を追加。TypeScriptユーザーが `compile()`、`check()`、`version` の型情報を利用可能に。
 
+- **`public` キーワード**: 名前付きエクスポートの `pub` を `public` に変更。
+  ```purus
+  public fn greet name to console.log[name]
+  public const VERSION be ///1.0///
+  ```
+
+- **`from...import` 構文追加**: モジュールパスを先に書くインポート構文を追加。
+  ```purus
+  from ///express/// import express
+  from ///react/// import [useState, useEffect]
+  from ///fs/// import all as fs
+  ```
+
+### Breaking Changes
+
+- **`pub` キーワード削除**: `pub` キーワードは削除されました。代わりに `public` を使用してください。
+
+- **型名自動検出の削除**: `eq`/`is` と型名（例: `x is string`、`x eq number`）を併用した際の `typeof` 自動生成を削除。型名は通常の識別子として扱われます。
+  ```purus
+  -- 変更前 (v0.7.x):  x is string → typeof x === "string"
+  -- 変更後 (v0.8.0):  x is string → x === string（識別子比較）
+  -- 移行方法:      typeof x eq ///string///
+  ```
+
 ### Deprecations
 
 - **`match` / `when` 非推奨化**: `match` / `when` 構文は引き続き動作しますが、`witch` / `case` / `default` の使用を推奨。
+
+- **`use` / `from...use` 非推奨化**: ドットパスインポート（`use std.math`、`from std.math use sin, cos`）は非推奨です。代わりに `import...from` または `from...import` を文字列パスで使用してください。
 
 ### Tooling
 
