@@ -14,6 +14,10 @@ hero:
       link: https://github.com/otoneko1102/purus
       variant: minimal
       icon: external
+    - text: npmで見る
+      link: https://www.npmjs.com/package/purus
+      variant: minimal
+      icon: external
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
@@ -23,11 +27,10 @@ import NpmStats from '../../../components/NpmStats.astro';
 
 <CardGrid stagger>
   <Card title="Shiftキー不要" icon="star">
-    `{}()=+*` のような記号を `be`、`add`、`fn`、`[]` のような単語に置き換えます。
+    `{}()=+*` のような記号を `[]`、`be`、`add`、`mul` のような単語に置き換えます。
   </Card>
   <Card title="JavaScriptにコンパイル" icon="rocket">
-    Purusで書いて、きれいなJavaScriptを取得。JSが動く場所ならどこでも使えます。
-    [npmで見る](https://www.npmjs.com/package/purus)
+    Purusで書いて、JavaScriptに変換。JavaScriptが動く場所ならどこでも使えます。
   </Card>
   <Card title="インデントベース" icon="pencil">
     波括弧なし。CoffeeScriptのようにインデントでブロックを定義します。
@@ -41,7 +44,7 @@ import NpmStats from '../../../components/NpmStats.astro';
 
 ## リソース
 
-<CardGrid>
+<CardGrid stagger>
   <Card title="RFC" icon="open-book">
     言語仕様の全文と設計理由。
     [RFCを読む →](https://github.com/otoneko1102/purus/blob/main/RFC.md)
@@ -49,5 +52,14 @@ import NpmStats from '../../../components/NpmStats.astro';
   <Card title="変更履歴" icon="list-format">
     バージョンごとの構文・予約語の変更履歴。
     [変更履歴を見る →](https://github.com/otoneko1102/purus/blob/main/CHANGELOG-ja.md)
+  </Card>
+</CardGrid>
+
+## コミュニティ
+
+<CardGrid stagger>
+  <Card title="コミュニティプロジェクト" icon="puzzle">
+    Purusコミュニティメンバーによる非公式プロジェクト
+    [プロジェクトを見る →](./ja/community-projects/)
   </Card>
 </CardGrid>

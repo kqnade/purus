@@ -14,6 +14,10 @@ hero:
       link: https://github.com/otoneko1102/purus
       variant: minimal
       icon: external
+    - text: View on npm
+      link: https://www.npmjs.com/package/purus
+      variant: minimal
+      icon: external
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
@@ -23,11 +27,10 @@ import NpmStats from '../../components/NpmStats.astro';
 
 <CardGrid stagger>
   <Card title="No Shift Key" icon="star">
-    Purus replaces symbols like `{}()=+*` with words like `be`, `add`, `fn`, `[]`.
+    Purus replaces symbols like `{}()=+*` with words like `[]`, `be`, `add`, `mul`.
   </Card>
   <Card title="Compiles to JavaScript" icon="rocket">
-    Write Purus, get clean JavaScript. Use it anywhere JS runs.
-    [View on npm](https://www.npmjs.com/package/purus)
+    Write Purus, get JavaScript. Use it anywhere JavaScript runs.
   </Card>
   <Card title="Indent-based" icon="pencil">
     No curly braces. Blocks are defined by indentation, like CoffeeScript.
@@ -41,13 +44,22 @@ import NpmStats from '../../components/NpmStats.astro';
 
 ## Resources
 
-<CardGrid>
+<CardGrid stagger>
   <Card title="RFC" icon="open-book">
     Full language specification and design rationale.
-    [Read the RFC →](https://github.com/otoneko1102/purus/blob/main/RFC.md)
+    [Read RFC →](https://github.com/otoneko1102/purus/blob/main/RFC.md)
   </Card>
   <Card title="Changelog" icon="list-format">
     Version-by-version history of syntax and keyword changes.
     [View Changelog →](https://github.com/otoneko1102/purus/blob/main/CHANGELOG.md)
+  </Card>
+</CardGrid>
+
+## Community
+
+<CardGrid stagger>
+  <Card title="Community Projects" icon="puzzle">
+    Unofficial projects by Purus Community members.
+    [View Projects →](./community-projects/)
   </Card>
 </CardGrid>
