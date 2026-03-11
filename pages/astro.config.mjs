@@ -53,6 +53,7 @@ export default defineConfig({
       ],
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/otoneko1102/purus' },
+        { icon: 'npm', label: 'npm', href: 'https://www.npmjs.com/package/purus' },
       ],
       editLink: {
         baseUrl: 'https://github.com/otoneko1102/purus/edit/main/pages/',
