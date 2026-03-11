@@ -1,0 +1,13 @@
+# Linguist overrides for GitHub language statistics
+
+# Documentation site (Astro/Starlight)
+pages/** linguist-documentation
+
+# Example files
+examples/** linguist-documentation
+
+# Build scripts
+core/scripts/** linguist-generated
+
+# Generated type definitions
+core/index.d.ts linguist-generated
