@@ -500,6 +500,8 @@ fn Lexer::scan_ident(self : Lexer) -> Unit {
     "continue" => Continue_
     "match" => Match_
     "when" => When_
+    "witch" => Witch_
+    "case" => Case_
     "pipe" => Pipe_
     "is" => Is
     "as" => As
@@ -523,7 +525,7 @@ fn Lexer::scan_ident(self : Lexer) -> Unit {
     "require" => Require_
     "use" => Use_
     "namespace" => Mod_
-    "pub" => Pub_
+    "public" => Public_
     "all" => All_
     "type" => Type_
     "with" => With_

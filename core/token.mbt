@@ -60,6 +60,8 @@ pub(all) enum TokenKind {
   Continue_
   Match_
   When_
+  Witch_
+  Case_
   Pipe_
   Is
   As
@@ -83,7 +85,7 @@ pub(all) enum TokenKind {
   Require_
   Use_
   Mod_
-  Pub_
+  Public_
   All_
   Type_
   With_

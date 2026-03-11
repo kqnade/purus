@@ -151,28 +151,6 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("typeof ")
       self.gen_expr(inner)
     }
-    IsCheck(expr, type_name) => {
-      // is → typeof check for primitives, instanceof for classes
-      match type_name {
-        "string" | "number" | "boolean" | "undefined" | "function" | "symbol" |
-        "bigint" => {
-          self.write("typeof ")
-          self.gen_expr(expr)
-          self.write(" === \"")
-          self.write(type_name)
-          self.write("\"")
-        }
-        "null" => {
-          self.gen_expr(expr)
-          self.write(" === null")
-        }
-        _ => {
-          self.gen_expr(expr)
-          self.write(" instanceof ")
-          self.write(type_name)
-        }
-      }
-    }
     AsCast(expr, _type_name) => {
       // Type casts are erased in JS
       self.gen_expr(expr)

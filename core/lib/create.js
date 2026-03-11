@@ -48,6 +48,7 @@ async function run() {
     const configPurus = `-- Purus Configuration
 const entry be ///src///
 const output be ///dist///
+const type be ///module///
 const header be true
 
 -- Linter settings
@@ -135,10 +136,12 @@ node_modules/
       });
     }
 
-    // Add scripts to package.json
+    // Add scripts to package.json and set main/type
     const pkgPath = path.join(projectDir, "package.json");
     if (fs.existsSync(pkgPath)) {
       const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+      pkg.main = "dist/main.js";
+      pkg.type = "module";
       pkg.scripts = {
         ...(pkg.scripts || {}),
         purus: "purus",

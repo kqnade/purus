@@ -177,7 +177,7 @@
           "name": "keyword.control.loop.purus"
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(match|when)(?![a-zA-Z0-9_-])",
+          "match": "(?<![a-zA-Z0-9_-])(witch|case|match|when)(?![a-zA-Z0-9_-])",
           "name": "keyword.control.match.purus"
         },
         {
@@ -193,7 +193,7 @@
     "module": {
       "patterns": [
         {
-          "match": "(?<![a-zA-Z0-9_-])(import|from|export|require|use|namespace|pub|all|with)(?![a-zA-Z0-9_-])",
+          "match": "(?<![a-zA-Z0-9_-])(import|from|export|require|use|namespace|public|all|with)(?![a-zA-Z0-9_-])",
           "name": "keyword.control.import.purus"
         },
         {

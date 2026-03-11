@@ -69,13 +69,8 @@ fn Parser::parse_equality(self : Parser) -> Expr {
     match self.peek() {
       Eq | Is => {
         self.pos += 1
-        if self.is_type_name() {
-          let type_name = self.parse_ident_name()
-          left = IsCheck(left, type_name)
-        } else {
-          let right = self.parse_comparison()
-          left = BinOp(Eq, left, right)
-        }
+        let right = self.parse_comparison()
+        left = BinOp(Eq, left, right)
       }
       Neq => {
         self.pos += 1
@@ -106,19 +101,6 @@ fn Parser::parse_equality(self : Parser) -> Expr {
     }
   }
   left
-}
-
-///|
-fn Parser::is_type_name(self : Parser) -> Bool {
-  match self.peek() {
-    Ident(s) =>
-      match s {
-        "string" | "number" | "boolean" | "undefined" | "function" | "symbol" |
-        "bigint" | "null" | "object" => true
-        _ => s.length() > 0 && s[0] >= 'A' && s[0] <= 'Z'
-      }
-    _ => false
-  }
 }
 
 ///|
@@ -482,8 +464,8 @@ fn Parser::parse_primary(self : Parser) -> Expr {
       let else_expr = self.parse_expr()
       IfExpr(cond, then_expr, else_expr)
     }
-    Match_ => {
-      // Match expression
+    Match_ | Witch_ => {
+      // Match/witch expression
       self.pos += 1
       let subject = self.parse_expr()
       let saved = self.pos
@@ -526,7 +508,12 @@ fn Parser::parse_primary(self : Parser) -> Expr {
         }
         if self.peek() == To {
           self.pos += 1
-          AsyncFnExprTo(params, self.parse_expr())
+          if self.peek() == Return_ {
+            self.pos += 1
+            AsyncFnExprTo(params, self.parse_expr())
+          } else {
+            AsyncFnExprTo(params, self.parse_expr())
+          }
         } else {
           let indent = self.skip_newlines_and_indent()
           AsyncFnExpr(params, self.parse_block(indent))
@@ -730,8 +717,12 @@ fn Parser::parse_fn_expr(self : Parser) -> Expr {
   }
   if self.peek() == To {
     self.pos += 1
-    let body = self.parse_expr()
-    FnExprTo(params, body)
+    if self.peek() == Return_ {
+      self.pos += 1
+      FnExprTo(params, self.parse_expr())
+    } else {
+      FnExprTo(params, self.parse_expr())
+    }
   } else {
     let saved = self.pos
     let indent = self.skip_newlines_and_indent()

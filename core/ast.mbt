@@ -28,7 +28,6 @@ pub(all) enum Expr {
   UnaryTypeof(Expr)             // typeof x
 
   // Comparison / type
-  IsCheck(Expr, String)         // x is string
   AsCast(Expr, String)          // x as number
   Instanceof(Expr, Expr)        // x instanceof Y
 
@@ -163,7 +162,7 @@ pub(all) enum Stmt {
   UseDecl(String, Array[String]?) // use std.math / from std.math use sin, cos
   ModDecl(String, Array[Stmt])
   ExportDefault(Stmt)
-  PubDecl(Stmt)
+  PublicDecl(Stmt)
   TypeDecl(String, Expr)   // type alias
 
   // Class declaration
@@ -192,6 +191,7 @@ pub(all) struct FnDecl {
 pub(all) enum FnBody {
   Block(Array[Stmt])
   ToExpr(Expr)
+  ToReturnExpr(Expr)
 }
 
 ///|

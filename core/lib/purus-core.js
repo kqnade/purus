@@ -22,7 +22,7 @@ const VERSION = require("../package.json").version;
  * @returns {string} Generated JavaScript code
  */
 function compile(source, options = {}) {
-  const { header = true, strict = true } = options;
+  const { header = true, strict = true, type: moduleType } = options;
   const tmpFile = path.join(
     require("os").tmpdir(),
     `purus_${Date.now()}_${Math.random().toString(36).slice(2)}.purus`
@@ -33,6 +33,9 @@ function compile(source, options = {}) {
     const args = ["build", "--stdout", "--no-header"];
     if (!strict) {
       args.push("--strict", "false");
+    }
+    if (moduleType === "commonjs") {
+      args.push("--type", "commonjs");
     }
     args.push(tmpFile);
     const result = execFileSync(process.execPath, [COMPILER_JS, ...args], {

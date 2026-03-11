@@ -573,25 +573,25 @@ test "parser: typeof" {
   }
 }
 
-test "parser: is check" {
+test "parser: is becomes BinOp Eq" {
   let stmts = parse("const r be x is string")
   match stmts[0] {
-    VarDecl(Const_, _, IsCheck(Ident(name), type_name)) => {
-      assert_eq(name, "x")
-      assert_eq(type_name, "string")
+    VarDecl(Const_, _, BinOp(Eq, Ident(l), Ident(r))) => {
+      assert_eq(l, "x")
+      assert_eq(r, "string")
     }
-    _ => fail("expected IsCheck")
+    _ => fail("expected BinOp Eq")
   }
 }
 
-test "parser: eq with type name becomes IsCheck" {
+test "parser: eq becomes BinOp Eq" {
   let stmts = parse("const r be x eq string")
   match stmts[0] {
-    VarDecl(Const_, _, IsCheck(Ident(name), type_name)) => {
-      assert_eq(name, "x")
-      assert_eq(type_name, "string")
+    VarDecl(Const_, _, BinOp(Eq, Ident(l), Ident(r))) => {
+      assert_eq(l, "x")
+      assert_eq(r, "string")
     }
-    _ => fail("expected IsCheck from eq + type name")
+    _ => fail("expected BinOp Eq")
   }
 }
 

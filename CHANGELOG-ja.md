@@ -4,6 +4,72 @@ Purus の構文・仕様・予約語に関する変更履歴です。
 
 ---
 
+## v0.8.0 (2026-03-11)
+
+### Breaking Changes
+
+- **`pub` → `public`**: `pub` キーワードは削除されました。代わりに `public` を使用してください。
+- **型名自動検出の削除**: `eq`/`is` と型名（例: `x is string`、`x eq number`）を併用した際の `typeof` 自動生成を削除。型名は通常の識別子として扱われます。
+  ```purus
+  -- 変更前 (v0.7.x):  x is string → typeof x === "string"
+  -- 変更後 (v0.8.0):  x is string → x === string（識別子比較）
+  -- 移行方法:      typeof x eq ///string///
+  ```
+
+### Deprecations
+
+- **`match` / `when` 非推奨化**: `match` / `when` 構文は引き続き動作しますが、`witch` / `case` / `default` の使用を推奨。
+
+- **`use` / `from...use` 非推奨化**: ドットパスインポート（`use std.math`、`from std.math use sin, cos`）は非推奨です。代わりに `import...from` または `from...import` を文字列パスで使用してください。
+
+### New Features
+
+- **`witch` / `case` / `default` 構文追加**: `match` / `when` / `else` の推奨代替として新しいパターンマッチング構文を追加。
+  ```purus
+  witch x
+    case 1 then ///one///
+    case 2 then ///two///
+    default ///other///
+  ```
+  `match` と同様にif-elseチェーンにコンパイル。ガードもサポート: `case n if n gt 0`。
+
+- **`to return` による明示的リターン**: 式本体の関数に明示的なreturnを付ける `to return` 構文を追加。
+  ```purus
+  fn double x to return x mul 2
+  -- コンパイル結果: function double(x) { return x * 2; }
+  ```
+  名前付き関数、クラスメソッド、`static fn`、`get fn`、`set fn`、コンストラクタで使用可能。
+
+- **モジュールタイプ設定**: `.purus` ファイルを ES Modules の代わりに CommonJS としてコンパイルできるようになりました。
+  - CLIオプション: `purus build --type commonjs`
+  - `config.purus`: `const type be ///commonjs///`
+  - 解決順序: CLI `--type` > `config.purus` の `type` > `package.json` の `type` > デフォルト（`module`）
+  - CJSモードでは `import`/`export` が `require()`/`module.exports`/`exports.*` に変換
+  - `.cpurus` → 常にCJS、`.mpurus` → 常にESM（従来通り）
+
+- **`purus new` 改善**: 生成される `config.purus` に `type` フィールドを追加。生成される `package.json` の `main` を `"dist/main.js"` に、`type` を `"module"` に設定。
+
+- **TypeScript型定義追加**: `purus` npmパッケージに `index.d.ts` を追加。TypeScriptユーザーが `compile()`、`check()`、`version` の型情報を利用可能に。
+
+- **`from...import` 構文追加**: モジュールパスを先に書くインポート構文を追加。
+  ```purus
+  from ///express/// import express
+  from ///react/// import [useState, useEffect]
+  from ///fs/// import all as fs
+  ```
+
+### Tooling
+
+- Linter: `0.6.0` → `0.7.0` — `witch`、`case` キーワード追加
+- Prettier Plugin: `0.6.0` → `0.7.0` — `witch`、`case` キーワード追加
+- VS Code Extension: `0.5.0` → `0.6.0` — `witch`、`case` シンタックスハイライト追加
+
+### Docs
+
+- [コミュニティプロジェクト](https://purus.work/ja/community-projects/)ページを追加（非公式のコミュニティ製プロジェクト一覧）
+
+---
+
 ## v0.7.0 (2026-03-08)
 
 ### Breaking Changes

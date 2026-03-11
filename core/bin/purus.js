@@ -16,6 +16,7 @@ function printHelp() {
   console.log("    .cpurus -> .cjs (CommonJS)");
   console.log("    .mpurus -> .mjs (ES Module)");
   console.log("  purus build --no-header [file]       Compile without header comment");
+  console.log("  purus build --type <type>            Set module type (module|commonjs)");
   console.log("  purus run [file|dir]                 Run without generating files");
   console.log("  purus run --entry <file|dir>         Run entry file or directory");
   console.log("  purus run                            Run using config.purus");

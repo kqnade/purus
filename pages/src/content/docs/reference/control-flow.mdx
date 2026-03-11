@@ -1,13 +1,13 @@
 ---
-title: 制御フロー
-description: Purusの条件分岐、ループ、パターンマッチング。
+title: Control Flow
+description: Conditionals, loops, and pattern matching in Purus.
 sidebar:
   order: 4
 ---
 
 ## If / Elif / Else
 
-Purusはインデントでブロックを定義します。波括弧 `{}` は不要です。
+Purus uses indentation to define blocks — no curly braces `{}` needed.
 
 ```purus
 if x lt 0
@@ -29,7 +29,7 @@ if (x < 0) {
 ```
 
 :::tip
-`elif` は `else if` のエイリアスです。どちらも同じように動作します:
+`elif` is an alias for `else if`. Both work identically:
 
 ```purus
 if x lt 0
@@ -40,12 +40,12 @@ else
   console.log[///positive///]
 ```
 
-これは `elif` と同じJavaScriptにコンパイルされます。
+This compiles to the same JavaScript as `elif`.
 :::
 
-### 複数行ブロック
+### Multi-line blocks
 
-`if`、`elif`、`else` の下にインデントされた文はそのブロックに属します:
+Any statements indented under `if`, `elif`, or `else` belong to that block:
 
 ```purus
 if logged-in
@@ -70,7 +70,7 @@ if (loggedIn) {
 
 ## Unless
 
-否定の `if`:
+Negated `if`:
 
 ```purus
 unless done
@@ -83,7 +83,7 @@ if (!(done)) {
 }
 ```
 
-## インラインif（三項演算子）
+## Inline if (ternary)
 
 ```purus
 const result be if condition then 1 else 2
@@ -93,9 +93,9 @@ const result be if condition then 1 else 2
 const result = condition ? 1 : 2;
 ```
 
-## 後置修飾子
+## Postfix modifiers
 
-短い条件分岐やループを1行で書けます:
+Write short conditionals and loops on a single line:
 
 ```purus
 console.log[///debug///] if verbose
@@ -147,7 +147,7 @@ for (const item of items) {
 }
 ```
 
-インデックス付き:
+With index:
 
 ```purus
 for i; item in items
@@ -173,7 +173,53 @@ for (let i = 0; i < 10; i++) {
 }
 ```
 
+## Witch / Case / Default
+
+```purus
+witch x
+  case 1 then ///one///
+  case 2 then ///two///
+  default ///other///
+```
+
+```js
+if (x === 1) {
+  "one";
+} else if (x === 2) {
+  "two";
+} else {
+  "other";
+}
+```
+
+With guards:
+
+In `case n if ...`, the variable `n` is bound to the witch subject (`value`), allowing the guard condition to reference it.
+
+```purus
+witch value
+  case n if n gt 0
+    console.log[///positive///]
+  default
+    console.log[///non-positive///]
+```
+
+```js
+{
+  const n = value;
+  if (n > 0) {
+    console.log("positive");
+  } else {
+    console.log("non-positive");
+  }
+}
+```
+
 ## Match / When
+
+:::caution[Deprecated]
+`match` / `when` is deprecated. Use `witch` / `case` / `default` instead.
+:::
 
 ```purus
 match x
@@ -192,9 +238,9 @@ if (x === 1) {
 }
 ```
 
-ガード付き:
+With guards:
 
-`when n if ...` において、変数 `n` はmatchの対象（`value`）にバインドされ、ガード条件でその値を参照できます。
+In `when n if ...`, the variable `n` is bound to the match subject (`value`), allowing the guard condition to reference it.
 
 ```purus
 match value
@@ -236,7 +282,7 @@ try {
 }
 ```
 
-### 式としてのtry
+### Try as expression
 
 ```purus
 const result be try
