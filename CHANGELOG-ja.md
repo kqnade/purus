@@ -51,12 +51,6 @@ Purus の構文・仕様・予約語に関する変更履歴です。
 
 - **TypeScript型定義追加**: `purus` npmパッケージに `index.d.ts` を追加。TypeScriptユーザーが `compile()`、`check()`、`version` の型情報を利用可能に。
 
-- **`public` キーワード**: 名前付きエクスポートの `pub` を `public` に変更。
-  ```purus
-  public fn greet name to console.log[name]
-  public const VERSION be ///1.0///
-  ```
-
 - **`from...import` 構文追加**: モジュールパスを先に書くインポート構文を追加。
   ```purus
   from ///express/// import express

@@ -52,12 +52,6 @@ Change history for Purus syntax, specifications, and reserved keywords.
 
 - **TypeScript type definitions**: Added `index.d.ts` for the `purus` npm package. TypeScript users now get type information for `compile()`, `check()`, and `version`.
 
-- **`public` keyword**: Replaced `pub` with `public` for named exports.
-  ```purus
-  public fn greet name to console.log[name]
-  public const VERSION be ///1.0///
-  ```
-
 - **`from...import` syntax**: Added reversed import syntax with module path first.
   ```purus
   from ///express/// import express
