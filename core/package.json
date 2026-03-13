@@ -34,7 +34,7 @@
     "format": "moon fmt",
     "format:check": "moon fmt --check",
     "typecheck": "moon check",
-    "check:all": "npm run lint && npm run format:check && npm run build && npm run typecheck",
+    "check": "npm run lint && npm run format:check && npm run build && npm run typecheck",
     "sync": "node scripts/sync-version.js",
     "prepublishOnly": "npm run sync && npm run build"
   },
