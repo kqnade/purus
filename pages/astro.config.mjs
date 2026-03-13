@@ -21,13 +21,15 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Purus',
+      customCss: ['./src/styles/custom.css'],
       expressiveCode: {
         shiki: {
           langs: [purusGrammar],
         },
       },
       logo: {
-        src: './src/assets/icon.png',
+        src: './src/assets/logo.png',
+        replacesTitle: true,
       },
       head: [
         {
