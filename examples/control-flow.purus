@@ -44,9 +44,9 @@ for i; item in items
 for i in range 0; 10
   console.log[i]
 
--- Witch expression
+-- Switch expression
 const status be ///ok///
-witch status
+switch status
   case ///ok///
     console.log[///success///]
   case ///error///
@@ -54,7 +54,7 @@ witch status
   default
     console.log[///unknown///]
 
--- Match expression (deprecated, use witch instead)
+-- Match expression (deprecated, use switch instead)
 match status
   when ///ok/// then console.log[///ok///]
   else console.log[///other///]

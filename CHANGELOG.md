@@ -4,6 +4,25 @@ Change history for Purus syntax, specifications, and reserved keywords.
 
 ---
 
+## v0.8.1 (2026-03-22)
+
+### Bug Fixes
+
+- **`witch` → `switch` keyword rename**: The pattern matching keyword `witch` has been renamed to `switch`. The previous name was a typo/misnaming. Existing code using `witch` must be updated to `switch`.
+  ```purus
+  -- Before (v0.8.0):
+  witch x
+    case 1 then ///one///
+    default ///other///
+
+  -- After (v0.8.1):
+  switch x
+    case 1 then ///one///
+    default ///other///
+  ```
+
+---
+
 ## v0.8.0 (2026-03-11)
 
 ### Breaking Changes

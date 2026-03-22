@@ -173,10 +173,10 @@ for (let i = 0; i < 10; i++) {
 }
 ```
 
-## Witch / Case / Default
+## Switch / Case / Default
 
 ```purus
-witch x
+switch x
   case 1 then ///one///
   case 2 then ///two///
   default ///other///
@@ -194,10 +194,10 @@ if (x === 1) {
 
 With guards:
 
-In `case n if ...`, the variable `n` is bound to the witch subject (`value`), allowing the guard condition to reference it.
+In `case n if ...`, the variable `n` is bound to the switch subject (`value`), allowing the guard condition to reference it.
 
 ```purus
-witch value
+switch value
   case n if n gt 0
     console.log[///positive///]
   default
@@ -218,7 +218,7 @@ witch value
 ## Match / When
 
 :::caution[Deprecated]
-`match` / `when` is deprecated. Use `witch` / `case` / `default` instead.
+`match` / `when` is deprecated. Use `switch` / `case` / `default` instead.
 :::
 
 ```purus

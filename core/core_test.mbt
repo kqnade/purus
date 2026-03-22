@@ -712,12 +712,12 @@ test "lexer: set keyword" {
   assert_eq(tokens[1].kind, @core.Set_)
 }
 
-// ===== witch/case/default tests =====
+// ===== switch/case/default tests =====
 
-test "lexer: witch keyword" {
-  let lexer = @core.Lexer::new("witch")
+test "lexer: switch keyword" {
+  let lexer = @core.Lexer::new("switch")
   let tokens = lexer.tokenize()
-  assert_eq(tokens[1].kind, @core.Witch_)
+  assert_eq(tokens[1].kind, @core.Switch_)
 }
 
 test "lexer: case keyword" {
@@ -726,9 +726,9 @@ test "lexer: case keyword" {
   assert_eq(tokens[1].kind, @core.Case_)
 }
 
-test "integration: witch" {
+test "integration: switch" {
   let src =
-    #|witch x
+    #|switch x
     #|  case 1 then ///one///
     #|  case 2 then ///two///
     #|  default ///other///
@@ -737,9 +737,9 @@ test "integration: witch" {
   assert_eq(stmts.length(), 1)
 }
 
-test "codegen: witch/case/default" {
+test "codegen: switch/case/default" {
   let src =
-    #|witch x
+    #|switch x
     #|  case 1 then ///one///
     #|  case 2 then ///two///
     #|  default ///other///
@@ -750,9 +750,9 @@ test "codegen: witch/case/default" {
   assert_true(js.contains("\"other\""))
 }
 
-test "codegen: witch with block body" {
+test "codegen: switch with block body" {
   let src =
-    #|witch status
+    #|switch status
     #|  case ///ok///
     #|    console.log[///success///]
     #|  case ///error///

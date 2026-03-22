@@ -173,10 +173,10 @@ for (let i = 0; i < 10; i++) {
 }
 ```
 
-## Witch / Case / Default
+## Switch / Case / Default
 
 ```purus
-witch x
+switch x
   case 1 then ///one///
   case 2 then ///two///
   default ///other///
@@ -194,10 +194,10 @@ if (x === 1) {
 
 ガード付き:
 
-`case n if ...` において、変数 `n` はwitchの対象（`value`）にバインドされ、ガード条件でその値を参照できます。
+`case n if ...` において、変数 `n` はswitchの対象（`value`）にバインドされ、ガード条件でその値を参照できます。
 
 ```purus
-witch value
+switch value
   case n if n gt 0
     console.log[///positive///]
   default
@@ -218,7 +218,7 @@ witch value
 ## Match / When
 
 :::caution[非推奨]
-`match` / `when` は非推奨です。代わりに `witch` / `case` / `default` を使用してください。
+`match` / `when` は非推奨です。代わりに `switch` / `case` / `default` を使用してください。
 :::
 
 ```purus

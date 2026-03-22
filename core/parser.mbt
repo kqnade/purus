@@ -133,7 +133,7 @@ fn Parser::parse_stmt(self : Parser) -> Stmt? {
     While_ => Some(self.parse_while_stmt())
     Until => Some(self.parse_until_stmt())
     For_ => Some(self.parse_for_stmt())
-    Match_ | Witch_ => Some(self.parse_match_stmt())
+    Match_ | Switch_ => Some(self.parse_match_stmt())
     Return_ => {
       self.pos += 1
       match self.peek() {

@@ -500,7 +500,7 @@ fn Lexer::scan_ident(self : Lexer) -> Unit {
     "continue" => Continue_
     "match" => Match_
     "when" => When_
-    "witch" => Witch_
+    "switch" => Switch_
     "case" => Case_
     "pipe" => Pipe_
     "is" => Is

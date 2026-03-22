@@ -4,6 +4,25 @@ Purus の構文・仕様・予約語に関する変更履歴です。
 
 ---
 
+## v0.8.1 (2026-03-22)
+
+### バグ修正
+
+- **`witch` → `switch` キーワード改名**: パターンマッチングのキーワード `witch` を `switch` に改名しました。以前の名前は誤りでした。`witch` を使用している既存のコードは `switch` に更新する必要があります。
+  ```purus
+  -- Before (v0.8.0):
+  witch x
+    case 1 then ///one///
+    default ///other///
+
+  -- After (v0.8.1):
+  switch x
+    case 1 then ///one///
+    default ///other///
+  ```
+
+---
+
 ## v0.8.0 (2026-03-11)
 
 ### Breaking Changes

@@ -1,6 +1,6 @@
 # Purus Language Specification
 
-**RFC — v0.8.0**
+**RFC — v0.8.1**
 
 > Purus — _/ˈpuː.rus/_ — means _pure_ in Latin.
 > A beautiful, simple, and easy-to-use language that compiles to JavaScript.
@@ -63,7 +63,7 @@
    - 8.5 [While / Until](#85-while--until)
    - 8.6 [For-in](#86-for-in)
    - 8.7 [For-range](#87-for-range)
-   - 8.8 [Witch / Case / Default](#88-witch--case--default)
+   - 8.8 [Switch / Case / Default](#88-switch--case--default)
    - 8.9 [Match / When (deprecated)](#89-match--when-deprecated)
    - 8.10 [Break / Continue / Return](#810-break--continue--return)
 9. [Error Handling](#9-error-handling)
@@ -170,7 +170,7 @@ The following words are reserved and cannot be used as identifiers:
 
 **Function:** `fn`, `return`, `to`, `gives`, `async`, `await`
 
-**Control:** `if`, `elif`, `else`, `unless`, `then`, `while`, `until`, `for`, `in`, `range`, `break`, `continue`, `witch`, `case`, `match`, `when`
+**Control:** `if`, `elif`, `else`, `unless`, `then`, `while`, `until`, `for`, `in`, `range`, `break`, `continue`, `switch`, `case`, `match`, `when`
 
 **Operator:** `add`, `sub`, `mul`, `div`, `mod`, `pow`, `neg`, `eq`, `neq`, `lt`, `gt`, `le`, `ge`, `and`, `or`, `not`, `coal`, `pipe`
 
@@ -948,12 +948,12 @@ for (let i = 0; i < 10; i++) {
 }
 ```
 
-### 8.8 Witch / Case / Default
+### 8.8 Switch / Case / Default
 
 **Statement form:**
 
 ```
-witch x
+switch x
   case 1 then ///one///
   case 2 then ///two///
   default ///other///
@@ -962,7 +962,7 @@ witch x
 **Block body in arms:**
 
 ```
-witch value
+switch value
   case n if n gt 0
     console.log[///positive///]
   default
@@ -972,13 +972,13 @@ witch value
 **Expression form** (compiled to IIFE):
 
 ```
-const label be witch status
+const label be switch status
   case 200 then ///ok///
   case 404 then ///not found///
   default ///unknown///
 ```
 
-Witch arms support:
+Switch arms support:
 - **Literal patterns:** `case 1`, `case ///hello///`, `case true`
 - **Binding patterns:** `case n` (binds the value to `n`)
 - **Wildcard:** `default` (default arm, matches anything)
@@ -987,7 +987,7 @@ Witch arms support:
 
 ### 8.9 Match / When (deprecated)
 
-> **Deprecated:** Use `witch` / `case` / `default` instead.
+> **Deprecated:** Use `switch` / `case` / `default` instead.
 > `match` / `when` is kept for backward compatibility.
 
 **Statement form:**
@@ -1733,9 +1733,9 @@ class Secret {
 
 | Keyword | JS Output | Description |
 |---------|-----------|-------------|
-| `witch` | if-else chain / IIFE | Witch expression/statement |
-| `case` | _(witch arm)_ | Witch case |
-| `default` | _(witch default)_ | Default arm |
+| `switch` | if-else chain / IIFE | Switch expression/statement |
+| `case` | _(switch arm)_ | Switch case |
+| `default` | _(switch default)_ | Default arm |
 | `match` | if-else chain / IIFE | Match expression/statement (deprecated) |
 | `when` | _(match arm)_ | Match case (deprecated) |
 
@@ -1856,7 +1856,7 @@ class Secret {
 Program       = { Statement } ;
 
 Statement     = VarDecl | FnDecl | ClassDecl | IfStmt | UnlessStmt
-              | WhileStmt | UntilStmt | ForStmt | WitchStmt | MatchStmt
+              | WhileStmt | UntilStmt | ForStmt | SwitchStmt | MatchStmt
               | TryCatch | Throw | Return | Break | Continue
               | ImportDecl | FromImportDecl | UseDecl | ModDecl | ExportDecl | PublicDecl
               | TypeDecl | DeleteStmt
@@ -1893,9 +1893,9 @@ ForStmt       = "for" Ident [";" Ident] "in"
                 | Expr
                 ) INDENT Block DEDENT ;
 
-WitchStmt     = "witch" Expr INDENT { WitchArm } DEDENT ;
+SwitchStmt     = "switch" Expr INDENT { SwitchArm } DEDENT ;
 
-WitchArm      = "case" Pattern ["if" Expr]
+SwitchArm      = "case" Pattern ["if" Expr]
                 ( "then" Expr | INDENT Block DEDENT )
               | "default" ( Expr | INDENT Block DEDENT )
               ;

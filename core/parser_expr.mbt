@@ -464,8 +464,8 @@ fn Parser::parse_primary(self : Parser) -> Expr {
       let else_expr = self.parse_expr()
       IfExpr(cond, then_expr, else_expr)
     }
-    Match_ | Witch_ => {
-      // Match/witch expression
+    Match_ | Switch_ => {
+      // Match/switch expression
       self.pos += 1
       let subject = self.parse_expr()
       let saved = self.pos

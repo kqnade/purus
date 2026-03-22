@@ -5,7 +5,7 @@ const KEYWORDS = new Set([
   "fn", "async", "return", "to", "gives",
   "if", "elif", "else", "unless", "then",
   "while", "until", "for", "in", "range",
-  "match", "when", "witch", "case",
+  "match", "when", "switch", "case",
   "try", "catch", "finally", "throw",
   "import", "from", "export", "default", "require", "use", "namespace", "public", "all", "with",
   "add", "sub", "mul", "div", "mod", "neg", "pow",
