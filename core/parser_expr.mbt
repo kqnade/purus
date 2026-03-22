@@ -77,7 +77,7 @@ fn Parser::parse_equality(self : Parser) -> Expr {
         let right = self.parse_comparison()
         left = BinOp(Neq, left, right)
       }
-      Not => {
+      Not =>
         // "not eq" → Neq
         if self.pos + 1 < self.tokens.length() {
           match self.tokens[self.pos + 1].kind {
@@ -91,7 +91,6 @@ fn Parser::parse_equality(self : Parser) -> Expr {
         } else {
           break
         }
-      }
       Instanceof_ => {
         self.pos += 1
         let right = self.parse_comparison()
@@ -271,17 +270,28 @@ fn Parser::parse_postfix(self : Parser) -> Expr {
               DotDot => {
                 self.pos += 1
                 let end_expr = self.parse_expr()
-                if self.peek() == RBracket { self.pos += 1 }
+                if self.peek() == RBracket {
+                  self.pos += 1
+                }
                 expr = Slice(DotAccess(expr, field), start_expr, end_expr, true)
               }
               DotDotDot => {
                 self.pos += 1
                 let end_expr = self.parse_expr()
-                if self.peek() == RBracket { self.pos += 1 }
-                expr = Slice(DotAccess(expr, field), start_expr, end_expr, false)
+                if self.peek() == RBracket {
+                  self.pos += 1
+                }
+                expr = Slice(
+                  DotAccess(expr, field),
+                  start_expr,
+                  end_expr,
+                  false,
+                )
               }
               _ => {
-                if self.peek() == RBracket { self.pos += 1 }
+                if self.peek() == RBracket {
+                  self.pos += 1
+                }
                 expr = ComputedAccess(DotAccess(expr, field), start_expr)
               }
             }
@@ -303,7 +313,9 @@ fn Parser::parse_postfix(self : Parser) -> Expr {
             self.pos += 1 // skip \
             self.skip_bracket_ws()
             let key_expr = self.parse_expr()
-            if self.peek() == RBracket { self.pos += 1 }
+            if self.peek() == RBracket {
+              self.pos += 1
+            }
             expr = ComputedAccess(OptDotAccess(expr, field), key_expr)
           } else {
             let args = self.parse_args()
@@ -313,7 +325,7 @@ fn Parser::parse_postfix(self : Parser) -> Expr {
           expr = OptDotAccess(expr, field)
         }
       }
-      LBracket => {
+      LBracket =>
         if self.is_computed_bracket() {
           // Computed access: expr[\key]
           self.pos += 1 // skip [
@@ -325,17 +337,23 @@ fn Parser::parse_postfix(self : Parser) -> Expr {
             DotDot => {
               self.pos += 1
               let end_expr = self.parse_expr()
-              if self.peek() == RBracket { self.pos += 1 }
+              if self.peek() == RBracket {
+                self.pos += 1
+              }
               expr = Slice(expr, key_expr, end_expr, true)
             }
             DotDotDot => {
               self.pos += 1
               let end_expr = self.parse_expr()
-              if self.peek() == RBracket { self.pos += 1 }
+              if self.peek() == RBracket {
+                self.pos += 1
+              }
               expr = Slice(expr, key_expr, end_expr, false)
             }
             _ => {
-              if self.peek() == RBracket { self.pos += 1 }
+              if self.peek() == RBracket {
+                self.pos += 1
+              }
               expr = ComputedAccess(expr, key_expr)
             }
           }
@@ -344,7 +362,6 @@ fn Parser::parse_postfix(self : Parser) -> Expr {
           let args = self.parse_args()
           expr = Call(expr, args)
         }
-      }
       As => {
         self.pos += 1
         let type_name = self.parse_ident_name()
@@ -362,8 +379,8 @@ fn Parser::is_computed_bracket(self : Parser) -> Bool {
   while i < self.tokens.length() {
     match self.tokens[i].kind {
       Newline | Indent(_) | Comment(_) | BlockComment(_) => i += 1
-      Backslash => { return true }
-      _ => { return false }
+      Backslash => return true
+      _ => return false
     }
   }
   false
@@ -398,9 +415,18 @@ fn Parser::parse_args(self : Parser) -> Array[Expr] {
 ///|
 fn Parser::parse_primary(self : Parser) -> Expr {
   match self.peek() {
-    Int(n) => { self.pos += 1; IntLit(n) }
-    Float(n) => { self.pos += 1; FloatLit(n) }
-    Str(s) => { self.pos += 1; StrLit(s) }
+    Int(n) => {
+      self.pos += 1
+      IntLit(n)
+    }
+    Float(n) => {
+      self.pos += 1
+      FloatLit(n)
+    }
+    Str(s) => {
+      self.pos += 1
+      StrLit(s)
+    }
     InterpStr(segments) => {
       self.pos += 1
       let parts : Array[StrPart] = []
@@ -423,14 +449,38 @@ fn Parser::parse_primary(self : Parser) -> Expr {
       }
       StrInterp(parts)
     }
-    Regex(pattern, flags) => { self.pos += 1; RegexLit(pattern, flags) }
-    True_ => { self.pos += 1; BoolLit(true) }
-    False_ => { self.pos += 1; BoolLit(false) }
-    Null_ | Nil_ => { self.pos += 1; NullLit }
-    Undefined_ => { self.pos += 1; UndefinedLit }
-    Nan_ => { self.pos += 1; NanLit }
-    This_ => { self.pos += 1; ThisExpr }
-    Super_ => { self.pos += 1; SuperExpr }
+    Regex(pattern, flags) => {
+      self.pos += 1
+      RegexLit(pattern, flags)
+    }
+    True_ => {
+      self.pos += 1
+      BoolLit(true)
+    }
+    False_ => {
+      self.pos += 1
+      BoolLit(false)
+    }
+    Null_ | Nil_ => {
+      self.pos += 1
+      NullLit
+    }
+    Undefined_ => {
+      self.pos += 1
+      UndefinedLit
+    }
+    Nan_ => {
+      self.pos += 1
+      NanLit
+    }
+    This_ => {
+      self.pos += 1
+      ThisExpr
+    }
+    Super_ => {
+      self.pos += 1
+      SuperExpr
+    }
     Ident(s) => {
       self.pos += 1
       Ident(s)
@@ -445,15 +495,13 @@ fn Parser::parse_primary(self : Parser) -> Expr {
       self.pos += 1
       self.parse_object_literal()
     }
-    LBracket => {
+    LBracket =>
       // Disambiguate: [] empty array, [be] empty object,
       // [k be v, ...] object, [expr, ...] array, [expr] grouping
       self.parse_bracket_expr()
-    }
-    Fn => {
+    Fn =>
       // Anonymous function expression
       self.parse_fn_expr()
-    }
     If_ => {
       // Ternary: if COND then EXPR else EXPR
       self.pos += 1
@@ -487,11 +535,17 @@ fn Parser::parse_primary(self : Parser) -> Expr {
         Catch_ => {
           self.pos += 1
           match self.peek() {
-            Ident(s) => { self.pos += 1; s }
+            Ident(s) => {
+              self.pos += 1
+              s
+            }
             _ => "e"
           }
         }
-        _ => { self.pos = saved_ca; "e" }
+        _ => {
+          self.pos = saved_ca
+          "e"
+        }
       }
       let ca_indent = self.skip_newlines_and_indent()
       let catch_body = self.parse_block(ca_indent)
@@ -650,7 +704,9 @@ fn Parser::parse_bracket_expr(self : Parser) -> Expr {
       while self.peek() == Comma || self.peek() == Semicolon {
         self.pos += 1
         self.skip_bracket_ws()
-        if self.peek() == RBracket { break }
+        if self.peek() == RBracket {
+          break
+        }
         let k = self.parse_ident_name()
         self.expect(Be)
         let v = self.parse_expr()
@@ -668,7 +724,9 @@ fn Parser::parse_bracket_expr(self : Parser) -> Expr {
       while self.peek() == Comma {
         self.pos += 1
         self.skip_bracket_ws()
-        if self.peek() == RBracket { break }
+        if self.peek() == RBracket {
+          break
+        }
         elements.push(self.parse_expr())
         self.skip_bracket_ws()
       }
@@ -683,7 +741,9 @@ fn Parser::parse_bracket_expr(self : Parser) -> Expr {
       while self.peek() == Semicolon {
         self.pos += 1
         self.skip_bracket_ws()
-        if self.peek() == RBracket { break }
+        if self.peek() == RBracket {
+          break
+        }
         elements.push(self.parse_expr())
         self.skip_bracket_ws()
       }

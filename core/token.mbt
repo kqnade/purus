@@ -4,7 +4,7 @@ pub(all) enum TokenKind {
   // Literals
   Int(Int)
   Float(Double)
-  Str(String)      // already-parsed string content (no ///)
+  Str(String) // already-parsed string content (no ///)
   Regex(String, String) // pattern, flags
   True_
   False_
@@ -110,25 +110,25 @@ pub(all) enum TokenKind {
   Object_
 
   // Punctuation
-  LBracket    // [
-  RBracket    // ]
-  Comma       // ,
-  Semicolon   // ;
-  Dot         // .
-  DotDot      // ..   (inclusive range)
-  DotDotDot   // ...  (exclusive range)
-  Backslash   // \    (computed access prefix)
-  OptDot      // \.   (optional chaining)
+  LBracket // [
+  RBracket // ]
+  Comma // ,
+  Semicolon // ;
+  Dot // .
+  DotDot // ..   (inclusive range)
+  DotDotDot // ...  (exclusive range)
+  Backslash // \    (computed access prefix)
+  OptDot // \.   (optional chaining)
 
   // Line-related
   Newline
   Indent(Int) // indentation level (number of spaces)
-  
+
   // Interpolated string
-  InterpStr(Array[String])  // alternating: lit, expr, lit, expr, ..., lit
+  InterpStr(Array[String]) // alternating: lit, expr, lit, expr, ..., lit
 
   // Special
-  Shebang(String)  // #!...
+  Shebang(String) // #!...
   Comment(String)
   BlockComment(String)
   Eof

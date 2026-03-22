@@ -40,8 +40,11 @@ fn Parser::skip_newlines_and_indent(self : Parser) -> Int {
   let mut indent = 0
   while self.pos < self.tokens.length() {
     match self.peek() {
-      Newline | Comment(_) | BlockComment(_) => { self.pos += 1 }
-      Indent(n) => { indent = n; self.pos += 1 }
+      Newline | Comment(_) | BlockComment(_) => self.pos += 1
+      Indent(n) => {
+        indent = n
+        self.pos += 1
+      }
       _ => break
     }
   }
@@ -59,8 +62,6 @@ fn Parser::skip_bracket_ws(self : Parser) -> Unit {
   }
 }
 
-
-
 ///|
 /// Parse the entire program
 pub fn Parser::parse(self : Parser) -> Array[Stmt] {
@@ -69,10 +70,9 @@ pub fn Parser::parse(self : Parser) -> Array[Stmt] {
   while self.pos < self.tokens.length() && self.peek() != Eof {
     match self.parse_stmt() {
       Some(s) => stmts.push(s)
-      None => {
+      None =>
         // Skip token if we can't parse
         self.pos += 1
-      }
     }
     self.skip_newlines_and_indent() |> ignore
   }
@@ -98,7 +98,7 @@ fn Parser::parse_block(self : Parser, min_indent : Int) -> Array[Stmt] {
     }
     match self.parse_stmt() {
       Some(s) => stmts.push(s)
-      None => { self.pos += 1 }
+      None => self.pos += 1
     }
   }
   stmts
@@ -112,7 +112,7 @@ fn Parser::parse_stmt(self : Parser) -> Stmt? {
       self.pos += 1
       return None
     }
-    Indent(_) => { self.pos += 1 }
+    Indent(_) => self.pos += 1
     _ => ()
   }
   match self.peek() {
@@ -141,8 +141,14 @@ fn Parser::parse_stmt(self : Parser) -> Stmt? {
         _ => Some(Return(Some(self.parse_expr())))
       }
     }
-    Break_ => { self.pos += 1; Some(Break) }
-    Continue_ => { self.pos += 1; Some(Continue) }
+    Break_ => {
+      self.pos += 1
+      Some(Break)
+    }
+    Continue_ => {
+      self.pos += 1
+      Some(Continue)
+    }
     Try_ => Some(self.parse_try_stmt())
     Throw_ => {
       self.pos += 1
@@ -289,7 +295,7 @@ fn Parser::skip_type_annotation(self : Parser) -> Unit {
   while self.pos < self.tokens.length() {
     match self.peek() {
       Be | Newline | Eof => break
-      _ => { self.pos += 1 }
+      _ => self.pos += 1
     }
   }
 }
@@ -331,7 +337,7 @@ fn Parser::parse_param_list(self : Parser) -> Array[String] {
           while self.pos < self.tokens.length() {
             match self.peek() {
               Semicolon | Newline | Eof | To | Gives | Ident(_) => break
-              _ => { self.pos += 1 }
+              _ => self.pos += 1
             }
           }
         }
@@ -556,14 +562,38 @@ fn Parser::parse_one_match_arm(self : Parser, arms : Array[MatchArm]) -> Bool {
 ///|
 fn Parser::parse_match_pattern(self : Parser) -> MatchPattern {
   match self.peek() {
-    Int(n) => { self.pos += 1; LitPat(IntLit(n)) }
-    Float(n) => { self.pos += 1; LitPat(FloatLit(n)) }
-    Str(s) => { self.pos += 1; LitPat(StrLit(s)) }
-    True_ => { self.pos += 1; LitPat(BoolLit(true)) }
-    False_ => { self.pos += 1; LitPat(BoolLit(false)) }
-    Null_ | Nil_ => { self.pos += 1; LitPat(NullLit) }
-    Ident(s) => { self.pos += 1; BindPat(s) }
-    _ => { self.pos += 1; BindPat("_") }
+    Int(n) => {
+      self.pos += 1
+      LitPat(IntLit(n))
+    }
+    Float(n) => {
+      self.pos += 1
+      LitPat(FloatLit(n))
+    }
+    Str(s) => {
+      self.pos += 1
+      LitPat(StrLit(s))
+    }
+    True_ => {
+      self.pos += 1
+      LitPat(BoolLit(true))
+    }
+    False_ => {
+      self.pos += 1
+      LitPat(BoolLit(false))
+    }
+    Null_ | Nil_ => {
+      self.pos += 1
+      LitPat(NullLit)
+    }
+    Ident(s) => {
+      self.pos += 1
+      BindPat(s)
+    }
+    _ => {
+      self.pos += 1
+      BindPat("_")
+    }
   }
 }
 
@@ -583,7 +613,10 @@ fn Parser::parse_try_stmt(self : Parser) -> Stmt {
   if self.peek() == Catch_ {
     self.pos += 1
     catch_name = match self.peek() {
-      Ident(s) => { self.pos += 1; Some(s) }
+      Ident(s) => {
+        self.pos += 1
+        Some(s)
+      }
       _ => None
     }
     let s3 = self.pos
@@ -648,7 +681,9 @@ fn Parser::parse_import_stmt(self : Parser) -> Stmt {
     self.expect(From_)
     let module_name = self.parse_string_value()
     let attrs = self.parse_import_attributes()
-    return ImportDecl(EsImport(Some(default_name), Some(named), None, module_name, attrs))
+    return ImportDecl(
+      EsImport(Some(default_name), Some(named), None, module_name, attrs),
+    )
   }
   self.expect(From_)
   let module_name = self.parse_string_value()
@@ -693,9 +728,12 @@ fn Parser::parse_bracket_names(self : Parser) -> Array[String] {
   self.skip_bracket_ws()
   while self.pos < self.tokens.length() && self.peek() != RBracket {
     match self.peek() {
-      Ident(s) => { self.pos += 1; names.push(s) }
-      Comma => { self.pos += 1 }
-      _ => { self.pos += 1 }
+      Ident(s) => {
+        self.pos += 1
+        names.push(s)
+      }
+      Comma => self.pos += 1
+      _ => self.pos += 1
     }
     self.skip_bracket_ws()
   }
@@ -748,10 +786,14 @@ fn Parser::parse_from_use_stmt(self : Parser) -> Stmt {
         self.pos += 1
         let named = self.parse_bracket_names()
         let attrs = self.parse_import_attributes()
-        return ImportDecl(EsImport(Some(default_name), Some(named), None, module_name, attrs))
+        return ImportDecl(
+          EsImport(Some(default_name), Some(named), None, module_name, attrs),
+        )
       }
       let attrs = self.parse_import_attributes()
-      return ImportDecl(EsImport(Some(default_name), None, None, module_name, attrs))
+      return ImportDecl(
+        EsImport(Some(default_name), None, None, module_name, attrs),
+      )
     }
     _ => ()
   }
@@ -781,14 +823,20 @@ fn Parser::parse_from_use_stmt(self : Parser) -> Stmt {
 fn Parser::parse_dotted_name(self : Parser) -> String {
   let buf = StringBuilder::new()
   match self.peek() {
-    Ident(s) => { self.pos += 1; buf.write_string(s) }
+    Ident(s) => {
+      self.pos += 1
+      buf.write_string(s)
+    }
     _ => ()
   }
   while self.peek() == Dot {
     self.pos += 1
     buf.write_char('.')
     match self.peek() {
-      Ident(s) => { self.pos += 1; buf.write_string(s) }
+      Ident(s) => {
+        self.pos += 1
+        buf.write_string(s)
+      }
       _ => ()
     }
   }
@@ -854,7 +902,7 @@ fn Parser::parse_class_decl(self : Parser) -> Stmt {
     }
     match self.parse_class_member() {
       Some(m) => members.push(m)
-      None => { self.pos += 1 }
+      None => self.pos += 1
     }
   }
   ClassDecl({ name, parent, members })

@@ -31,14 +31,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("/")
       self.write(flags)
     }
-    BoolLit(b) =>
-      self.write(
-        if b {
-          "true"
-        } else {
-          "false"
-        },
-      )
+    BoolLit(b) => self.write(if b { "true" } else { "false" })
     NullLit => self.write("null")
     UndefinedLit => self.write("undefined")
     NanLit => self.write("NaN")
@@ -151,10 +144,9 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("typeof ")
       self.gen_expr(inner)
     }
-    AsCast(expr, _type_name) => {
+    AsCast(expr, _type_name) =>
       // Type casts are erased in JS
       self.gen_expr(expr)
-    }
     Instanceof(expr, type_expr) => {
       self.gen_expr(expr)
       self.write(" instanceof ")
@@ -234,7 +226,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       }
       self.write(")")
     }
-    Pipe(left, right) => {
+    Pipe(left, right) =>
       // a pipe b → b(a)
       match right {
         Call(callee, args) => {
@@ -286,7 +278,6 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
           self.write(")")
         }
       }
-    }
     IfExpr(cond, then_expr, else_expr) => {
       self.gen_expr(cond)
       self.write(" ? ")
@@ -326,17 +317,17 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       // Pre-declare named BindPat with guard bindings
       for arm in arms {
         match arm.pattern {
-          BindPat(name) => {
+          BindPat(name) =>
             match arm.cond {
-              Some(_) => if name != "_" {
-                self.write_indent()
-                self.write("const ")
-                self.write(js_ident(name))
-                self.write(" = __m;\n")
-              }
+              Some(_) =>
+                if name != "_" {
+                  self.write_indent()
+                  self.write("const ")
+                  self.write(js_ident(name))
+                  self.write(" = __m;\n")
+                }
               None => ()
             }
-          }
           _ => ()
         }
       }
@@ -359,7 +350,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
             }
             self.write(") {\n")
           }
-          BindPat(name) => {
+          BindPat(name) =>
             if name == "_" {
               match arm.cond {
                 Some(c) => {
@@ -384,7 +375,6 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
                 }
               }
             }
-          }
         }
         self.indent_level += 1
         match arm.body {
@@ -394,11 +384,10 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
             self.gen_expr(expr)
             self.write(";\n")
           }
-          BlockBody(stmts) => {
+          BlockBody(stmts) =>
             for s in stmts {
               self.gen_stmt(s)
             }
-          }
         }
         self.indent_level -= 1
         self.writeln("}")
@@ -569,7 +558,10 @@ fn is_valid_js_ident(s : String) -> Bool {
   let mut i = 1
   while i < chars.length() {
     let c = chars[i]
-    if not(is_alpha_codegen(c)) && not(c >= '0' && c <= '9') && c != '_' && c != '$' {
+    if not(is_alpha_codegen(c)) &&
+      not(c >= '0' && c <= '9') &&
+      c != '_' &&
+      c != '$' {
       return false
     }
     i += 1

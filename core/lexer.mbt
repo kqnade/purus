@@ -55,9 +55,9 @@ fn Lexer::emit(self : Lexer, kind : TokenKind, line : Int, col : Int) -> Unit {
 ///|
 fn is_ident_start(ch : Char) -> Bool {
   (ch >= 'a' && ch <= 'z') ||
-    (ch >= 'A' && ch <= 'Z') ||
-    ch == '-' || // purus allows hyphens in idents
-    ch == '_' // purus allows underscores in idents
+  (ch >= 'A' && ch <= 'Z') ||
+  ch == '-' || // purus allows hyphens in idents
+  ch == '_' // purus allows underscores in idents
 }
 
 ///|
@@ -83,7 +83,11 @@ fn parse_int(s : String) -> Int {
     result = result * 10 + (chars[i].to_int() - '0'.to_int())
     i += 1
   }
-  if negative { -result } else { result }
+  if negative {
+    -result
+  } else {
+    result
+  }
 }
 
 ///|
@@ -96,7 +100,8 @@ fn parse_double(s : String) -> Double {
     i = 1
   }
   while i < chars.length() && chars[i] != '.' {
-    integer_part = integer_part * 10.0 + (chars[i].to_int() - '0'.to_int()).to_double()
+    integer_part = integer_part * 10.0 +
+      (chars[i].to_int() - '0'.to_int()).to_double()
     i += 1
   }
   let mut frac_part = 0.0
@@ -104,13 +109,18 @@ fn parse_double(s : String) -> Double {
     i += 1
     let mut divisor = 10.0
     while i < chars.length() {
-      frac_part = frac_part + (chars[i].to_int() - '0'.to_int()).to_double() / divisor
+      frac_part = frac_part +
+        (chars[i].to_int() - '0'.to_int()).to_double() / divisor
       divisor = divisor * 10.0
       i += 1
     }
   }
   let result = integer_part + frac_part
-  if negative { -result } else { result }
+  if negative {
+    -result
+  } else {
+    result
+  }
 }
 
 ///|
@@ -407,7 +417,12 @@ fn Lexer::scan_regex(self : Lexer) -> Unit {
   let flags = StringBuilder::new()
   while self.pos < self.chars.length() {
     let ch = self.peek()
-    if ch == 'g' || ch == 'i' || ch == 'm' || ch == 's' || ch == 'u' || ch == 'y' {
+    if ch == 'g' ||
+      ch == 'i' ||
+      ch == 'm' ||
+      ch == 's' ||
+      ch == 'u' ||
+      ch == 'y' {
       flags.write_char(self.advance())
     } else {
       break
@@ -427,7 +442,9 @@ fn Lexer::scan_number(self : Lexer) -> Unit {
   while self.pos < self.chars.length() && is_digit(self.peek()) {
     buf.write_char(self.advance())
   }
-  if self.pos < self.chars.length() && self.peek() == '.' && is_digit(self.peek_at(1)) {
+  if self.pos < self.chars.length() &&
+    self.peek() == '.' &&
+    is_digit(self.peek_at(1)) {
     buf.write_char(self.advance()) // .
     while self.pos < self.chars.length() && is_digit(self.peek()) {
       buf.write_char(self.advance())
@@ -447,7 +464,17 @@ fn Lexer::is_neg_literal_context(self : Lexer) -> Bool {
   }
   let last = self.tokens[self.tokens.length() - 1]
   match last.kind {
-    LBracket | Comma | Semicolon | Be | Newline | Indent(_) | Return_ | To | Then_ | Coal | Backslash => true
+    LBracket
+    | Comma
+    | Semicolon
+    | Be
+    | Newline
+    | Indent(_)
+    | Return_
+    | To
+    | Then_
+    | Coal
+    | Backslash => true
     _ => false
   }
 }

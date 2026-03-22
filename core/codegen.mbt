@@ -9,7 +9,7 @@ pub(all) struct JsCodegen {
 }
 
 ///|
-pub fn JsCodegen::new(cjs~ : Bool = false) -> JsCodegen {
+pub fn JsCodegen::new(cjs? : Bool = false) -> JsCodegen {
   { buf: StringBuilder::new(), indent_level: 0, private_fields: [], cjs }
 }
 
@@ -38,9 +38,9 @@ fn JsCodegen::write_indent(self : JsCodegen) -> Unit {
 pub fn JsCodegen::generate(
   self : JsCodegen,
   stmts : Array[Stmt],
-  header~ : String = "",
-  shebang~ : String = "",
-  strict~ : Bool = true
+  header? : String = "",
+  shebang? : String = "",
+  strict? : Bool = true,
 ) -> String {
   if shebang.length() > 0 {
     self.buf.write_string(shebang)
@@ -118,7 +118,7 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.gen_expr(value)
       self.write(";\n")
     }
-    Assign(target, value) => {
+    Assign(target, value) =>
       match target {
         Slice(obj, start, end, inclusive) => {
           // Splice: arr[start..end] be value → arr.splice(start, end - start + 1, ...value)
@@ -134,12 +134,11 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
             self.write(" + 1")
           }
           match value {
-            ArrayLit(elems) => {
+            ArrayLit(elems) =>
               for e in elems {
                 self.write(", ")
                 self.gen_expr(e)
               }
-            }
             _ => {
               self.write(", ...")
               self.gen_expr(value)
@@ -155,7 +154,6 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
           self.write(";\n")
         }
       }
-    }
     FnDecl(decl) => self.gen_fn_decl(decl)
     If(cond, body, elifs, else_body) =>
       self.gen_if(cond, body, elifs, else_body)
@@ -409,7 +407,7 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.gen_stmt_inline(inner)
       self.write("\n")
     }
-    PublicDecl(inner) => {
+    PublicDecl(inner) =>
       if self.cjs {
         self.gen_stmt(inner)
         // Add exports assignment after the declaration
@@ -422,7 +420,7 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
             self.write(js_ident(name))
             self.write(";\n")
           }
-          FnDecl(decl) => {
+          FnDecl(decl) =>
             match decl.name {
               Some(n) => {
                 self.write_indent()
@@ -434,7 +432,6 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
               }
               None => ()
             }
-          }
           ClassDecl(decl) => {
             self.write_indent()
             self.write("exports.")
@@ -451,7 +448,6 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
         self.gen_stmt_inline(inner)
         self.write("\n")
       }
-    }
     TypeDecl(_, _) => () // Type declarations are erased at runtime
     ClassDecl(decl) => self.gen_class_decl(decl)
     DeleteStmt(expr) => {
@@ -495,7 +491,7 @@ fn JsCodegen::gen_stmt_inline(self : JsCodegen, stmt : Stmt) -> Unit {
       self.gen_expr(expr)
       self.write(";")
     }
-    Assign(target, value) => {
+    Assign(target, value) =>
       match target {
         Slice(obj, start, end, inclusive) => {
           self.gen_expr(obj)
@@ -509,12 +505,11 @@ fn JsCodegen::gen_stmt_inline(self : JsCodegen, stmt : Stmt) -> Unit {
             self.write(" + 1")
           }
           match value {
-            ArrayLit(elems) => {
+            ArrayLit(elems) =>
               for e in elems {
                 self.write(", ")
                 self.gen_expr(e)
               }
-            }
             _ => {
               self.write(", ...")
               self.gen_expr(value)
@@ -529,7 +524,6 @@ fn JsCodegen::gen_stmt_inline(self : JsCodegen, stmt : Stmt) -> Unit {
           self.write(";")
         }
       }
-    }
     _ => self.gen_stmt(stmt) // fallback
   }
 }
@@ -710,7 +704,7 @@ fn JsCodegen::gen_if(
   cond : Expr,
   body : Array[Stmt],
   elifs : Array[ElIfBranch],
-  else_body : Array[Stmt]?
+  else_body : Array[Stmt]?,
 ) -> Unit {
   self.write_indent()
   self.write("if (")
@@ -750,18 +744,17 @@ fn JsCodegen::gen_if(
 fn JsCodegen::gen_match(
   self : JsCodegen,
   subject : Expr,
-  arms : Array[MatchArm]
+  arms : Array[MatchArm],
 ) -> Unit {
   // Check if any arm has named BindPat with guard (needs pre-declaration)
   let mut has_bind_guard = false
   for arm in arms {
     match arm.pattern {
-      BindPat(name) => {
+      BindPat(name) =>
         match arm.cond {
           Some(_) => if name != "_" { has_bind_guard = true }
           None => ()
         }
-      }
       _ => ()
     }
   }
@@ -772,19 +765,19 @@ fn JsCodegen::gen_match(
     self.indent_level += 1
     for arm in arms {
       match arm.pattern {
-        BindPat(name) => {
+        BindPat(name) =>
           match arm.cond {
-            Some(_) => if name != "_" {
-              self.write_indent()
-              self.write("const ")
-              self.write(js_ident(name))
-              self.write(" = ")
-              self.gen_expr(subject)
-              self.write(";\n")
-            }
+            Some(_) =>
+              if name != "_" {
+                self.write_indent()
+                self.write("const ")
+                self.write(js_ident(name))
+                self.write(" = ")
+                self.gen_expr(subject)
+                self.write(";\n")
+              }
             None => ()
           }
-        }
         _ => ()
       }
     }
@@ -811,7 +804,7 @@ fn JsCodegen::gen_match(
         }
         self.write(") {\n")
       }
-      BindPat(name) => {
+      BindPat(name) =>
         if name == "_" {
           match arm.cond {
             Some(c) => {
@@ -838,7 +831,6 @@ fn JsCodegen::gen_match(
             }
           }
         }
-      }
     }
     self.indent_level += 1
     match arm.body {
@@ -847,11 +839,10 @@ fn JsCodegen::gen_match(
         self.gen_expr(expr)
         self.write(";\n")
       }
-      BlockBody(stmts) => {
+      BlockBody(stmts) =>
         for s in stmts {
           self.gen_stmt(s)
         }
-      }
     }
     self.indent_level -= 1
     self.write_indent()
@@ -869,7 +860,7 @@ fn JsCodegen::gen_match(
 ///|
 fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
   match decl {
-    EsImport(default_name, named, ns_name, module_name, attrs) => {
+    EsImport(default_name, named, ns_name, module_name, attrs) =>
       if self.cjs {
         // CJS mode: convert to require()
         match (default_name, named, ns_name) {
@@ -984,7 +975,6 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
         self.gen_import_attributes(attrs)
         self.write(";\n")
       }
-    }
     CjsRequire(name, module_name) => {
       self.write_indent()
       self.write("const ")
@@ -999,7 +989,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
       self.write(module_name)
       self.write("\");\n")
     }
-    SideEffectImport(module_name, attrs) => {
+    SideEffectImport(module_name, attrs) =>
       if self.cjs {
         // CJS mode: import "mod" → require("mod");
         self.write_indent()
@@ -1014,12 +1004,14 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
         self.gen_import_attributes(attrs)
         self.write(";\n")
       }
-    }
   }
 }
 
 ///|
-fn JsCodegen::gen_import_attributes(self : JsCodegen, attrs : Array[(String, Expr)]?) -> Unit {
+fn JsCodegen::gen_import_attributes(
+  self : JsCodegen,
+  attrs : Array[(String, Expr)]?,
+) -> Unit {
   match attrs {
     Some(pairs) => {
       self.write(" with { ")

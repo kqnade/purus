@@ -4,43 +4,43 @@ pub(all) enum Expr {
   // Literals
   IntLit(Int)
   FloatLit(Double)
-  StrLit(String)            // raw string content
+  StrLit(String) // raw string content
   StrInterp(Array[StrPart]) // interpolated string
-  RegexLit(String, String)  // pattern, flags
+  RegexLit(String, String) // pattern, flags
   BoolLit(Bool)
-  NullLit                   // null / nil
+  NullLit // null / nil
   UndefinedLit
-  NanLit                    // nan → NaN
+  NanLit // nan → NaN
   ArrayLit(Array[Expr])
-  RangeArray(Expr, Expr, Bool)  // [start..end] (inclusive=true) or [start...end] (inclusive=false)
+  RangeArray(Expr, Expr, Bool) // [start..end] (inclusive=true) or [start...end] (inclusive=false)
   Slice(Expr, Expr, Expr, Bool) // obj[start..end] (inclusive) or obj[start...end] (exclusive)
   ObjectLit(Array[(String, Expr)])
-  
+
   // Identifiers & access
   Ident(String)
-  DotAccess(Expr, String)       // obj.field
-  IndexAccess(Expr, Int)        // arr.0
+  DotAccess(Expr, String) // obj.field
+  IndexAccess(Expr, Int) // arr.0
 
   // Operators
   BinOp(BinOp, Expr, Expr)
-  UnaryNeg(Expr)                // neg x
-  UnaryNot(Expr)                // not x
-  UnaryTypeof(Expr)             // typeof x
+  UnaryNeg(Expr) // neg x
+  UnaryNot(Expr) // not x
+  UnaryTypeof(Expr) // typeof x
 
   // Comparison / type
-  AsCast(Expr, String)          // x as number
-  Instanceof(Expr, Expr)        // x instanceof Y
+  AsCast(Expr, String) // x as number
+  Instanceof(Expr, Expr) // x instanceof Y
 
   // Function
   FnExpr(Array[String], Array[Stmt]) // anonymous fn
-  FnExprTo(Array[String], Expr)      // anonymous fn x to EXPR
-  Call(Expr, Array[Expr])            // f(a, b)
+  FnExprTo(Array[String], Expr) // anonymous fn x to EXPR
+  Call(Expr, Array[Expr]) // f(a, b)
   MethodCall(Expr, String, Array[Expr]) // obj.method(a, b)
-  NewExpr(Expr, Array[Expr])         // new X
-  Pipe(Expr, Expr)                   // a pipe b
+  NewExpr(Expr, Array[Expr]) // new X
+  Pipe(Expr, Expr) // a pipe b
 
   // Ternary
-  IfExpr(Expr, Expr, Expr)     // if COND then A else B
+  IfExpr(Expr, Expr, Expr) // if COND then A else B
 
   // Try as expression
   TryExpr(Array[Stmt], String, Array[Stmt]) // try { ... } catch e { ... }
@@ -61,15 +61,15 @@ pub(all) enum Expr {
   SuperExpr
 
   // Optional chaining
-  OptDotAccess(Expr, String)             // obj\.field
+  OptDotAccess(Expr, String) // obj\.field
   OptMethodCall(Expr, String, Array[Expr]) // obj\.method[args]
 
   // Computed access
-  ComputedAccess(Expr, Expr)             // expr[\key]
+  ComputedAccess(Expr, Expr) // expr[\key]
 
   // Async function expressions
   AsyncFnExpr(Array[String], Array[Stmt]) // async fn (block)
-  AsyncFnExprTo(Array[String], Expr)      // async fn to EXPR
+  AsyncFnExprTo(Array[String], Expr) // async fn to EXPR
 }
 
 ///|
@@ -134,8 +134,8 @@ pub(all) enum Stmt {
   Unless(Expr, Array[Stmt])
   While(Expr, Array[Stmt])
   Until(Expr, Array[Stmt])
-  ForIn(String, String?, Expr, Array[Stmt])  // for x in coll / for i; x in coll
-  ForRange(String, Expr, Expr, Array[Stmt])  // for i in range a; b
+  ForIn(String, String?, Expr, Array[Stmt]) // for x in coll / for i; x in coll
+  ForRange(String, Expr, Expr, Array[Stmt]) // for i in range a; b
 
   // Match statement
   MatchStmt(Expr, Array[MatchArm])
@@ -163,7 +163,7 @@ pub(all) enum Stmt {
   ModDecl(String, Array[Stmt])
   ExportDefault(Stmt)
   PublicDecl(Stmt)
-  TypeDecl(String, Expr)   // type alias
+  TypeDecl(String, Expr) // type alias
 
   // Class declaration
   ClassDecl(ClassDecl)
@@ -203,23 +203,23 @@ pub(all) struct ElIfBranch {
 ///|
 pub(all) enum ImportDecl {
   EsImport(String?, Array[String]?, String?, String, Array[(String, Expr)]?) // default, named, namespace, from, attributes
-  CjsRequire(String, String)                          // name, module
-  DynImport(String)                                    // dynamic import
-  SideEffectImport(String, Array[(String, Expr)]?)     // import ///module///, attributes
+  CjsRequire(String, String) // name, module
+  DynImport(String) // dynamic import
+  SideEffectImport(String, Array[(String, Expr)]?) // import ///module///, attributes
 }
 
 ///|
 pub(all) struct ClassDecl {
   name : String
-  parent : String?               // extends
+  parent : String? // extends
   members : Array[ClassMember]
 }
 
 ///|
 pub(all) enum ClassMember {
-  Field(Bool, String, Expr?)                 // private?, name, default value?
-  Constructor(Array[String], FnBody)         // params, body
+  Field(Bool, String, Expr?) // private?, name, default value?
+  Constructor(Array[String], FnBody) // params, body
   Method(Bool, Bool, String, Array[String], FnBody) // static?, async?, name, params, body
-  Getter(String, FnBody)                     // name, body
-  Setter(String, String, FnBody)             // name, param, body
+  Getter(String, FnBody) // name, body
+  Setter(String, String, FnBody) // name, param, body
 }

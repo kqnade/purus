@@ -6,6 +6,7 @@
 // Lexer tests
 // ============================================================
 
+///|
 test "lexer: integer literals" {
   let lexer = Lexer::new("42")
   let tokens = lexer.tokenize()
@@ -14,6 +15,7 @@ test "lexer: integer literals" {
   assert_eq(tokens[2].kind, Eof)
 }
 
+///|
 test "lexer: float literals" {
   let lexer = Lexer::new("3.14")
   let tokens = lexer.tokenize()
@@ -21,6 +23,7 @@ test "lexer: float literals" {
   assert_eq(tokens[1].kind, Float(3.14))
 }
 
+///|
 test "lexer: negative integer" {
   let lexer = Lexer::new("-5")
   let tokens = lexer.tokenize()
@@ -29,6 +32,7 @@ test "lexer: negative integer" {
   assert_eq(tokens[1].kind, Int(-5))
 }
 
+///|
 test "lexer: string" {
   let lexer = Lexer::new("///hello world///")
   let tokens = lexer.tokenize()
@@ -36,6 +40,7 @@ test "lexer: string" {
   assert_eq(tokens[1].kind, Str("hello world"))
 }
 
+///|
 test "lexer: string with escape" {
   let lexer = Lexer::new("///line1\\nline2///")
   let tokens = lexer.tokenize()
@@ -43,6 +48,7 @@ test "lexer: string with escape" {
   assert_eq(tokens[1].kind, Str("line1\nline2"))
 }
 
+///|
 test "lexer: regex" {
   let lexer = Lexer::new("/abc/gi")
   let tokens = lexer.tokenize()
@@ -50,6 +56,7 @@ test "lexer: regex" {
   assert_eq(tokens[1].kind, Regex("abc", "gi"))
 }
 
+///|
 test "lexer: keywords" {
   let lexer = Lexer::new("const let var be fn return if else")
   let tokens = lexer.tokenize()
@@ -64,8 +71,11 @@ test "lexer: keywords" {
   assert_eq(tokens[8].kind, Else_)
 }
 
+///|
 test "lexer: operators" {
-  let lexer = Lexer::new("add sub mul div mod pow eq neq lt gt le ge and or not neg")
+  let lexer = Lexer::new(
+    "add sub mul div mod pow eq neq lt gt le ge and or not neg",
+  )
   let tokens = lexer.tokenize()
   assert_eq(tokens[0].kind, Indent(0))
   assert_eq(tokens[1].kind, Add)
@@ -86,6 +96,7 @@ test "lexer: operators" {
   assert_eq(tokens[16].kind, Neg)
 }
 
+///|
 test "lexer: punctuation" {
   let lexer = Lexer::new("[a, b; c]")
   let tokens = lexer.tokenize()
@@ -99,6 +110,7 @@ test "lexer: punctuation" {
   assert_eq(tokens[7].kind, RBracket)
 }
 
+///|
 test "lexer: dot access" {
   let lexer = Lexer::new("console.log")
   let tokens = lexer.tokenize()
@@ -108,6 +120,7 @@ test "lexer: dot access" {
   assert_eq(tokens[3].kind, Ident("log"))
 }
 
+///|
 test "lexer: line comment" {
   let lexer = Lexer::new("x -- this is a comment")
   let tokens = lexer.tokenize()
@@ -116,6 +129,7 @@ test "lexer: line comment" {
   assert_eq(tokens[2].kind, Comment(" this is a comment"))
 }
 
+///|
 test "lexer: block comment" {
   let lexer = Lexer::new("---block comment---")
   let tokens = lexer.tokenize()
@@ -123,6 +137,7 @@ test "lexer: block comment" {
   assert_eq(tokens[1].kind, BlockComment("block comment"))
 }
 
+///|
 test "lexer: indentation" {
   let lexer = Lexer::new("a\n  b\n    c\n  d\ne")
   let tokens = lexer.tokenize()
@@ -147,6 +162,7 @@ test "lexer: indentation" {
   assert_eq(tokens[13].kind, Ident("e"))
 }
 
+///|
 test "lexer: var decl" {
   let lexer = Lexer::new("const x be 10")
   let tokens = lexer.tokenize()
@@ -157,6 +173,7 @@ test "lexer: var decl" {
   assert_eq(tokens[4].kind, Int(10))
 }
 
+///|
 test "lexer: true false null nil undefined" {
   let lexer = Lexer::new("true false null nil undefined")
   let tokens = lexer.tokenize()
@@ -168,6 +185,7 @@ test "lexer: true false null nil undefined" {
   assert_eq(tokens[5].kind, Undefined_)
 }
 
+///|
 test "lexer: list and object keywords" {
   let lexer = Lexer::new("list object")
   let tokens = lexer.tokenize()
@@ -176,6 +194,7 @@ test "lexer: list and object keywords" {
   assert_eq(tokens[2].kind, Object_)
 }
 
+///|
 test "lexer: multiline function" {
   let src = "fn greet name\n  console.log[///hello///]"
   let lexer = Lexer::new(src)
@@ -194,6 +213,7 @@ test "lexer: multiline function" {
   assert_eq(tokens[11].kind, RBracket)
 }
 
+///|
 test "lexer: hyphenated ident" {
   let lexer = Lexer::new("my-var")
   let tokens = lexer.tokenize()
@@ -201,6 +221,7 @@ test "lexer: hyphenated ident" {
   assert_eq(tokens[1].kind, Ident("my-var"))
 }
 
+///|
 test "lexer: negative after operator" {
   // After an identifier, `-5` should be parsed as Sub token then Int(5)
   // (not a negative literal)
@@ -212,6 +233,7 @@ test "lexer: negative after operator" {
   // and 5 is a separate number
 }
 
+///|
 test "lexer: negative after be" {
   let lexer = Lexer::new("const x be -3")
   let tokens = lexer.tokenize()
@@ -227,15 +249,20 @@ test "lexer: negative after be" {
 // ============================================================
 
 ///|
+
+///|
 fn tokenize(src : String) -> Array[Token] {
   Lexer::new(src).tokenize()
 }
+
+///|
 
 ///|
 fn parse(src : String) -> Array[Stmt] {
   Parser::new(tokenize(src)).parse()
 }
 
+///|
 test "parser: const declaration" {
   let stmts = parse("const x be 42")
   assert_eq(stmts.length(), 1)
@@ -245,6 +272,7 @@ test "parser: const declaration" {
   }
 }
 
+///|
 test "parser: let declaration" {
   let stmts = parse("let y be 3.14")
   assert_eq(stmts.length(), 1)
@@ -254,6 +282,7 @@ test "parser: let declaration" {
   }
 }
 
+///|
 test "parser: var declaration with string" {
   let stmts = parse("var msg be ///hello///")
   assert_eq(stmts.length(), 1)
@@ -266,6 +295,7 @@ test "parser: var declaration with string" {
   }
 }
 
+///|
 test "parser: assignment" {
   let stmts = parse("x be 10")
   assert_eq(stmts.length(), 1)
@@ -275,6 +305,7 @@ test "parser: assignment" {
   }
 }
 
+///|
 test "parser: binary add" {
   let stmts = parse("const r be 1 add 2")
   assert_eq(stmts.length(), 1)
@@ -284,25 +315,33 @@ test "parser: binary add" {
   }
 }
 
+///|
 test "parser: binary precedence mul over add" {
   let stmts = parse("const r be 1 add 2 mul 3")
   assert_eq(stmts.length(), 1)
   // Should parse as: 1 add (2 mul 3)
   match stmts[0] {
-    VarDecl(Const_, _, BinOp(Add, IntLit(1), BinOp(Mul, IntLit(2), IntLit(3)))) => ()
+    VarDecl(Const_, _, BinOp(Add, IntLit(1), BinOp(Mul, IntLit(2), IntLit(3)))) =>
+      ()
     _ => fail("expected Add(1, Mul(2,3))")
   }
 }
 
+///|
 test "parser: comparison and logic" {
   let stmts = parse("const r be x lt 10 and y gt 5")
   assert_eq(stmts.length(), 1)
   match stmts[0] {
-    VarDecl(Const_, _, BinOp(And, BinOp(Lt, _, IntLit(10)), BinOp(Gt, _, IntLit(5)))) => ()
+    VarDecl(
+      Const_,
+      _,
+      BinOp(And, BinOp(Lt, _, IntLit(10)), BinOp(Gt, _, IntLit(5)))
+    ) => ()
     _ => fail("expected And(Lt, Gt)")
   }
 }
 
+///|
 test "parser: unary not" {
   let stmts = parse("const r be not true")
   assert_eq(stmts.length(), 1)
@@ -312,6 +351,7 @@ test "parser: unary not" {
   }
 }
 
+///|
 test "parser: unary neg" {
   let stmts = parse("const r be neg x")
   assert_eq(stmts.length(), 1)
@@ -321,6 +361,7 @@ test "parser: unary neg" {
   }
 }
 
+///|
 test "parser: dot access" {
   let stmts = parse("console.log")
   assert_eq(stmts.length(), 1)
@@ -333,6 +374,7 @@ test "parser: dot access" {
   }
 }
 
+///|
 test "parser: meth call" {
   let stmts = parse("console.log[///hi///]")
   assert_eq(stmts.length(), 1)
@@ -346,6 +388,7 @@ test "parser: meth call" {
   }
 }
 
+///|
 test "parser: function call" {
   let stmts = parse("greet[///world///]")
   assert_eq(stmts.length(), 1)
@@ -358,6 +401,7 @@ test "parser: function call" {
   }
 }
 
+///|
 test "parser: fn declaration with to" {
   let stmts = parse("fn double x to x mul 2")
   assert_eq(stmts.length(), 1)
@@ -375,6 +419,7 @@ test "parser: fn declaration with to" {
   }
 }
 
+///|
 test "parser: fn block declaration" {
   let stmts = parse("fn greet name\n  console.log[name]")
   assert_eq(stmts.length(), 1)
@@ -391,6 +436,7 @@ test "parser: fn block declaration" {
   }
 }
 
+///|
 test "parser: return statement" {
   let stmts = parse("return 42")
   assert_eq(stmts.length(), 1)
@@ -400,6 +446,7 @@ test "parser: return statement" {
   }
 }
 
+///|
 test "parser: return without value" {
   let stmts = parse("return")
   assert_eq(stmts.length(), 1)
@@ -409,6 +456,7 @@ test "parser: return without value" {
   }
 }
 
+///|
 test "parser: break and continue" {
   let stmts = parse("break")
   assert_eq(stmts.length(), 1)
@@ -418,6 +466,7 @@ test "parser: break and continue" {
   }
 }
 
+///|
 test "parser: true false null undefined" {
   let stmts = parse("true")
   match stmts[0] {
@@ -436,6 +485,7 @@ test "parser: true false null undefined" {
   }
 }
 
+///|
 test "parser: empty array" {
   let stmts = parse("const a be []")
   match stmts[0] {
@@ -444,6 +494,7 @@ test "parser: empty array" {
   }
 }
 
+///|
 test "parser: array with elements" {
   let stmts = parse("const a be [1, 2, 3]")
   match stmts[0] {
@@ -452,6 +503,7 @@ test "parser: array with elements" {
   }
 }
 
+///|
 test "parser: empty object" {
   let stmts = parse("const o be [be]")
   match stmts[0] {
@@ -460,6 +512,7 @@ test "parser: empty object" {
   }
 }
 
+///|
 test "parser: object with entries" {
   let stmts = parse("const o be [x be 1, y be 2]")
   match stmts[0] {
@@ -472,6 +525,7 @@ test "parser: object with entries" {
   }
 }
 
+///|
 test "parser: list literal" {
   let stmts = parse("const a be list[1, 2]")
   match stmts[0] {
@@ -480,6 +534,7 @@ test "parser: list literal" {
   }
 }
 
+///|
 test "parser: object literal" {
   let stmts = parse("const o be object[name be ///hi///]")
   match stmts[0] {
@@ -491,6 +546,7 @@ test "parser: object literal" {
   }
 }
 
+///|
 test "parser: if-then-else expression" {
   let stmts = parse("const r be if true then 1 else 2")
   match stmts[0] {
@@ -499,6 +555,7 @@ test "parser: if-then-else expression" {
   }
 }
 
+///|
 test "parser: pipe" {
   let stmts = parse("const r be x pipe f")
   match stmts[0] {
@@ -510,6 +567,7 @@ test "parser: pipe" {
   }
 }
 
+///|
 test "parser: while loop" {
   let stmts = parse("while true\n  break")
   assert_eq(stmts.length(), 1)
@@ -525,6 +583,7 @@ test "parser: while loop" {
   }
 }
 
+///|
 test "parser: for-in loop" {
   let stmts = parse("for x in items\n  console.log[x]")
   assert_eq(stmts.length(), 1)
@@ -538,6 +597,7 @@ test "parser: for-in loop" {
   }
 }
 
+///|
 test "parser: throw" {
   let stmts = parse("throw ///error///")
   assert_eq(stmts.length(), 1)
@@ -547,6 +607,7 @@ test "parser: throw" {
   }
 }
 
+///|
 test "parser: postfix if" {
   let stmts = parse("console.log[///hi///] if debug")
   assert_eq(stmts.length(), 1)
@@ -556,6 +617,7 @@ test "parser: postfix if" {
   }
 }
 
+///|
 test "parser: postfix unless" {
   let stmts = parse("console.log[///hi///] unless quiet")
   assert_eq(stmts.length(), 1)
@@ -565,6 +627,7 @@ test "parser: postfix unless" {
   }
 }
 
+///|
 test "parser: typeof" {
   let stmts = parse("const t be typeof x")
   match stmts[0] {
@@ -573,6 +636,7 @@ test "parser: typeof" {
   }
 }
 
+///|
 test "parser: is becomes BinOp Eq" {
   let stmts = parse("const r be x is string")
   match stmts[0] {
@@ -584,6 +648,7 @@ test "parser: is becomes BinOp Eq" {
   }
 }
 
+///|
 test "parser: eq becomes BinOp Eq" {
   let stmts = parse("const r be x eq string")
   match stmts[0] {
@@ -595,6 +660,7 @@ test "parser: eq becomes BinOp Eq" {
   }
 }
 
+///|
 test "parser: is with value becomes BinOp Eq" {
   let stmts = parse("const r be x is y")
   match stmts[0] {
@@ -606,6 +672,7 @@ test "parser: is with value becomes BinOp Eq" {
   }
 }
 
+///|
 test "parser: as cast" {
   let stmts = parse("const r be x as number")
   match stmts[0] {
@@ -617,6 +684,7 @@ test "parser: as cast" {
   }
 }
 
+///|
 test "parser: regex literal" {
   let stmts = parse("const r be /abc/gi")
   match stmts[0] {
@@ -628,6 +696,7 @@ test "parser: regex literal" {
   }
 }
 
+///|
 test "parser: delete statement" {
   let stmts = parse("delete x")
   match stmts[0] {
@@ -636,6 +705,7 @@ test "parser: delete statement" {
   }
 }
 
+///|
 test "parser: new expression" {
   let stmts = parse("const d be new Date[]")
   match stmts[0] {
@@ -647,6 +717,7 @@ test "parser: new expression" {
   }
 }
 
+///|
 test "parser: this" {
   let stmts = parse("this.x")
   match stmts[0] {
@@ -655,6 +726,7 @@ test "parser: this" {
   }
 }
 
+///|
 test "parser: import default" {
   let stmts = parse("import fs from ///fs///")
   assert_eq(stmts.length(), 1)
@@ -667,6 +739,7 @@ test "parser: import default" {
   }
 }
 
+///|
 test "parser: multiple statements" {
   let stmts = parse("const x be 1\nconst y be 2\nconst z be x add y")
   assert_eq(stmts.length(), 3)
@@ -676,18 +749,21 @@ test "parser: multiple statements" {
 // New feature tests
 // ============================================================
 
+///|
 test "lexer: neq keyword" {
   let lexer = Lexer::new("neq")
   let tokens = lexer.tokenize()
   assert_eq(tokens[1].kind, Neq)
 }
 
+///|
 test "lexer: pow keyword" {
   let lexer = Lexer::new("pow")
   let tokens = lexer.tokenize()
   assert_eq(tokens[1].kind, Pow)
 }
 
+///|
 test "lexer: dot dot" {
   let lexer = Lexer::new("[0..10]")
   let tokens = lexer.tokenize()
@@ -699,6 +775,7 @@ test "lexer: dot dot" {
   assert_eq(tokens[5].kind, RBracket)
 }
 
+///|
 test "lexer: dot dot dot" {
   let lexer = Lexer::new("[0...10]")
   let tokens = lexer.tokenize()
@@ -710,12 +787,14 @@ test "lexer: dot dot dot" {
   assert_eq(tokens[5].kind, RBracket)
 }
 
+///|
 test "lexer: namespace keyword" {
   let lexer = Lexer::new("namespace")
   let tokens = lexer.tokenize()
   assert_eq(tokens[1].kind, Mod_)
 }
 
+///|
 test "parser: neq operator" {
   let stmts = parse("const r be x neq y")
   match stmts[0] {
@@ -727,6 +806,7 @@ test "parser: neq operator" {
   }
 }
 
+///|
 test "parser: not eq operator" {
   let stmts = parse("const r be x not eq y")
   match stmts[0] {
@@ -738,6 +818,7 @@ test "parser: not eq operator" {
   }
 }
 
+///|
 test "parser: lt eq becomes Le" {
   let stmts = parse("const r be x lt eq y")
   match stmts[0] {
@@ -749,6 +830,7 @@ test "parser: lt eq becomes Le" {
   }
 }
 
+///|
 test "parser: gt eq becomes Ge" {
   let stmts = parse("const r be x gt eq y")
   match stmts[0] {
@@ -760,6 +842,7 @@ test "parser: gt eq becomes Ge" {
   }
 }
 
+///|
 test "parser: pow operator" {
   let stmts = parse("const r be 2 pow 3")
   match stmts[0] {
@@ -768,14 +851,17 @@ test "parser: pow operator" {
   }
 }
 
+///|
 test "parser: pow right-associative" {
   let stmts = parse("const r be 2 pow 3 pow 4")
   match stmts[0] {
-    VarDecl(Const_, _, BinOp(Pow, IntLit(2), BinOp(Pow, IntLit(3), IntLit(4)))) => ()
+    VarDecl(Const_, _, BinOp(Pow, IntLit(2), BinOp(Pow, IntLit(3), IntLit(4)))) =>
+      ()
     _ => fail("expected right-associative Pow")
   }
 }
 
+///|
 test "parser: inclusive range [0..5]" {
   let stmts = parse("const r be [0..5]")
   match stmts[0] {
@@ -785,6 +871,7 @@ test "parser: inclusive range [0..5]" {
   }
 }
 
+///|
 test "parser: exclusive range [0...5]" {
   let stmts = parse("const r be [0...5]")
   match stmts[0] {
@@ -796,6 +883,7 @@ test "parser: exclusive range [0...5]" {
 
 // ===== Slice tests =====
 
+///|
 test "parser: inclusive slice" {
   let stmts = Parser::new(Lexer::new("numbers[\\2..4]").tokenize()).parse()
   match stmts[0] {
@@ -807,6 +895,7 @@ test "parser: inclusive slice" {
   }
 }
 
+///|
 test "parser: exclusive slice" {
   let stmts = Parser::new(Lexer::new("numbers[\\2...4]").tokenize()).parse()
   match stmts[0] {
@@ -818,6 +907,7 @@ test "parser: exclusive slice" {
   }
 }
 
+///|
 test "parser: slice with dot access" {
   let stmts = Parser::new(Lexer::new("obj.arr[\\1..3]").tokenize()).parse()
   match stmts[0] {
@@ -829,6 +919,7 @@ test "parser: slice with dot access" {
   }
 }
 
+///|
 test "parser: splice assignment" {
   let stmts = Parser::new(
     Lexer::new("numbers[\\2..4] be [///a///; ///b///]").tokenize(),
@@ -845,10 +936,9 @@ test "parser: splice assignment" {
 
 // ===== Destructuring tests =====
 
+///|
 test "parser: const destructuring" {
-  let stmts = Parser::new(
-    Lexer::new("const [a; b] be weather").tokenize(),
-  ).parse()
+  let stmts = Parser::new(Lexer::new("const [a; b] be weather").tokenize()).parse()
   match stmts[0] {
     DestructDecl(Const_, names, Ident(src)) => {
       assert_eq(names.length(), 2)
@@ -860,10 +950,9 @@ test "parser: const destructuring" {
   }
 }
 
+///|
 test "parser: let destructuring" {
-  let stmts = Parser::new(
-    Lexer::new("let [x; y; z] be arr").tokenize(),
-  ).parse()
+  let stmts = Parser::new(Lexer::new("let [x; y; z] be arr").tokenize()).parse()
   match stmts[0] {
     DestructDecl(Let_, names, Ident(src)) => {
       assert_eq(names.length(), 3)
@@ -876,10 +965,9 @@ test "parser: let destructuring" {
   }
 }
 
+///|
 test "parser: destructuring swap" {
-  let stmts = Parser::new(
-    Lexer::new("[a; b] be [b; a]").tokenize(),
-  ).parse()
+  let stmts = Parser::new(Lexer::new("[a; b] be [b; a]").tokenize()).parse()
   match stmts[0] {
     Assign(ArrayLit(lhs), ArrayLit(rhs)) => {
       assert_eq(lhs.length(), 2)
@@ -891,6 +979,7 @@ test "parser: destructuring swap" {
 
 // ===== Optional chaining tests =====
 
+///|
 test "parser: optional dot access" {
   let stmts = Parser::new(Lexer::new("obj\\.name").tokenize()).parse()
   match stmts[0] {
@@ -902,6 +991,7 @@ test "parser: optional dot access" {
   }
 }
 
+///|
 test "parser: optional method call" {
   let stmts = Parser::new(Lexer::new("obj\\.method[1; 2]").tokenize()).parse()
   match stmts[0] {
@@ -916,6 +1006,7 @@ test "parser: optional method call" {
 
 // ===== Computed access tests =====
 
+///|
 test "parser: computed access" {
   let stmts = Parser::new(Lexer::new("arr[\\i]").tokenize()).parse()
   match stmts[0] {
@@ -927,34 +1018,39 @@ test "parser: computed access" {
   }
 }
 
+///|
 test "parser: computed access with number" {
   let stmts = Parser::new(Lexer::new("arr[\\0]").tokenize()).parse()
   match stmts[0] {
-    ExprStmt(ComputedAccess(Ident(name), IntLit(0))) => {
-      assert_eq(name, "arr")
-    }
+    ExprStmt(ComputedAccess(Ident(name), IntLit(0))) => assert_eq(name, "arr")
     _ => fail("expected ComputedAccess with number")
   }
 }
 
 // ===== Side-effect import tests =====
 
+///|
 test "parser: side-effect import" {
   let stmts = Parser::new(Lexer::new("import ///dotenv/config///").tokenize()).parse()
   match stmts[0] {
-    ImportDecl(SideEffectImport(path, _)) => {
-      assert_eq(path, "dotenv/config")
-    }
+    ImportDecl(SideEffectImport(path, _)) => assert_eq(path, "dotenv/config")
     _ => fail("expected SideEffectImport")
   }
 }
 
 // ===== Import attributes tests =====
 
+///|
 test "parser: import with attributes" {
-  let stmts = Parser::new(Lexer::new("import pkg from ///./package.json/// with [ type be ///json/// ]").tokenize()).parse()
+  let stmts = Parser::new(
+    Lexer::new(
+      "import pkg from ///./package.json/// with [ type be ///json/// ]",
+    ).tokenize(),
+  ).parse()
   match stmts[0] {
-    ImportDecl(EsImport(Some(default_name), None, None, module_name, Some(attrs))) => {
+    ImportDecl(
+      EsImport(Some(default_name), None, None, module_name, Some(attrs))
+    ) => {
       assert_eq(default_name, "pkg")
       assert_eq(module_name, "./package.json")
       assert_eq(attrs.length(), 1)
@@ -964,8 +1060,13 @@ test "parser: import with attributes" {
   }
 }
 
+///|
 test "parser: named import with attributes" {
-  let stmts = Parser::new(Lexer::new("import [name; version] from ///./package.json/// with [ type be ///json/// ]").tokenize()).parse()
+  let stmts = Parser::new(
+    Lexer::new(
+      "import [name; version] from ///./package.json/// with [ type be ///json/// ]",
+    ).tokenize(),
+  ).parse()
   match stmts[0] {
     ImportDecl(EsImport(None, Some(names), None, module_name, Some(attrs))) => {
       assert_eq(names.length(), 2)
@@ -978,8 +1079,11 @@ test "parser: named import with attributes" {
 
 // ===== Async fn expression tests =====
 
+///|
 test "parser: async fn expression to" {
-  let stmts = Parser::new(Lexer::new("const h be async fn x to x add 1").tokenize()).parse()
+  let stmts = Parser::new(
+    Lexer::new("const h be async fn x to x add 1").tokenize(),
+  ).parse()
   match stmts[0] {
     VarDecl(_, _, AsyncFnExprTo(params, _)) => {
       assert_eq(params.length(), 1)
@@ -991,6 +1095,7 @@ test "parser: async fn expression to" {
 
 // ===== Lexer backslash tests =====
 
+///|
 test "lexer: backslash token" {
   let src = "x[\\y]"
   let tokens = Lexer::new(src).tokenize()
@@ -1002,6 +1107,7 @@ test "lexer: backslash token" {
   assert_eq(tokens[5].kind, RBracket)
 }
 
+///|
 test "lexer: optional dot token" {
   let src = "a\\.b"
   let tokens = Lexer::new(src).tokenize()
