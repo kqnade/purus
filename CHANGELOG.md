@@ -4,6 +4,89 @@ Change history for Purus syntax, specifications, and reserved keywords.
 
 ---
 
+## v0.9.0 (2026-04-02)
+
+### Breaking Changes
+
+- **`is` keyword removed**: The `is` keyword (alias for `eq`) has been removed. Use `eq` instead. `is` is no longer a reserved word and can now be used as an identifier.
+  ```purus
+  -- Before (v0.8.x):
+  x is y           -- x === y
+  x is string      -- x === string
+
+  -- After (v0.9.0):
+  x eq y           -- x === y
+  typeof x eq ///string///  -- typeof x === "string"
+  ```
+
+- **`use ... as ...` for stdlib**: The `use` keyword imports Purus standard library modules. The `as` keyword is required to specify the binding name. `from...use` named imports have been removed.
+  ```purus
+  -- Before (v0.8.x, deprecated):
+  use std.math
+  from std.math use sin, cos
+
+  -- After (v0.9.0):
+  use random as r               -- import with alias (as is required)
+  use math as m                 -- import math module
+  ```
+
+### New Features
+
+- **`use ... as ...` for standard library**: The `use` keyword imports built-in Purus standard library modules. Tree-shaking ensures only used functions are included in the output.
+  ```purus
+  use random as r
+  r.randint[1; 10]              -- random integer between 1 and 10
+  r.gauss[0; 1]                 -- gaussian distribution
+  r.choice[list[1; 2; 3]]      -- random element from array
+  r.shuffle[list[1; 2; 3]]     -- shuffled copy of array
+
+  use math as m
+  m.floor[3.7]                  -- 3
+  m.pi                          -- 3.14159...
+  m.abs[-5]                     -- 5
+
+  use string as s
+  s.upper[///hello///]           -- ///HELLO///
+  s.reverse[///abc///]           -- ///cba///
+  s.words[///foo bar baz///]     -- [///foo///; ///bar///; ///baz///]
+
+  use datetime as dt
+  dt.now[]                       -- current timestamp (ms)
+  dt.year[dt.now[]]              -- current year
+  dt.toiso[dt.now[]]             -- ISO 8601 string
+
+  use json as j
+  j.parse[///{ "a": 1 }///]     -- { a: 1 }
+  j.stringify[obj]               -- JSON string
+  ```
+
+  Available stdlib modules:
+  | Module | Description |
+  |--------|-------------|
+  | `random` | `random`, `randint`, `randrange`, `randbool`, `uniform`, `triangular`, `gauss`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
+  | `math` | JS `Math` alias + lowercase constant aliases (`pi`, `e`, `ln2`, `ln10`, `sqrt2`, etc.) |
+  | `string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
+  | `datetime` | `now`, `today`, `timestamp`, `create`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `toiso`, `tolocale`, `todate`, `totime`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds` |
+  | `json` | `parse`, `stringify`, `prettify` |
+
+- **Tree-shaking**: Only the stdlib functions actually referenced in your code are included in the compiled output, keeping bundle size minimal.
+
+### Keywords Changed
+
+| Keyword | Change |
+|---|---|
+| `is` | Removed (use `eq` instead) |
+| `use` | Repurposed for standard library imports (`use ... as ...` only) |
+| `from...use` | Removed for stdlib (still works for ES imports: `from "mod" import ...`) |
+
+### Tooling
+
+- Linter: `0.7.1` → `0.8.0` — removed `is` keyword
+- Prettier Plugin: `0.7.1` → `0.8.0` — removed `is` keyword
+- VS Code Extension: `0.6.1` → `0.7.0` — removed `is` from syntax highlighting, added `use` stdlib syntax
+
+---
+
 ## v0.8.1 (2026-03-22)
 
 ### Bug Fixes

@@ -4,6 +4,89 @@ Purus の構文・仕様・予約語に関する変更履歴です。
 
 ---
 
+## v0.9.0 (2026-04-02)
+
+### Breaking Changes
+
+- **`is` キーワード削除**: `is` キーワード（`eq` のエイリアス）を削除しました。代わりに `eq` を使用してください。`is` は予約語ではなくなり、識別子として使用可能になりました。
+  ```purus
+  -- 変更前 (v0.8.x):
+  x is y           -- x === y
+  x is string      -- x === string
+
+  -- 変更後 (v0.9.0):
+  x eq y           -- x === y
+  typeof x eq ///string///  -- typeof x === "string"
+  ```
+
+- **`use ... as ...` への変更**: 非推奨のドットパスインポート構文を削除。`use` は標準ライブラリモジュールのインポートに使用。`as` キーワードが必須。`from...use` による名前付きインポートは削除。
+  ```purus
+  -- 変更前 (v0.8.x, 非推奨):
+  use std.math
+  from std.math use sin, cos
+
+  -- 変更後 (v0.9.0):
+  use random as r               -- エイリアス付きインポート（as は必須）
+  use math as m                 -- math モジュールをインポート
+  ```
+
+### New Features
+
+- **`use ... as ...` による標準ライブラリ**: `use` キーワードで Purus 組み込み標準ライブラリモジュールをインポート。ツリーシェイキングにより使用した関数のみが出力に含まれます。
+  ```purus
+  use random as r
+  r.randint[1; 10]              -- 1〜10のランダムな整数
+  r.gauss[0; 1]                 -- ガウス分布
+  r.choice[list[1; 2; 3]]      -- 配列からランダムな要素
+  r.shuffle[list[1; 2; 3]]     -- 配列のシャッフルコピー
+
+  use math as m
+  m.floor[3.7]                  -- 3
+  m.pi                          -- 3.14159...
+  m.abs[-5]                     -- 5
+
+  use string as s
+  s.upper[///hello///]           -- ///HELLO///
+  s.reverse[///abc///]           -- ///cba///
+  s.words[///foo bar baz///]     -- [///foo///; ///bar///; ///baz///]
+
+  use datetime as dt
+  dt.now[]                       -- 現在のタイムスタンプ（ms）
+  dt.year[dt.now[]]              -- 現在の年
+  dt.toiso[dt.now[]]             -- ISO 8601 文字列
+
+  use json as j
+  j.parse[///{ "a": 1 }///]     -- { a: 1 }
+  j.stringify[obj]               -- JSON 文字列
+  ```
+
+  利用可能な標準ライブラリモジュール:
+  | モジュール | 説明 |
+  |--------|-------------|
+  | `random` | `random`, `randint`, `randrange`, `randbool`, `uniform`, `triangular`, `gauss`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
+  | `math` | JS `Math` エイリアス＋小文字の定数エイリアス（`pi`, `e`, `ln2`, `ln10`, `sqrt2` など） |
+  | `string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
+  | `datetime` | `now`, `today`, `timestamp`, `create`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `toiso`, `tolocale`, `todate`, `totime`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds` |
+  | `json` | `parse`, `stringify`, `prettify` |
+
+- **ツリーシェイキング**: コード中で実際に参照された stdlib 関数のみがコンパイル出力に含まれ、バンドルサイズを最小化します。
+
+### キーワード変更
+
+| キーワード | 変更 |
+|---|---|
+| `is` | 削除（代わりに `eq` を使用） |
+| `use` | 標準ライブラリインポート用（`use ... as ...` のみ） |
+| `from...use` | stdlib では削除（ES import は引き続き利用可: `from "mod" import ...`） |
+
+### Tooling
+
+- Linter: `0.7.1` → `0.8.0` — `is` キーワード削除
+- Prettier Plugin: `0.7.1` → `0.8.0` — `is` キーワード削除
+- VS Code Extension: `0.6.1` → `0.7.0` — `is` シンタックスハイライト削除、`use` 標準ライブラリ構文追加
+
+---
+
 ## v0.8.1 (2026-03-22)
 
 ### バグ修正

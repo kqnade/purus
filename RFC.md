@@ -1,6 +1,6 @@
 # Purus Language Specification
 
-**RFC — v0.8.1**
+**RFC — v0.9.0**
 
 > Purus — _/ˈpuː.rus/_ — means _pure_ in Latin.
 > A beautiful, simple, and easy-to-use language that compiles to JavaScript.
@@ -174,9 +174,9 @@ The following words are reserved and cannot be used as identifiers:
 
 **Operator:** `add`, `sub`, `mul`, `div`, `mod`, `pow`, `neg`, `eq`, `neq`, `lt`, `gt`, `le`, `ge`, `and`, `or`, `not`, `coal`, `pipe`
 
-**Type:** `is`, `as`, `of`, `typeof`, `instanceof`, `type`
+**Type:** `as`, `of`, `typeof`, `instanceof`, `type`
 
-**Module:** `import`, `from`, `export`, `default`, `require`, `use` _(deprecated)_, `namespace`, `public`, `all`
+**Module:** `import`, `from`, `export`, `default`, `require`, `use`, `namespace`, `public`, `all`
 
 **Value:** `true`, `false`, `null`, `nil`, `undefined`, `nan`
 
@@ -392,7 +392,7 @@ From lowest to highest:
 | 2 | `coal` | Nullish coalescing |
 | 3 | `or` | Logical OR |
 | 4 | `and` | Logical AND |
-| 5 | `eq` / `neq` / `not eq` / `is` / `instanceof` | Equality |
+| 5 | `eq` / `neq` / `not eq` / `instanceof` | Equality |
 | 6 | `lt` / `gt` / `le` (`lt eq`) / `ge` (`gt eq`) | Comparison |
 | 7 | `add` / `sub` | Addition / Subtraction |
 | 8 | `mul` / `div` / `mod` | Multiplication / Division / Modulo |
@@ -428,8 +428,6 @@ From lowest to highest:
 | `a lt eq b` | `a <= b` | Alternative LE |
 | `a ge b` | `a >= b` | Greater than or equal |
 | `a gt eq b` | `a >= b` | Alternative GE |
-
-**Note:** `eq` and `is` are interchangeable. Both compile to `===`.
 
 **Note:** `not eq` is an alias for `neq`, `lt eq` is an alias for `le`, and `gt eq` is an alias for `ge`. Both forms compile to the same JavaScript output.
 
@@ -499,22 +497,13 @@ const display be user\.name coal ///anonymous///
 
 ### 5.8 Type Check and Cast
 
-**Type check with `is` / `eq`:**
-
-When `is` or `eq` is followed by a type name, it becomes a type check:
+**Type check with `typeof`:**
 
 | Purus | JS |
 |-------|----|
-| `x is string` | `typeof x === "string"` |
-| `x is number` | `typeof x === "number"` |
-| `x is null` | `x === null` |
-| `x is MyClass` | `x instanceof MyClass` |
-| `x instanceof Y` | `x instanceof Y` |
 | `typeof x` | `typeof x` |
-
-Primitive type names: `string`, `number`, `boolean`, `undefined`, `function`, `symbol`, `bigint`, `null`, `object`.
-
-Capitalized names are treated as class constructors and use `instanceof`.
+| `typeof x eq ///string///` | `typeof x === "string"` |
+| `x instanceof Y` | `x instanceof Y` |
 
 **Type cast with `as`:**
 
@@ -1111,21 +1100,140 @@ import axios, { AxiosError } from "axios";
 
 This is equivalent to the `import...from` syntax in §10.1 with reversed order.
 
-### 10.3 Use (Dot-path Import, deprecated)
+### 10.3 Use (Standard Library Import)
 
-> **Deprecated:** The `use` / `from...use` syntax is deprecated. Use `import...from` or `from...import` with string paths instead.
+The `use ... as ...` syntax imports Purus built-in standard library modules. The `as` keyword is required — it specifies the binding name. Tree-shaking ensures only the functions you actually reference are included in the compiled output.
+
+**Syntax:**
 
 ```
-use std.math
-from std.math use sin, cos
+use random as r
+use math as m
+use string as s
+use datetime as dt
+use json as j
 ```
 
 ```js
-import * as math from "std/math";
-import { sin, cos } from "std/math";
+// Only used functions are emitted (tree-shaking)
+const r = { randint(a, b) { ... }, choice(arr) { ... } };
+const m = { floor: Math.floor, pi: Math.PI };
+const s = { upper(str) { ... }, reverse(str) { ... } };
 ```
 
-Dots in the path are converted to `/` in the import.
+The `math` module is a direct alias for JS `Math` — all standard `Math` methods (e.g. `abs`, `floor`, `sin`, `sqrt`) are available, plus lowercase constant aliases (`pi`, `e`, `ln2`, etc.).
+
+**Available standard library modules:**
+
+| Module | Contents |
+|--------|----------|
+| `random` | `random`, `randint`, `randrange`, `randbool`, `uniform`, `triangular`, `gauss`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
+| `math` | JS `Math` alias + lowercase constant aliases (`pi`, `e`, `ln2`, `ln10`, `log2e`, `log10e`, `sqrt2`, `sqrt1_2`) |
+| `string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
+| `datetime` | `now`, `today`, `timestamp`, `create`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `toiso`, `tolocale`, `todate`, `totime`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds` |
+| `json` | `parse`, `stringify`, `prettify` |
+
+**`random` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `random[]` | Random float 0–1 | `r.random[]` → `0.7234...` |
+| `randint[a; b]` | Random integer (inclusive) | `r.randint[1; 10]` → `7` |
+| `randrange[stop]` | Random int in range | `r.randrange[10]` → `7` |
+| `randrange[start; stop; step]` | Random int with step | `r.randrange[0; 100; 5]` → `45` |
+| `randbool[]` | Random boolean | `r.randbool[]` → `true` |
+| `uniform[a; b]` | Random float in range | `r.uniform[0.0; 1.0]` → `0.583...` |
+| `triangular[lo; hi; mode]` | Triangular distribution | `r.triangular[0; 10; 3]` → `4.2...` |
+| `gauss[mu; sigma]` | Gaussian (normal) distribution | `r.gauss[0; 1]` → `-0.42...` |
+| `expovariate[lambd]` | Exponential distribution | `r.expovariate[1.5]` → `0.73...` |
+| `gammavariate[alpha; beta]` | Gamma distribution | `r.gammavariate[2; 1]` → `1.58...` |
+| `betavariate[alpha; beta]` | Beta distribution | `r.betavariate[2; 5]` → `0.27...` |
+| `lognormvariate[mu; sigma]` | Log-normal distribution | `r.lognormvariate[0; 1]` → `1.42...` |
+| `vonmisesvariate[mu; kappa]` | Von Mises distribution | `r.vonmisesvariate[0; 4]` → `0.31...` |
+| `paretovariate[alpha]` | Pareto distribution | `r.paretovariate[1]` → `1.82...` |
+| `weibullvariate[alpha; beta]` | Weibull distribution | `r.weibullvariate[1; 1.5]` → `0.63...` |
+| `choice[arr]` | Random element from array | `r.choice[list[1; 2; 3]]` → `2` |
+| `choices[arr; k]` | Pick k with replacement | `r.choices[list[1; 2; 3]; 5]` → `[2, 3, 1, 3, 2]` |
+| `wchoices[arr; weights; k]` | Weighted pick k with replacement | `r.wchoices[list[1; 2; 3]; list[1; 2; 7]; 3]` → `[3, 3, 2]` |
+| `shuffle[arr]` | Shuffled copy of array | `r.shuffle[list[1; 2; 3]]` → `[3, 1, 2]` |
+| `sample[arr; k]` | Pick k without replacement | `r.sample[list[1; 2; 3]; 2]` → `[3, 1]` |
+| `binomial[n; p]` | Binomial distribution | `r.binomial[10; 0.5]` → `6` |
+| `poisson[lambda]` | Poisson distribution | `r.poisson[4]` → `3` |
+| `geometric[p]` | Geometric distribution | `r.geometric[0.5]` → `2` |
+| `clamp[val; lo; hi]` | Clamp value to range | `r.clamp[15; 0; 10]` → `10` |
+| `lerp[a; b; t]` | Linear interpolation | `r.lerp[0; 100; 0.5]` → `50` |
+
+**`string` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `len[str]` | String length | `s.len[///hello///]` → `5` |
+| `contains[str; sub]` | Check if contains substring | `s.contains[///hello///; ///ell///]` → `true` |
+| `startswith[str; prefix]` | Check prefix | `s.startswith[///hello///; ///he///]` → `true` |
+| `endswith[str; suffix]` | Check suffix | `s.endswith[///hello///; ///lo///]` → `true` |
+| `indexof[str; sub]` | First index of substring | `s.indexof[///hello///; ///ll///]` → `2` |
+| `count[str; sub]` | Count occurrences | `s.count[///banana///; ///an///]` → `2` |
+| `upper[str]` | Uppercase | `s.upper[///hello///]` → `///HELLO///` |
+| `lower[str]` | Lowercase | `s.lower[///HELLO///]` → `///hello///` |
+| `capitalize[str]` | Capitalize first char | `s.capitalize[///hello///]` → `///Hello///` |
+| `title[str]` | Title case | `s.title[///hello world///]` → `///Hello World///` |
+| `trim[str]` | Trim whitespace | `s.trim[/// hello ///]` → `///hello///` |
+| `reverse[str]` | Reverse string | `s.reverse[///abc///]` → `///cba///` |
+| `repeat[str; n]` | Repeat n times | `s.repeat[///ab///; 3]` → `///ababab///` |
+| `replace[str; old; new]` | Replace all occurrences | `s.replace[///aabb///; ///a///; ///x///]` → `///xxbb///` |
+| `padstart[str; len; fill]` | Pad start | `s.padstart[///5///; 3; ///0///]` → `///005///` |
+| `padend[str; len; fill]` | Pad end | `s.padend[///5///; 3; ///0///]` → `///500///` |
+| `split[str; sep]` | Split string | `s.split[///a,b,c///; ///,///]` → `[///a///; ///b///; ///c///]` |
+| `lines[str]` | Split by newlines | `s.lines[///a\nb///]` → `[///a///; ///b///]` |
+| `words[str]` | Split by whitespace | `s.words[///foo bar///]` → `[///foo///; ///bar///]` |
+| `join[arr; sep]` | Join array | `s.join[list[///a///; ///b///]; ///,///]` → `///a,b///` |
+| `chars[str]` | Split into chars | `s.chars[///abc///]` → `[///a///; ///b///; ///c///]` |
+| `slice[str; start; end]` | Slice substring | `s.slice[///hello///; 1; 3]` → `///el///` |
+| `charat[str; i]` | Char at index | `s.charat[///hello///; 0]` → `///h///` |
+| `codeat[str; i]` | Code point at index | `s.codeat[///A///; 0]` → `65` |
+| `fromcode[code]` | String from code point | `s.fromcode[65]` → `///A///` |
+
+**`datetime` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `now[]` | Current timestamp (ms) | `dt.now[]` → `1712000000000` |
+| `today[]` | Start of today (ms) | `dt.today[]` → `1711929600000` |
+| `timestamp[]` | Unix timestamp (seconds) | `dt.timestamp[]` → `1712000000` |
+| `create[y; m; d; h; min; s; ms]` | Create timestamp | `dt.create[2026; 4; 2]` → `...` |
+| `fromiso[str]` | Parse ISO 8601 | `dt.fromiso[///2026-04-02T00:00:00Z///]` → `...` |
+| `year[t]` | Extract year | `dt.year[dt.now[]]` → `2026` |
+| `month[t]` | Extract month (1–12) | `dt.month[dt.now[]]` → `4` |
+| `day[t]` | Extract day (1–31) | `dt.day[dt.now[]]` → `2` |
+| `weekday[t]` | Day of week (0=Sun) | `dt.weekday[dt.now[]]` → `4` |
+| `hour[t]` / `minute[t]` / `second[t]` / `ms[t]` | Extract time parts | `dt.hour[dt.now[]]` → `14` |
+| `toiso[t]` | Format as ISO 8601 | `dt.toiso[dt.now[]]` → `///2026-04-02T...Z///` |
+| `tolocale[t; locale; options]` | Locale string | `dt.tolocale[dt.now[]; ///ja-JP///]` → `...` |
+| `todate[t]` | Date string | `dt.todate[dt.now[]]` → `///4/2/2026///` |
+| `totime[t]` | Time string | `dt.totime[dt.now[]]` → `///2:30:00 PM///` |
+| `adddays[t; n]` | Add days | `dt.adddays[dt.now[]; 7]` → `...` |
+| `addhours[t; n]` | Add hours | `dt.addhours[dt.now[]; 2]` → `...` |
+| `addminutes[t; n]` / `addseconds[t; n]` / `addms[t; n]` | Add time | ... |
+| `diff[a; b]` | Difference in ms | `dt.diff[t1; t2]` → `86400000` |
+| `diffdays[a; b]` / `diffhours[a; b]` / `diffminutes[a; b]` / `diffseconds[a; b]` | Difference in units | ... |
+
+**`json` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `parse[str]` | Parse JSON string | `j.parse[///{"a":1}///]` → `{ a: 1 }` |
+| `stringify[val]` | Convert to JSON string | `j.stringify[obj]` → `///{"a":1}///` |
+| `prettify[val; indent]` | Pretty-print JSON | `j.prettify[obj; 2]` → formatted string |
+
+**`math` module — lowercase constant aliases:**
+
+| Alias | Original | Value |
+|-------|----------|-------|
+| `pi` | `Math.PI` | `3.14159...` |
+| `e` | `Math.E` | `2.71828...` |
+| `ln2` | `Math.LN2` | `0.69314...` |
+| `ln10` | `Math.LN10` | `2.30258...` |
+| `sqrt2` | `Math.SQRT2` | `1.41421...` |
 
 ### 10.4 Export / Public
 
@@ -1749,7 +1857,7 @@ class Secret {
 | `export` | `export` | ESM export |
 | `default` | `default` | Default export |
 | `require` | `require()` | CommonJS require |
-| `use` | `import` | Dot-path import _(deprecated)_ |
+| `use` | _(inline JS)_ | Standard library import |
 | `namespace` | IIFE | Module namespace |
 | `public` | `export` | Public export |
 | `all` | `* as` | Namespace import |
@@ -1921,8 +2029,7 @@ FromImportDecl = "from" String "import"
               ("all" "as" Ident | "[" IdentList "]" | Ident ["," "[" IdentList "]"])
               ;
 
-UseDecl       = "use" DottedName                                    (* deprecated *)
-              | "from" DottedName "use" Ident { "," Ident }         (* deprecated *)
+UseDecl       = "use" Ident "as" Ident                               (* stdlib import *)
               ;
 
 ModDecl       = "namespace" Ident INDENT Block DEDENT ;
@@ -1949,7 +2056,7 @@ Pipe          = Coal { "pipe" Coal } ;
 Coal          = Or { "coal" Or } ;
 Or            = And { "or" And } ;
 And           = Equality { "and" Equality } ;
-Equality      = Comparison { ("eq" | "neq" | "not" "eq" | "is" | "instanceof") Comparison } ;
+Equality      = Comparison { ("eq" | "neq" | "not" "eq" | "instanceof") Comparison } ;
 Comparison    = Addition { ("lt" ["eq"] | "gt" ["eq"] | "le" | "ge") Addition } ;
 Addition      = Multiplication { ("add" | "sub") Multiplication } ;
 Multiplication = Power { ("mul" | "div" | "mod") Power } ;
