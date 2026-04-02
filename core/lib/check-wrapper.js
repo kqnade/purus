@@ -30,9 +30,13 @@ if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile()) {
       console.log("Error: no input file specified and no config.purus found");
       console.log("");
       console.log("Usage:");
-      console.log("  purus check <file|dir>           Check a file or directory");
+      console.log(
+        "  purus check <file|dir>           Check a file or directory",
+      );
       console.log("  purus check --entry <file|dir>   Specify entry");
-      console.log("  purus check                      Check using config.purus");
+      console.log(
+        "  purus check                      Check using config.purus",
+      );
       process.exit(1);
     }
 
@@ -68,7 +72,9 @@ if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile()) {
     console.log(`\n${errors} file${errors === 1 ? "" : "s"} with errors.`);
     process.exit(1);
   } else {
-    console.log(`${files.length} file${files.length === 1 ? "" : "s"} checked. No errors.`);
+    console.log(
+      `${files.length} file${files.length === 1 ? "" : "s"} checked. No errors.`,
+    );
   }
 }
 
@@ -89,7 +95,10 @@ function findPurusFiles(dir) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       results.push(...findPurusFiles(fullPath));
-    } else if (/\.(c|m)?purus$/.test(entry.name) && entry.name !== "config.purus") {
+    } else if (
+      /\.(c|m)?purus$/.test(entry.name) &&
+      entry.name !== "config.purus"
+    ) {
       results.push(fullPath);
     }
   }

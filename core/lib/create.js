@@ -37,7 +37,9 @@ async function run() {
     const projectDir = path.resolve(projectName);
 
     if (fs.existsSync(projectDir) && !isDirEmpty(projectDir)) {
-      console.log(`Error: directory '${projectName}' already exists and is not empty`);
+      console.log(
+        `Error: directory '${projectName}' already exists and is not empty`,
+      );
       process.exit(1);
     }
 
@@ -71,7 +73,7 @@ const lint.consistent-naming be ///warn///
           plugins: ["@puruslang/prettier-plugin-purus"],
         },
         null,
-        2
+        2,
       ) + "\n";
     fs.writeFileSync(path.join(projectDir, ".prettierrc"), prettierrc);
 
@@ -162,7 +164,9 @@ node_modules/
     } else {
       const answer = await question(rl, "\nInstall dependencies? (Y/n) ");
       installDeps =
-        answer === "" || answer.toLowerCase() === "y" || answer.toLowerCase() === "yes";
+        answer === "" ||
+        answer.toLowerCase() === "y" ||
+        answer.toLowerCase() === "yes";
     }
 
     if (installDeps) {

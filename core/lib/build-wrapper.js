@@ -20,7 +20,10 @@ for (let i = 0; i < args.length; i++) {
   } else if (args[i] === "--stdout") {
     toStdout = true;
   } else if (args[i] === "--strict") {
-    if (i + 1 < args.length && (args[i + 1] === "true" || args[i + 1] === "false")) {
+    if (
+      i + 1 < args.length &&
+      (args[i + 1] === "true" || args[i + 1] === "false")
+    ) {
       strict = args[++i] === "true";
     } else {
       strict = true;
@@ -70,14 +73,23 @@ function resolveModuleType(filePath, cliModuleType, configResult) {
   return "module";
 }
 
-if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile() && /\.(c|m)?purus$/.test(entry)) {
+if (
+  entry &&
+  fs.existsSync(entry) &&
+  fs.statSync(entry).isFile() &&
+  /\.(c|m)?purus$/.test(entry)
+) {
   // Single file - handle directly via compile API
   const source = fs.readFileSync(entry, "utf8");
   const useHeader = !noHeader;
   const useStrict = strict !== null ? strict : true;
   const configResult = loadConfig();
   const resolvedModule = resolveModuleType(entry, moduleType, configResult);
-  const js = compile(source, { header: useHeader, strict: useStrict, module: resolvedModule });
+  const js = compile(source, {
+    header: useHeader,
+    strict: useStrict,
+    module: resolvedModule,
+  });
 
   if (toStdout) {
     process.stdout.write(js);
@@ -113,7 +125,7 @@ if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile() && /\.(c|m)?pur
       if (!output) {
         outputDir = path.resolve(
           configResult.configDir,
-          configResult.config.output || "dist"
+          configResult.config.output || "dist",
         );
       }
       useHeader = configResult.config.header !== false && !noHeader;
@@ -127,10 +139,12 @@ if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile() && /\.(c|m)?pur
       console.log("Error: no input file specified and no config.purus found");
       console.log("");
       console.log("Usage:");
-      console.log("  purus build <file|dir>           Compile a file or directory");
+      console.log(
+        "  purus build <file|dir>           Compile a file or directory",
+      );
       console.log("  purus build --entry <file|dir>   Specify entry");
       console.log(
-        "  purus build                     Compile using config.purus"
+        "  purus build                     Compile using config.purus",
       );
       process.exit(1);
     }
@@ -171,7 +185,11 @@ if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile() && /\.(c|m)?pur
   for (const f of files) {
     const source = fs.readFileSync(f, "utf8");
     const resolvedModule = resolveModuleType(f, moduleType, configResult);
-    const js = compile(source, { header: useHeader, strict: useStrict, module: resolvedModule });
+    const js = compile(source, {
+      header: useHeader,
+      strict: useStrict,
+      module: resolvedModule,
+    });
     let outputPath;
 
     if (stat.isFile()) {
@@ -183,7 +201,7 @@ if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile() && /\.(c|m)?pur
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
     fs.writeFileSync(outputPath, js);
     console.log(
-      `Compiled ${path.relative(process.cwd(), f)} -> ${path.relative(process.cwd(), outputPath)}`
+      `Compiled ${path.relative(process.cwd(), f)} -> ${path.relative(process.cwd(), outputPath)}`,
     );
     count++;
   }

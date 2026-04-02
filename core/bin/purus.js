@@ -9,21 +9,39 @@ function printHelp() {
   console.log("");
   console.log("Usage:");
   console.log("  purus build [file|dir]               Compile to JavaScript");
-  console.log("  purus build --entry <file|dir>       Specify entry file or directory");
-  console.log("  purus build --output <dir>           Specify output directory");
-  console.log("  purus build                          Compile using config.purus");
+  console.log(
+    "  purus build --entry <file|dir>       Specify entry file or directory",
+  );
+  console.log(
+    "  purus build --output <dir>           Specify output directory",
+  );
+  console.log(
+    "  purus build                          Compile using config.purus",
+  );
   console.log("    .purus  -> .js");
   console.log("    .cpurus -> .cjs (CommonJS)");
   console.log("    .mpurus -> .mjs (ES Module)");
-  console.log("  purus build --no-header [file]       Compile without header comment");
-  console.log("  purus build --type <type>            Set module type (module|commonjs)");
-  console.log("  purus run [file|dir]                 Run without generating files");
-  console.log("  purus run --entry <file|dir>         Run entry file or directory");
+  console.log(
+    "  purus build --no-header [file]       Compile without header comment",
+  );
+  console.log(
+    "  purus build --type <type>            Set module type (module|commonjs)",
+  );
+  console.log(
+    "  purus run [file|dir]                 Run without generating files",
+  );
+  console.log(
+    "  purus run --entry <file|dir>         Run entry file or directory",
+  );
   console.log("  purus run                            Run using config.purus");
   console.log("  purus check [file|dir]               Syntax check only");
-  console.log("  purus check --entry <file|dir>       Check entry file or directory");
+  console.log(
+    "  purus check --entry <file|dir>       Check entry file or directory",
+  );
   console.log("  purus new [name] [-y]                Create a new project");
-  console.log("  purus init                           Initialize project in current directory");
+  console.log(
+    "  purus init                           Initialize project in current directory",
+  );
   console.log("  purus version                        Show version");
   console.log("  purus help                           Show this help");
   console.log("");
