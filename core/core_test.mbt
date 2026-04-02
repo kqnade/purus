@@ -134,7 +134,7 @@ test "integration: match" {
   assert_eq(stmts.length(), 1)
 }
 
-// ===== Codegen tests: purus source → JavaScript output =====
+// ===== Codegen tests: purus source ↁEJavaScript output =====
 
 ///|
 fn compile(src : String) -> String {
@@ -417,7 +417,7 @@ test "codegen: inclusive range" {
 test "codegen: exclusive range" {
   let js = compile("const r be [0...5]")
   assert_true(js.contains("Array.from"))
-  assert_true(not(js.contains("+ 1")))
+  assert_true(!(js.contains("+ 1")))
 }
 
 ///|

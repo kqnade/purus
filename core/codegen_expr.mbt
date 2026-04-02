@@ -39,7 +39,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("[")
       let mut first = true
       for e in elems {
-        if not(first) {
+        if !(first) {
           self.write(", ")
         }
         self.gen_expr(e)
@@ -61,8 +61,8 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write(")")
     }
     Slice(obj, start, end, inclusive) => {
-      // arr[start..end] → arr.slice(start, end + 1) (inclusive)
-      // arr[start...end] → arr.slice(start, end) (exclusive)
+      // arr[start..end] ↁEarr.slice(start, end + 1) (inclusive)
+      // arr[start...end] ↁEarr.slice(start, end) (exclusive)
       self.gen_expr_wrap(obj)
       self.write(".slice(")
       self.gen_expr(start)
@@ -83,7 +83,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("{ ")
       let mut first = true
       for pair in pairs {
-        if not(first) {
+        if !(first) {
           self.write(", ")
         }
         let key = pair.0
@@ -156,7 +156,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("(")
       let mut first = true
       for p in params {
-        if not(first) {
+        if !(first) {
           self.write(", ")
         }
         self.write(js_ident(p))
@@ -175,7 +175,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("(")
       let mut first = true
       for p in params {
-        if not(first) {
+        if !(first) {
           self.write(", ")
         }
         self.write(js_ident(p))
@@ -189,7 +189,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("(")
       let mut first = true
       for a in args {
-        if not(first) {
+        if !(first) {
           self.write(", ")
         }
         self.gen_expr(a)
@@ -204,7 +204,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("(")
       let mut first = true
       for a in args {
-        if not(first) {
+        if !(first) {
           self.write(", ")
         }
         self.gen_expr(a)
@@ -218,7 +218,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("(")
       let mut first = true
       for a in args {
-        if not(first) {
+        if !(first) {
           self.write(", ")
         }
         self.gen_expr(a)
@@ -227,18 +227,18 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write(")")
     }
     Pipe(left, right) =>
-      // a pipe b → b(a)
+      // a pipe b ↁEb(a)
       match right {
         Call(callee, args) => {
-          // a pipe f(x, y) → f(a, x, y)
+          // a pipe f(x, y) ↁEf(a, x, y)
           self.gen_expr(callee)
           self.write("(")
           self.gen_expr(left)
-          if not(args.is_empty()) {
+          if !(args.is_empty()) {
             self.write(", ")
             let mut first = true
             for a in args {
-              if not(first) {
+              if !(first) {
                 self.write(", ")
               }
               self.gen_expr(a)
@@ -248,14 +248,14 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
           self.write(")")
         }
         MethodCall(_, meth_name, args) => {
-          // a pipe .method(x) → a.method(x)
+          // a pipe .method(x) ↁEa.method(x)
           self.gen_expr_wrap(left)
           self.write(".")
           self.write(meth_name)
           self.write("(")
           let mut first = true
           for a in args {
-            if not(first) {
+            if !(first) {
               self.write(", ")
             }
             self.gen_expr(a)
@@ -264,7 +264,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
           self.write(")")
         }
         Ident(_) => {
-          // a pipe f → f(a)
+          // a pipe f ↁEf(a)
           self.gen_expr(right)
           self.write("(")
           self.gen_expr(left)
@@ -286,7 +286,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.gen_expr(else_expr)
     }
     TryExpr(try_body, catch_name, catch_body) => {
-      // try expression → IIFE
+      // try expression ↁEIIFE
       self.write("(() => { try {\n")
       self.indent_level += 1
       for s in try_body {
@@ -306,7 +306,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("} })()")
     }
     MatchExpr(subject, arms) => {
-      // match expression → IIFE with if-else chain
+      // match expression ↁEIIFE with if-else chain
       self.write("(() => {\n")
       self.indent_level += 1
       // Bind subject to temp
@@ -334,7 +334,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       let mut first = true
       for arm in arms {
         self.write_indent()
-        if not(first) {
+        if !(first) {
           self.write("else ")
         }
         match arm.pattern {
@@ -419,7 +419,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("(")
       let mut first = true
       for a in args {
-        if not(first) {
+        if !(first) {
           self.write(", ")
         }
         self.gen_expr(a)
@@ -437,7 +437,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("async (")
       let mut first = true
       for p in params {
-        if not(first) {
+        if !(first) {
           self.write(", ")
         }
         self.write(js_ident(p))
@@ -456,7 +456,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("async (")
       let mut first = true
       for p in params {
-        if not(first) {
+        if !(first) {
           self.write(", ")
         }
         self.write(js_ident(p))
@@ -552,14 +552,14 @@ fn is_valid_js_ident(s : String) -> Bool {
   }
   let chars = s.to_array()
   let first = chars[0]
-  if not(is_alpha_codegen(first)) && first != '_' && first != '$' {
+  if !(is_alpha_codegen(first)) && first != '_' && first != '$' {
     return false
   }
   let mut i = 1
   while i < chars.length() {
     let c = chars[i]
-    if not(is_alpha_codegen(c)) &&
-      not(c >= '0' && c <= '9') &&
+    if !(is_alpha_codegen(c)) &&
+      !(c >= '0' && c <= '9') &&
       c != '_' &&
       c != '$' {
       return false

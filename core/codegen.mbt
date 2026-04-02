@@ -87,7 +87,7 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.write(" [")
       let mut first = true
       for n in names {
-        if not(first) {
+        if !(first) {
           self.write(", ")
         }
         self.write(js_ident(n))
@@ -108,7 +108,7 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.write(" { ")
       let mut first = true
       for n in names {
-        if not(first) {
+        if !(first) {
           self.write(", ")
         }
         self.write(js_ident(n))
@@ -121,7 +121,7 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
     Assign(target, value) =>
       match target {
         Slice(obj, start, end, inclusive) => {
-          // Splice: arr[start..end] be value → arr.splice(start, end - start + 1, ...value)
+          // Splice: arr[start..end] be value ↁEarr.splice(start, end - start + 1, ...value)
           self.write_indent()
           self.gen_expr(obj)
           self.write(".splice(")
@@ -495,7 +495,7 @@ fn JsCodegen::gen_fn_decl(self : JsCodegen, decl : FnDecl) -> Unit {
   self.write("(")
   let mut first = true
   for p in decl.params {
-    if not(first) {
+    if !(first) {
       self.write(", ")
     }
     self.write(js_ident(p))
@@ -570,7 +570,7 @@ fn JsCodegen::gen_class_decl(self : JsCodegen, decl : ClassDecl) -> Unit {
         self.write("constructor(")
         let mut first = true
         for p in params {
-          if not(first) {
+          if !(first) {
             self.write(", ")
           }
           self.write(js_ident(p))
@@ -591,7 +591,7 @@ fn JsCodegen::gen_class_decl(self : JsCodegen, decl : ClassDecl) -> Unit {
         self.write("(")
         let mut first = true
         for p in params {
-          if not(first) {
+          if !(first) {
             self.write(", ")
           }
           self.write(js_ident(p))
@@ -736,7 +736,7 @@ fn JsCodegen::gen_match(
   self.write_indent()
   let mut first = true
   for arm in arms {
-    if not(first) {
+    if !(first) {
       self.write(" else ")
     }
     match arm.pattern {
@@ -815,7 +815,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
         // CJS mode: convert to require()
         match (default_name, named, ns_name) {
           (Some(n), None, None) => {
-            // import x from "mod" → const x = require("mod");
+            // import x from "mod" ↁEconst x = require("mod");
             self.write_indent()
             self.write("const ")
             self.write(n)
@@ -824,12 +824,12 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
             self.write("\");\n")
           }
           (None, Some(names), None) => {
-            // import { a, b } from "mod" → const { a, b } = require("mod");
+            // import { a, b } from "mod" ↁEconst { a, b } = require("mod");
             self.write_indent()
             self.write("const { ")
             let mut first = true
             for n in names {
-              if not(first) {
+              if !(first) {
                 self.write(", ")
               }
               self.write(n)
@@ -840,7 +840,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
             self.write("\");\n")
           }
           (Some(n), Some(names), None) => {
-            // import x, { a, b } from "mod" → const x = require("mod"); const { a, b } = x;
+            // import x, { a, b } from "mod" ↁEconst x = require("mod"); const { a, b } = x;
             self.write_indent()
             self.write("const ")
             self.write(n)
@@ -851,7 +851,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
             self.write("const { ")
             let mut first = true
             for nm in names {
-              if not(first) {
+              if !(first) {
                 self.write(", ")
               }
               self.write(nm)
@@ -862,7 +862,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
             self.write(";\n")
           }
           (None, None, Some(ns)) => {
-            // import * as fs from "fs" → const fs = require("fs");
+            // import * as fs from "fs" ↁEconst fs = require("fs");
             self.write_indent()
             self.write("const ")
             self.write(ns)
@@ -898,7 +898,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
             self.write("{ ")
             let mut first = true
             for n in names {
-              if not(first) {
+              if !(first) {
                 self.write(", ")
               }
               self.write(n)
@@ -941,7 +941,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
     }
     SideEffectImport(module_name, attrs) =>
       if self.cjs {
-        // CJS mode: import "mod" → require("mod");
+        // CJS mode: import "mod" ↁErequire("mod");
         self.write_indent()
         self.write("require(\"")
         self.write(module_name)
@@ -967,7 +967,7 @@ fn JsCodegen::gen_import_attributes(
       self.write(" with { ")
       let mut first = true
       for pair in pairs {
-        if not(first) {
+        if !(first) {
           self.write(", ")
         }
         self.write(pair.0)

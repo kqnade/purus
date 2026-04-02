@@ -639,7 +639,7 @@ test "parser: typeof" {
 ///|
 test "parser: is is now an identifier" {
   let _stmts = parse("const r be x is y")
-  // After v0.9.0, `is` is no longer a keyword — it's parsed as identifier
+  // After v0.9.0, `is` is no longer a keyword  Eit's parsed as identifier
   // This should parse as: const r be (x) then `is` is an ident, then `y`
   // Actually since `is` is now an identifier, it would be: ExprStmt(Ident("is"))
   // Let's verify it differently
@@ -864,7 +864,7 @@ test "parser: exclusive range [0...5]" {
   let stmts = parse("const r be [0...5]")
   match stmts[0] {
     VarDecl(Const_, _, RangeArray(IntLit(0), IntLit(5), inclusive)) =>
-      assert_true(not(inclusive))
+      assert_true(!(inclusive))
     _ => fail("expected RangeArray exclusive")
   }
 }
@@ -889,7 +889,7 @@ test "parser: exclusive slice" {
   match stmts[0] {
     ExprStmt(Slice(Ident(name), IntLit(2), IntLit(4), inclusive)) => {
       assert_eq(name, "numbers")
-      assert_true(not(inclusive))
+      assert_true(!(inclusive))
     }
     _ => fail("expected Slice exclusive")
   }

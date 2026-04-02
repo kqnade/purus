@@ -513,7 +513,7 @@ fn Parser::parse_match_arms(self : Parser, min_indent : Int) -> Array[MatchArm] 
       self.pos = saved
       break
     }
-    if not(self.parse_one_match_arm(arms)) {
+    if !(self.parse_one_match_arm(arms)) {
       self.pos = saved
       break
     }
@@ -763,7 +763,7 @@ fn Parser::parse_use_stmt(self : Parser) -> Stmt {
 ///|
 fn Parser::parse_from_use_stmt(self : Parser) -> Stmt {
   self.pos += 1 // skip from
-  // from ///module/// import ... — ES import with reversed syntax
+  // from ///module/// import ...  EES import with reversed syntax
   match self.peek() {
     Str(module_name) => {
       self.pos += 1
@@ -799,7 +799,7 @@ fn Parser::parse_from_use_stmt(self : Parser) -> Stmt {
     }
     _ => ()
   }
-  // from <ident> is no longer valid for stdlib — only from "mod" import ... is allowed
+  // from <ident> is no longer valid for stdlib  Eonly from "mod" import ... is allowed
   let name = self.parse_ident_name()
   // skip remaining tokens: use, names, commas
   while self.peek() != Newline && self.peek() != Eof {
@@ -810,30 +810,6 @@ fn Parser::parse_from_use_stmt(self : Parser) -> Stmt {
       "from " + name + " use ... is removed. Use: use " + name + " as <alias>",
     ),
   )
-}
-
-///|
-fn Parser::parse_dotted_name(self : Parser) -> String {
-  let buf = StringBuilder::new()
-  match self.peek() {
-    Ident(s) => {
-      self.pos += 1
-      buf.write_string(s)
-    }
-    _ => ()
-  }
-  while self.peek() == Dot {
-    self.pos += 1
-    buf.write_char('.')
-    match self.peek() {
-      Ident(s) => {
-        self.pos += 1
-        buf.write_string(s)
-      }
-      _ => ()
-    }
-  }
-  buf.to_string()
 }
 
 ///|
