@@ -982,3 +982,23 @@ test "codegen: typeof type check" {
   let js = compile("if typeof x eq ///string/// then console.log[x]")
   assert_true(js.contains("typeof x === \"string\""))
 }
+
+// ===== stdlib codegen tests =====
+
+///|
+test "codegen: use math as m emits marker" {
+  let js = compile("use math as m")
+  assert_true(js.contains("// @purus-stdlib:whole:math:m"))
+}
+
+///|
+test "codegen: use random as r emits marker" {
+  let js = compile("use random as r")
+  assert_true(js.contains("// @purus-stdlib:whole:random:r"))
+}
+
+///|
+test "codegen: from...use is removed" {
+  let js = compile("from math use abs")
+  assert_true(js.contains("removed"))
+}

@@ -637,19 +637,19 @@ test "parser: typeof" {
 }
 
 ///|
-test "parser: is becomes BinOp Eq" {
-  let stmts = parse("const r be x is string")
-  match stmts[0] {
-    VarDecl(Const_, _, BinOp(Eq, Ident(l), Ident(r))) => {
-      assert_eq(l, "x")
-      assert_eq(r, "string")
-    }
-    _ => fail("expected BinOp Eq")
-  }
+test "parser: is is now an identifier" {
+  let _stmts = parse("const r be x is y")
+  // After v0.9.0, `is` is no longer a keyword — it's parsed as identifier
+  // This should parse as: const r be (x) then `is` is an ident, then `y`
+  // Actually since `is` is now an identifier, it would be: ExprStmt(Ident("is"))
+  // Let's verify it differently
+  let lexer = Lexer::new("is")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[1].kind, Ident("is"))
 }
 
 ///|
-test "parser: eq becomes BinOp Eq" {
+test "parser: eq still works as BinOp Eq" {
   let stmts = parse("const r be x eq string")
   match stmts[0] {
     VarDecl(Const_, _, BinOp(Eq, Ident(l), Ident(r))) => {
@@ -657,18 +657,6 @@ test "parser: eq becomes BinOp Eq" {
       assert_eq(r, "string")
     }
     _ => fail("expected BinOp Eq")
-  }
-}
-
-///|
-test "parser: is with value becomes BinOp Eq" {
-  let stmts = parse("const r be x is y")
-  match stmts[0] {
-    VarDecl(Const_, _, BinOp(Eq, Ident(l), Ident(r))) => {
-      assert_eq(l, "x")
-      assert_eq(r, "y")
-    }
-    _ => fail("expected BinOp Eq from is + non-type value")
   }
 }
 
@@ -1115,4 +1103,38 @@ test "lexer: optional dot token" {
   assert_eq(tokens[1].kind, Ident("a"))
   assert_eq(tokens[2].kind, OptDot)
   assert_eq(tokens[3].kind, Ident("b"))
+}
+
+// ===== use stdlib tests =====
+
+///|
+test "parser: use stdlib module with alias" {
+  let stmts = parse("use random as r")
+  assert_eq(stmts.length(), 1)
+  match stmts[0] {
+    UseStdlib(module_name, binding) => {
+      assert_eq(module_name, "random")
+      assert_eq(binding, "r")
+    }
+    _ => fail("expected UseStdlib with alias")
+  }
+}
+
+///|
+test "parser: from...use is rejected" {
+  let stmts = parse("from random use randint, choice")
+  assert_eq(stmts.length(), 1)
+  // Should produce an ExprStmt with error message, not UseStdlib
+  match stmts[0] {
+    UseStdlib(_, _) => fail("from...use should be rejected")
+    _ => ()
+  }
+}
+
+///|
+test "lexer: is is no longer a keyword" {
+  let lexer = Lexer::new("is")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[0].kind, Indent(0))
+  assert_eq(tokens[1].kind, Ident("is"))
 }
