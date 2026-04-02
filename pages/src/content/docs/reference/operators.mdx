@@ -11,7 +11,7 @@ sidebar:
 2. `coal` — Nullish coalescing
 3. `or` — Logical OR
 4. `and` — Logical AND
-5. `eq` / `neq` / `not eq` / `is` / `instanceof` — Equality / Type check
+5. `eq` / `neq` / `not eq` / `instanceof` — Equality / Type check
 6. `lt` / `gt` / `le` (`lt eq`) / `ge` (`gt eq`) — Comparison
 7. `add` / `sub` — Addition / Subtraction
 8. `mul` / `div` / `mod` — Multiplication / Division / Modulo
@@ -60,7 +60,7 @@ neg x      -- -x
 
 ## Comparison
 
-`eq` and `is` are interchangeable. When the right side is a type name (e.g., `string`, `number`, `null`, or a capitalized class name), it becomes a type check. Otherwise, it becomes a strict equality comparison (`===`).
+When the right side of `eq` is a type name (e.g., `string`, `number`, `null`, or a capitalized class name), it becomes a type check. Otherwise, it becomes a strict equality comparison (`===`).
 
 For not-equal, use `neq` or `not eq`. For less-than-or-equal, both `le` and `lt eq` work. For greater-than-or-equal, both `ge` and `gt eq` work.
 
@@ -74,12 +74,7 @@ a le b      -- a <= b
 a lt eq b   -- a <= b (alternative)
 a ge b      -- a >= b
 a gt eq b   -- a >= b (alternative)
-
--- eq and is can be used interchangeably
-a eq b     -- a === b (value comparison)
-a is b     -- a === b (value comparison)
 a eq string -- typeof a === "string" (type check)
-a is string -- typeof a === "string" (type check)
 ```
 
 :::tip
@@ -214,13 +209,12 @@ const name be user.name coal ///guest///  -- uses "guest" only if name is null/u
 
 ## Type Checks
 
-`eq` and `is` both work for type checks when followed by a type name.
+`eq` performs a type check when followed by a type name.
 
 ```purus
-x is string          -- typeof x === "string"
 x eq string          -- typeof x === "string"
-x is null            -- x === null
-x is MyClass         -- x instanceof MyClass
+x eq null            -- x === null
+x eq MyClass         -- x instanceof MyClass
 x instanceof Y       -- x instanceof Y
 typeof x             -- typeof x
 ```

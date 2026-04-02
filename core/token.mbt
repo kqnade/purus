@@ -63,7 +63,6 @@ pub(all) enum TokenKind {
   Switch_
   Case_
   Pipe_
-  Is
   As
   Of
   Gives

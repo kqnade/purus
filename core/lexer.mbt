@@ -530,7 +530,6 @@ fn Lexer::scan_ident(self : Lexer) -> Unit {
     "switch" => Switch_
     "case" => Case_
     "pipe" => Pipe_
-    "is" => Is
     "as" => As
     "of" => Of
     "gives" => Gives

@@ -67,7 +67,7 @@ sidebar:
 | `export` | `export` | ESMエクスポート |
 | `default` | `default` | デフォルトエクスポート |
 | `require` | `require()` | CJS require |
-| `use` | `import` | ドットパスインポート（非推奨） |
+| `use` | _（インラインJS）_ | 標準ライブラリインポート |
 | `namespace` | IIFE | モジュール名前空間 |
 | `public` | `export` | パブリックエクスポート |
 | `all` | `* as` | 名前空間インポート |
@@ -122,7 +122,6 @@ sidebar:
 
 | キーワード | JS出力 | 説明 |
 |---|---|---|
-| `is` | `===` | 等価チェック（`eq` のエイリアス） |
 | `as` | _（消去）_ | 型キャスト |
 | `of` | _（消去）_ | 型アノテーション |
 | `typeof` | `typeof` | typeof演算子 |

@@ -205,7 +205,7 @@
     "operator": {
       "patterns": [
         {
-          "match": "(?<![a-zA-Z0-9_-])(eq|is|be)(?![a-zA-Z0-9_-])",
+          "match": "(?<![a-zA-Z0-9_-])(eq|be)(?![a-zA-Z0-9_-])",
           "name": "keyword.other.equality.purus"
         },
         {

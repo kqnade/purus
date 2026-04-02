@@ -67,7 +67,7 @@ sidebar:
 | `export` | `export` | ESM export |
 | `default` | `default` | Default export |
 | `require` | `require()` | CJS require |
-| `use` | `import` | Dot-path import (deprecated) |
+| `use` | _(inline JS)_ | Standard library import |
 | `namespace` | IIFE | Module namespace |
 | `public` | `export` | Public export |
 | `all` | `* as` | Namespace import |
@@ -122,7 +122,6 @@ sidebar:
 
 | Keyword | JS Output | Description |
 |---|---|---|
-| `is` | `===` | Equality check (alias of `eq`) |
 | `as` | _(erased)_ | Type cast |
 | `of` | _(erased)_ | Type annotation |
 | `typeof` | `typeof` | Typeof operator |

@@ -11,7 +11,7 @@ const KEYWORDS = new Set([
   "add", "sub", "mul", "div", "mod", "neg", "pow",
   "eq", "neq", "lt", "gt", "le", "ge",
   "and", "or", "not", "pipe", "coal",
-  "is", "as", "of", "typeof", "instanceof", "type",
+  "as", "of", "typeof", "instanceof", "type",
   "new", "delete", "this", "await",
   "class", "extends", "super", "static", "private", "get", "set",
   "true", "false", "null", "nil", "undefined", "nan",

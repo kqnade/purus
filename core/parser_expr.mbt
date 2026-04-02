@@ -67,7 +67,7 @@ fn Parser::parse_equality(self : Parser) -> Expr {
   let mut left = self.parse_comparison()
   while self.pos < self.tokens.length() {
     match self.peek() {
-      Eq | Is => {
+      Eq => {
         self.pos += 1
         let right = self.parse_comparison()
         left = BinOp(Eq, left, right)
