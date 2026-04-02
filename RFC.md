@@ -1130,7 +1130,7 @@ The `math` module is a direct alias for JS `Math` — all standard `Math` method
 | `random` | `random`, `randint`, `randrange`, `randbool`, `uniform`, `triangular`, `gauss`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
 | `math` | JS `Math` alias + lowercase constant aliases (`pi`, `e`, `ln2`, `ln10`, `log2e`, `log10e`, `sqrt2`, `sqrt1_2`) |
 | `string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
-| `datetime` | `now`, `today`, `timestamp`, `create`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `toiso`, `tolocale`, `todate`, `totime`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds` |
+| `datetime` | `now`, `today`, `timestamp`, `create`, `utccreate`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `utcyear`, `utcmonth`, `utcday`, `utcweekday`, `utchour`, `utcminute`, `utcsecond`, `utcms`, `tzyear`, `tzmonth`, `tzday`, `tzweekday`, `tzhour`, `tzminute`, `tzsecond`, `toiso`, `tolocale`, `todate`, `totime`, `format`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds`, `offset`, `localtz` |
 | `json` | `parse`, `stringify`, `prettify` |
 
 **`random` module API:**
@@ -1200,22 +1200,32 @@ The `math` module is a direct alias for JS `Math` — all standard `Math` method
 | `now[]` | Current timestamp (ms) | `dt.now[]` → `1712000000000` |
 | `today[]` | Start of today (ms) | `dt.today[]` → `1711929600000` |
 | `timestamp[]` | Unix timestamp (seconds) | `dt.timestamp[]` → `1712000000` |
-| `create[y; m; d; h; min; s; ms]` | Create timestamp | `dt.create[2026; 4; 2]` → `...` |
+| `create[y; m; d; h; min; s; ms]` | Create local timestamp | `dt.create[2026; 4; 2]` → `...` |
+| `utccreate[y; m; d; h; min; s; ms]` | Create UTC timestamp | `dt.utccreate[2026; 4; 2]` → `...` |
 | `fromiso[str]` | Parse ISO 8601 | `dt.fromiso[///2026-04-02T00:00:00Z///]` → `...` |
-| `year[t]` | Extract year | `dt.year[dt.now[]]` → `2026` |
-| `month[t]` | Extract month (1–12) | `dt.month[dt.now[]]` → `4` |
-| `day[t]` | Extract day (1–31) | `dt.day[dt.now[]]` → `2` |
-| `weekday[t]` | Day of week (0=Sun) | `dt.weekday[dt.now[]]` → `4` |
-| `hour[t]` / `minute[t]` / `second[t]` / `ms[t]` | Extract time parts | `dt.hour[dt.now[]]` → `14` |
+| `year[t]` | Extract year (local) | `dt.year[dt.now[]]` → `2026` |
+| `month[t]` | Extract month 1–12 (local) | `dt.month[dt.now[]]` → `4` |
+| `day[t]` | Extract day 1–31 (local) | `dt.day[dt.now[]]` → `2` |
+| `weekday[t]` | Day of week 0=Sun (local) | `dt.weekday[dt.now[]]` → `4` |
+| `hour[t]` / `minute[t]` / `second[t]` / `ms[t]` | Extract time parts (local) | `dt.hour[dt.now[]]` → `14` |
+| `utcyear[t]` | Extract year (UTC) | `dt.utcyear[dt.now[]]` → `2026` |
+| `utcmonth[t]` / `utcday[t]` / `utcweekday[t]` | Extract date parts (UTC) | `dt.utcmonth[dt.now[]]` → `4` |
+| `utchour[t]` / `utcminute[t]` / `utcsecond[t]` / `utcms[t]` | Extract time parts (UTC) | `dt.utchour[dt.now[]]` → `5` |
+| `tzyear[t; tz]` | Extract year in timezone | `dt.tzyear[dt.now[]; ///America/New_York///]` → `2026` |
+| `tzmonth[t; tz]` / `tzday[t; tz]` / `tzweekday[t; tz]` | Extract date parts in timezone | `dt.tzday[dt.now[]; ///Asia/Tokyo///]` → `2` |
+| `tzhour[t; tz]` / `tzminute[t; tz]` / `tzsecond[t; tz]` | Extract time parts in timezone | `dt.tzhour[dt.now[]; ///America/New_York///]` → `10` |
 | `toiso[t]` | Format as ISO 8601 | `dt.toiso[dt.now[]]` → `///2026-04-02T...Z///` |
 | `tolocale[t; locale; options]` | Locale string | `dt.tolocale[dt.now[]; ///ja-JP///]` → `...` |
-| `todate[t]` | Date string | `dt.todate[dt.now[]]` → `///4/2/2026///` |
-| `totime[t]` | Time string | `dt.totime[dt.now[]]` → `///2:30:00 PM///` |
+| `todate[t; locale; options]` | Date string | `dt.todate[dt.now[]; ///en-US///]` → `///4/2/2026///` |
+| `totime[t; locale; options]` | Time string | `dt.totime[dt.now[]; ///en-US///]` → `///2:30:00 PM///` |
+| `format[t; tz; locale; options]` | Format in timezone | `dt.format[dt.now[]; ///America/New_York///]` → `...` |
 | `adddays[t; n]` | Add days | `dt.adddays[dt.now[]; 7]` → `...` |
 | `addhours[t; n]` | Add hours | `dt.addhours[dt.now[]; 2]` → `...` |
 | `addminutes[t; n]` / `addseconds[t; n]` / `addms[t; n]` | Add time | ... |
 | `diff[a; b]` | Difference in ms | `dt.diff[t1; t2]` → `86400000` |
 | `diffdays[a; b]` / `diffhours[a; b]` / `diffminutes[a; b]` / `diffseconds[a; b]` | Difference in units | ... |
+| `offset[t]` | Local UTC offset (minutes) | `dt.offset[dt.now[]]` → `-540` |
+| `localtz[]` | Local timezone name | `dt.localtz[]` → `///Asia/Tokyo///` |
 
 **`json` module API:**
 

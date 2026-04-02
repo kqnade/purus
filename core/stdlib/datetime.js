@@ -27,11 +27,22 @@ exports.mod = {
       ms || 0,
     ).getTime();
   },
+  utccreate(year, month, day, hour, minute, second, ms) {
+    return Date.UTC(
+      year,
+      (month || 1) - 1,
+      day || 1,
+      hour || 0,
+      minute || 0,
+      second || 0,
+      ms || 0,
+    );
+  },
   fromiso(str) {
     return new Date(str).getTime();
   },
 
-  // --- extract components ---
+  // --- extract components (local) ---
   year(t) {
     return new Date(t).getFullYear();
   },
@@ -57,6 +68,74 @@ exports.mod = {
     return new Date(t).getMilliseconds();
   },
 
+  // --- extract components (UTC) ---
+  utcyear(t) {
+    return new Date(t).getUTCFullYear();
+  },
+  utcmonth(t) {
+    return new Date(t).getUTCMonth() + 1;
+  },
+  utcday(t) {
+    return new Date(t).getUTCDate();
+  },
+  utcweekday(t) {
+    return new Date(t).getUTCDay();
+  },
+  utchour(t) {
+    return new Date(t).getUTCHours();
+  },
+  utcminute(t) {
+    return new Date(t).getUTCMinutes();
+  },
+  utcsecond(t) {
+    return new Date(t).getUTCSeconds();
+  },
+  utcms(t) {
+    return new Date(t).getUTCMilliseconds();
+  },
+
+  // --- extract components (timezone-aware) ---
+  _tzpart(t, tz, type) {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz,
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      fractionalSecondDigits: 3,
+      hour12: false,
+    }).formatToParts(new Date(t));
+    const p = parts.find((p) => p.type === type);
+    return p ? parseInt(p.value, 10) : 0;
+  },
+  tzyear(t, tz) {
+    return this._tzpart(t, tz, "year");
+  },
+  tzmonth(t, tz) {
+    return this._tzpart(t, tz, "month");
+  },
+  tzday(t, tz) {
+    return this._tzpart(t, tz, "day");
+  },
+  tzweekday(t, tz) {
+    const d = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz,
+      weekday: "short",
+    }).format(new Date(t));
+    return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(d);
+  },
+  tzhour(t, tz) {
+    return this._tzpart(t, tz, "hour") % 24;
+  },
+  tzminute(t, tz) {
+    return this._tzpart(t, tz, "minute");
+  },
+  tzsecond(t, tz) {
+    return this._tzpart(t, tz, "second");
+  },
+
   // --- format ---
   toiso(t) {
     return new Date(t).toISOString();
@@ -64,11 +143,17 @@ exports.mod = {
   tolocale(t, locale, options) {
     return new Date(t).toLocaleString(locale, options);
   },
-  todate(t) {
-    return new Date(t).toLocaleDateString();
+  todate(t, locale, options) {
+    return new Date(t).toLocaleDateString(locale, options);
   },
-  totime(t) {
-    return new Date(t).toLocaleTimeString();
+  totime(t, locale, options) {
+    return new Date(t).toLocaleTimeString(locale, options);
+  },
+  format(t, tz, locale, options) {
+    return new Date(t).toLocaleString(locale || "en-US", {
+      timeZone: tz,
+      ...options,
+    });
   },
 
   // --- arithmetic ---
@@ -103,5 +188,13 @@ exports.mod = {
   },
   diffseconds(a, b) {
     return (a - b) / 1000;
+  },
+
+  // --- timezone info ---
+  offset(t) {
+    return new Date(t || Date.now()).getTimezoneOffset();
+  },
+  localtz() {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
   },
 };

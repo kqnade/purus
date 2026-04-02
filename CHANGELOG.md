@@ -54,6 +54,10 @@ Change history for Purus syntax, specifications, and reserved keywords.
   dt.now[]                       -- current timestamp (ms)
   dt.year[dt.now[]]              -- current year
   dt.toiso[dt.now[]]             -- ISO 8601 string
+  dt.utchour[dt.now[]]           -- current hour (UTC)
+  dt.tzhour[dt.now[]; ///America/New_York///]  -- hour in New York
+  dt.format[dt.now[]; ///Asia/Tokyo///]        -- formatted in Tokyo tz
+  dt.localtz[]                   -- local timezone name
 
   use json as j
   j.parse[///{ "a": 1 }///]     -- { a: 1 }
@@ -66,7 +70,7 @@ Change history for Purus syntax, specifications, and reserved keywords.
   | `random` | `random`, `randint`, `randrange`, `randbool`, `uniform`, `triangular`, `gauss`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
   | `math` | JS `Math` alias + lowercase constant aliases (`pi`, `e`, `ln2`, `ln10`, `sqrt2`, etc.) |
   | `string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
-  | `datetime` | `now`, `today`, `timestamp`, `create`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `toiso`, `tolocale`, `todate`, `totime`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds` |
+  | `datetime` | `now`, `today`, `timestamp`, `create`, `utccreate`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `utcyear`, `utcmonth`, `utcday`, `utcweekday`, `utchour`, `utcminute`, `utcsecond`, `utcms`, `tzyear`, `tzmonth`, `tzday`, `tzweekday`, `tzhour`, `tzminute`, `tzsecond`, `toiso`, `tolocale`, `todate`, `totime`, `format`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds`, `offset`, `localtz` |
   | `json` | `parse`, `stringify`, `prettify` |
 
 - **Tree-shaking**: Only the stdlib functions actually referenced in your code are included in the compiled output, keeping bundle size minimal.

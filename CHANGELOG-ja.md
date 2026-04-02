@@ -54,6 +54,10 @@ Purus の構文・仕様・予約語に関する変更履歴です。
   dt.now[]                       -- 現在のタイムスタンプ（ms）
   dt.year[dt.now[]]              -- 現在の年
   dt.toiso[dt.now[]]             -- ISO 8601 文字列
+  dt.utchour[dt.now[]]           -- 現在の時（UTC）
+  dt.tzhour[dt.now[]; ///America/New_York///]  -- NYの時
+  dt.format[dt.now[]; ///Asia/Tokyo///]        -- 東京TZでフォーマット
+  dt.localtz[]                   -- ローカルタイムゾーン名
 
   use json as j
   j.parse[///{ "a": 1 }///]     -- { a: 1 }
@@ -66,7 +70,7 @@ Purus の構文・仕様・予約語に関する変更履歴です。
   | `random` | `random`, `randint`, `randrange`, `randbool`, `uniform`, `triangular`, `gauss`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
   | `math` | JS `Math` エイリアス＋小文字の定数エイリアス（`pi`, `e`, `ln2`, `ln10`, `sqrt2` など） |
   | `string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
-  | `datetime` | `now`, `today`, `timestamp`, `create`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `toiso`, `tolocale`, `todate`, `totime`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds` |
+  | `datetime` | `now`, `today`, `timestamp`, `create`, `utccreate`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `utcyear`, `utcmonth`, `utcday`, `utcweekday`, `utchour`, `utcminute`, `utcsecond`, `utcms`, `tzyear`, `tzmonth`, `tzday`, `tzweekday`, `tzhour`, `tzminute`, `tzsecond`, `toiso`, `tolocale`, `todate`, `totime`, `format`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds`, `offset`, `localtz` |
   | `json` | `parse`, `stringify`, `prettify` |
 
 - **ツリーシェイキング**: コード中で実際に参照された stdlib 関数のみがコンパイル出力に含まれ、バンドルサイズを最小化します。
