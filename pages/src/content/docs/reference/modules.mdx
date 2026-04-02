@@ -77,21 +77,34 @@ import data from "./data.json" with { type: "json" };
 import { name, version } from "./package.json" with { type: "json" };
 ```
 
-## Use (dot-path import)
+## Use (Standard Library)
 
-:::caution[Deprecated]
-`use` and `from...use` dot-path imports are deprecated. Use `import...from` or `from...import` with string paths instead.
-:::
+The `use` keyword imports Purus built-in standard library modules. The `as` keyword is required to specify the binding name. Tree-shaking ensures only the functions you actually reference are included in the compiled output.
 
 ```purus
-use std.math
-from std.math use sin, cos
+use random as r
+use math as m
+use string as s
+use datetime as dt
+use json as j
 ```
 
 ```js
-import * as math from "std/math";
-import { sin, cos } from "std/math";
+// Only used functions are emitted (tree-shaking)
+const r = { randint(a, b) { ... }, choice(arr) { ... } };
+const m = { floor: Math.floor, pi: Math.PI };
+const s = { upper(str) { ... }, reverse(str) { ... } };
 ```
+
+### Available Modules
+
+| Module | Contents |
+|--------|----------|
+| `random` | `random`, `randint`, `randrange`, `randbool`, `uniform`, `triangular`, `gauss`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
+| `math` | JS `Math` alias + lowercase constant aliases (`pi`, `e`, `ln2`, `ln10`, `log2e`, `log10e`, `sqrt2`, `sqrt1_2`) |
+| `string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
+| `datetime` | `now`, `today`, `timestamp`, `create`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `toiso`, `tolocale`, `todate`, `totime`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds` |
+| `json` | `parse`, `stringify`, `prettify` |
 
 ## Export
 

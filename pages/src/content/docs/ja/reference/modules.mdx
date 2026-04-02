@@ -77,21 +77,34 @@ import data from "./data.json" with { type: "json" };
 import { name, version } from "./package.json" with { type: "json" };
 ```
 
-## Use（ドットパスインポート）
+## Use（標準ライブラリ）
 
-:::caution[非推奨]
-`use` および `from...use` ドットパスインポートは非推奨です。代わりに `import...from` または `from...import` を文字列パスで使用してください。
-:::
+`use` キーワードでPurus組み込みの標準ライブラリモジュールをインポートできます。`as` キーワードでバインディング名を指定する必要があります。ツリーシェイキングにより、実際に使用した関数のみがコンパイル出力に含まれます。
 
 ```purus
-use std.math
-from std.math use sin, cos
+use random as r
+use math as m
+use string as s
+use datetime as dt
+use json as j
 ```
 
 ```js
-import * as math from "std/math";
-import { sin, cos } from "std/math";
+// 使用した関数のみが出力されます（ツリーシェイキング）
+const r = { randint(a, b) { ... }, choice(arr) { ... } };
+const m = { floor: Math.floor, pi: Math.PI };
+const s = { upper(str) { ... }, reverse(str) { ... } };
 ```
+
+### 利用可能なモジュール
+
+| モジュール | 内容 |
+|--------|----------|
+| `random` | `random`, `randint`, `randrange`, `randbool`, `uniform`, `triangular`, `gauss`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
+| `math` | JS `Math` エイリアス＋小文字の定数エイリアス（`pi`, `e`, `ln2`, `ln10`, `log2e`, `log10e`, `sqrt2`, `sqrt1_2`） |
+| `string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
+| `datetime` | `now`, `today`, `timestamp`, `create`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `toiso`, `tolocale`, `todate`, `totime`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds` |
+| `json` | `parse`, `stringify`, `prettify` |
 
 ## エクスポート
 

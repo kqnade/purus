@@ -754,8 +754,10 @@ fn Parser::parse_string_value(self : Parser) -> String {
 ///|
 fn Parser::parse_use_stmt(self : Parser) -> Stmt {
   self.pos += 1 // skip use
-  let path = self.parse_dotted_name()
-  UseDecl(path, None)
+  let module_name = self.parse_ident_name()
+  self.expect(As)
+  let binding = self.parse_ident_name()
+  UseStdlib(module_name, binding)
 }
 
 ///|
@@ -797,26 +799,17 @@ fn Parser::parse_from_use_stmt(self : Parser) -> Stmt {
     }
     _ => ()
   }
-  // from X.Y use ... — dot-path import (deprecated)
-  let path = self.parse_dotted_name()
-  self.expect(Use_)
-  let names : Array[String] = []
-  let mut keep = true
-  while keep {
-    match self.peek() {
-      Ident(s) => {
-        self.pos += 1
-        names.push(s)
-        if self.peek() == Comma {
-          self.pos += 1
-        } else {
-          keep = false
-        }
-      }
-      _ => keep = false
-    }
+  // from <ident> is no longer valid for stdlib — only from "mod" import ... is allowed
+  let name = self.parse_ident_name()
+  // skip remaining tokens: use, names, commas
+  while self.peek() != Newline && self.peek() != Eof {
+    self.pos += 1
   }
-  UseDecl(path, Some(names))
+  ExprStmt(
+    StrLit(
+      "from " + name + " use ... is removed. Use: use " + name + " as <alias>",
+    ),
+  )
 }
 
 ///|

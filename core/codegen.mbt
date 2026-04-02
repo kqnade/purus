@@ -327,63 +327,13 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.write(";\n")
     }
     ImportDecl(decl) => self.gen_import(decl)
-    UseDecl(path, names) => {
-      // use X.Y → import * from "X/Y" or import { a, b } from "X/Y"
-      let module_path = path.replace_all(old=".", new="/")
-      match names {
-        Some(ns) => {
-          self.write_indent()
-          if self.cjs {
-            self.write("const { ")
-            let mut first = true
-            for n in ns {
-              if not(first) {
-                self.write(", ")
-              }
-              self.write(n)
-              first = false
-            }
-            self.write(" } = require(\"")
-            self.write(module_path)
-            self.write("\");\n")
-          } else {
-            self.write("import { ")
-            let mut first = true
-            for n in ns {
-              if not(first) {
-                self.write(", ")
-              }
-              self.write(n)
-              first = false
-            }
-            self.write(" } from \"")
-            self.write(module_path)
-            self.write("\";\n")
-          }
-        }
-        None => {
-          self.write_indent()
-          // Use last segment as namespace
-          let mut last = path
-          let parts = path.split(".")
-          for p in parts {
-            last = p.to_string()
-          }
-          if self.cjs {
-            self.write("const ")
-            self.write(last)
-            self.write(" = require(\"")
-            self.write(module_path)
-            self.write("\");\n")
-          } else {
-            self.write("import * as ")
-            self.write(last)
-            self.write(" from \"")
-            self.write(module_path)
-            self.write("\";\n")
-          }
-        }
-      }
+    UseStdlib(module_name, binding) => {
+      self.write_indent()
+      self.write("// @purus-stdlib:whole:")
+      self.write(module_name)
+      self.write(":")
+      self.write(binding)
+      self.write("\n")
     }
     ModDecl(name, body) => {
       self.write_indent()

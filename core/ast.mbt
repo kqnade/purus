@@ -159,7 +159,7 @@ pub(all) enum Stmt {
 
   // Module / Import
   ImportDecl(ImportDecl)
-  UseDecl(String, Array[String]?) // use std.math / from std.math use sin, cos
+  UseStdlib(String, String) // use <module> as <binding>
   ModDecl(String, Array[Stmt])
   ExportDefault(Stmt)
   PublicDecl(Stmt)

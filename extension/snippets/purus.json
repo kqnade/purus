@@ -176,5 +176,10 @@
     "prefix": "stri",
     "body": "///[${0}]///",
     "description": "String with interpolation"
+  },
+  "Use (stdlib)": {
+    "prefix": "use",
+    "body": "use ${1|random,math,string,datetime,json|} as ${2:alias}",
+    "description": "Import stdlib module"
   }
 }
