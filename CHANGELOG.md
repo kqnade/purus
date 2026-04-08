@@ -8,7 +8,7 @@ Change history for Purus syntax, specifications, and reserved keywords.
 
 ### Breaking Changes
 
-- **`is` keyword removed**: The `is` keyword (alias for `eq`) has been removed. Use `eq` instead. `is` is no longer a reserved word and can now be used as an identifier.
+- **`is` keyword removed**: The `is` keyword (alias for `eq`) has been removed. Use `eq` instead. `is` is no longer a reserved word.
   ```purus
   -- Before (v0.8.x):
   x is y           -- x === y
