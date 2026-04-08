@@ -11,14 +11,18 @@ sidebar:
 2. `coal` — Nullish coalescing
 3. `or` — Logical OR
 4. `and` — Logical AND
-5. `eq` / `neq` / `not eq` / `instanceof` — Equality / Type check
-6. `lt` / `gt` / `le` (`lt eq`) / `ge` (`gt eq`) — Comparison
-7. `add` / `sub` — Addition / Subtraction
-8. `mul` / `div` / `mod` — Multiplication / Division / Modulo
-9. `pow` — Exponentiation
-10. Unary: `not` / `neg` / `typeof` / `await` / `delete` / `new`
-11. Postfix: `.` access / `\.` optional chaining / `[args]` call / `[\expr]` computed access / `as` cast
-12. Primary: literals, identifiers, brackets
+5. `bor` — Bitwise OR
+6. `bxor` — Bitwise XOR
+7. `band` — Bitwise AND
+8. `eq` / `neq` / `not eq` / `instanceof` — Equality / Type check
+9. `lt` / `gt` / `le` (`lt eq`) / `ge` (`gt eq`) — Comparison
+10. `shl` / `shr` / `ushr` — Bitwise shift
+11. `add` / `sub` — Addition / Subtraction
+12. `mul` / `div` / `mod` — Multiplication / Division / Modulo
+13. `pow` — Exponentiation
+14. Unary: `not` / `neg` / `bnot` / `typeof` / `await` / `delete` / `new`
+15. Postfix: `.` access / `\.` optional chaining / `[args]` call / `[\expr]` computed access / `as` cast
+16. Primary: literals, identifiers, brackets
 
 ## Pipeline
 
@@ -56,6 +60,18 @@ a div b    -- a / b
 a mod b    -- a % b
 a pow b    -- a ** b
 neg x      -- -x
+```
+
+## Bitwise
+
+```purus
+a band b   -- a & b   (bitwise AND)
+a bor b    -- a | b   (bitwise OR)
+a bxor b   -- a ^ b   (bitwise XOR)
+bnot x     -- ~x      (bitwise NOT)
+a shl b    -- a << b  (left shift)
+a shr b    -- a >> b  (right shift)
+a ushr b   -- a >>> b (unsigned right shift)
 ```
 
 ## Comparison

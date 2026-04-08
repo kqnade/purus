@@ -172,7 +172,7 @@ The following words are reserved and cannot be used as identifiers:
 
 **Control:** `if`, `elif`, `else`, `unless`, `then`, `while`, `until`, `for`, `in`, `range`, `break`, `continue`, `switch`, `case`, `match`, `when`
 
-**Operator:** `add`, `sub`, `mul`, `div`, `mod`, `pow`, `neg`, `eq`, `neq`, `lt`, `gt`, `le`, `ge`, `and`, `or`, `not`, `coal`, `pipe`
+**Operator:** `add`, `sub`, `mul`, `div`, `mod`, `pow`, `neg`, `eq`, `neq`, `lt`, `gt`, `le`, `ge`, `and`, `or`, `not`, `coal`, `pipe`, `band`, `bor`, `bxor`, `bnot`, `shl`, `shr`, `ushr`
 
 **Type:** `as`, `of`, `typeof`, `instanceof`, `type`
 
@@ -392,14 +392,18 @@ From lowest to highest:
 | 2 | `coal` | Nullish coalescing |
 | 3 | `or` | Logical OR |
 | 4 | `and` | Logical AND |
-| 5 | `eq` / `neq` / `not eq` / `instanceof` | Equality |
-| 6 | `lt` / `gt` / `le` (`lt eq`) / `ge` (`gt eq`) | Comparison |
-| 7 | `add` / `sub` | Addition / Subtraction |
-| 8 | `mul` / `div` / `mod` | Multiplication / Division / Modulo |
-| 9 | `pow` | Exponentiation (right-associative) |
-| 10 | `not` / `neg` / `typeof` / `await` / `delete` / `new` | Unary |
-| 11 | `.` access / `\.` optional / `[args]` call / `[\expr]` access / `as` cast | Postfix |
-| 12 | Literals, identifiers, brackets | Primary |
+| 5 | `bor` | Bitwise OR |
+| 6 | `bxor` | Bitwise XOR |
+| 7 | `band` | Bitwise AND |
+| 8 | `eq` / `neq` / `not eq` / `instanceof` | Equality |
+| 9 | `lt` / `gt` / `le` (`lt eq`) / `ge` (`gt eq`) | Comparison |
+| 10 | `shl` / `shr` / `ushr` | Bitwise shift |
+| 11 | `add` / `sub` | Addition / Subtraction |
+| 12 | `mul` / `div` / `mod` | Multiplication / Division / Modulo |
+| 13 | `pow` | Exponentiation (right-associative) |
+| 14 | `not` / `neg` / `bnot` / `typeof` / `await` / `delete` / `new` | Unary |
+| 15 | `.` access / `\.` optional / `[args]` call / `[\expr]` access / `as` cast | Postfix |
+| 16 | Literals, identifiers, brackets | Primary |
 
 ### 5.2 Arithmetic
 
@@ -439,7 +443,19 @@ From lowest to highest:
 | `a or b` | `a \|\| b` | Logical OR |
 | `not x` | `!x` | Logical NOT |
 
-### 5.5 Nullish Coalescing
+### 5.5 Bitwise
+
+| Purus | JS | Description |
+|-------|----|-------------|
+| `a band b` | `a & b` | Bitwise AND |
+| `a bor b` | `a \| b` | Bitwise OR |
+| `a bxor b` | `a ^ b` | Bitwise XOR |
+| `bnot x` | `~x` | Bitwise NOT (unary) |
+| `a shl b` | `a << b` | Left shift |
+| `a shr b` | `a >> b` | Right shift (sign-preserving) |
+| `a ushr b` | `a >>> b` | Unsigned right shift |
+
+### 5.6 Nullish Coalescing
 
 The `coal` operator returns the right-hand side when the left-hand side is `null` or `undefined`:
 
@@ -455,7 +471,7 @@ const port be config.port coal 3000
 -- uses 3000 only if port is null/undefined; 0 would be preserved
 ```
 
-### 5.6 Pipeline
+### 5.7 Pipeline
 
 The `pipe` operator passes the left operand as the first argument to the right operand:
 
@@ -471,7 +487,7 @@ Compilation rules:
 - `a pipe f[x; y]` → `f(a, x, y)` (prepends `a` as first argument)
 - `a pipe .method[x]` → `a.method(x)` (method call on `a`)
 
-### 5.7 Optional Chaining
+### 5.8 Optional Chaining
 
 The `\.` operator provides safe property access on potentially null/undefined values. It compiles to JavaScript's optional chaining operator `?.`:
 
@@ -495,7 +511,7 @@ Combine with `coal` for default values:
 const display be user\.name coal ///anonymous///
 ```
 
-### 5.8 Type Check and Cast
+### 5.9 Type Check and Cast
 
 **Type check with `typeof`:**
 
@@ -1902,6 +1918,18 @@ class Secret {
 | `and` | `&&` |
 | `or` | `\|\|` |
 | `not` | `!` |
+
+### Bitwise Operators
+
+| Keyword | JS Output |
+|---------|-----------|
+| `band` | `&` |
+| `bor` | `\|` |
+| `bxor` | `^` |
+| `bnot` | `~` (unary) |
+| `shl` | `<<` |
+| `shr` | `>>` |
+| `ushr` | `>>>` |
 
 ### Nullish Coalescing
 

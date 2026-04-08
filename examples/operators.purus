@@ -39,6 +39,15 @@ data pipe console.log
 -- Exponentiation (right-associative)
 const big be 2 pow 3 pow 2
 
+-- Bitwise
+const bit-and be 0b1100 band 0b1010
+const bit-or be 0b1100 bor 0b1010
+const bit-xor be 0b1100 bxor 0b1010
+const bit-not be bnot 0b1100
+const shifted-left be 1 shl 4
+const shifted-right be 16 shr 2
+const unsigned-shift be -1 ushr 0
+
 -- Array ranges
 const inclusive be [0..5]
 const exclusive be [0...5]

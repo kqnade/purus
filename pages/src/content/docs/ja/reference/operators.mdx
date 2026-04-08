@@ -11,14 +11,18 @@ sidebar:
 2. `coal`  Null合体
 3. `or`  論理OR
 4. `and`  論理AND
-5. `eq` / `neq` / `not eq` / `instanceof`  等価 / 型チェック
-6. `lt` / `gt` / `le`（`lt eq`）/ `ge`（`gt eq`）  比較
-7. `add` / `sub`  加算 / 減算
-8. `mul` / `div` / `mod`  乗算 / 除算 / 剰余
-9. `pow`  べき乗
-10. 単項: `not` / `neg` / `typeof` / `await` / `delete` / `new`
-11. 後置: `.` アクセス / `\.` オプショナルチェイニング / `[args]` 呼び出し / `[\expr]` 計算アクセス / `as` キャスト
-12. 基本: リテラル、識別子、括弧
+5. `bor`  ビットOR
+6. `bxor`  ビットXOR
+7. `band`  ビットAND
+8. `eq` / `neq` / `not eq` / `instanceof`  等価 / 型チェック
+9. `lt` / `gt` / `le`（`lt eq`）/ `ge`（`gt eq`）  比較
+10. `shl` / `shr` / `ushr`  ビットシフト
+11. `add` / `sub`  加算 / 減算
+12. `mul` / `div` / `mod`  乗算 / 除算 / 剰余
+13. `pow`  べき乗
+14. 単項: `not` / `neg` / `bnot` / `typeof` / `await` / `delete` / `new`
+15. 後置: `.` アクセス / `\.` オプショナルチェイニング / `[args]` 呼び出し / `[\expr]` 計算アクセス / `as` キャスト
+16. 基本: リテラル、識別子、括弧
 
 ## パイプライン
 
@@ -56,6 +60,18 @@ a div b    -- a / b
 a mod b    -- a % b
 a pow b    -- a ** b
 neg x      -- -x
+```
+
+## ビット演算
+
+```purus
+a band b   -- a & b   (ビットAND)
+a bor b    -- a | b   (ビットOR)
+a bxor b   -- a ^ b   (ビットXOR)
+bnot x     -- ~x      (ビットNOT)
+a shl b    -- a << b  (左シフト)
+a shr b    -- a >> b  (右シフト)
+a ushr b   -- a >>> b (符号なし右シフト)
 ```
 
 ## 比較

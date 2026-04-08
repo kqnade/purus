@@ -5,12 +5,13 @@ const KEYWORDS = new Set([
   "fn", "async", "return", "to", "gives",
   "if", "elif", "else", "unless", "then",
   "while", "until", "for", "in", "range",
-  "match", "when", "witch", "case",
+  "match", "when", "switch", "case",
   "try", "catch", "finally", "throw",
   "import", "from", "export", "default", "require", "use", "namespace", "public", "all", "with",
   "add", "sub", "mul", "div", "mod", "neg", "pow",
   "eq", "neq", "lt", "gt", "le", "ge",
   "and", "or", "not", "pipe", "coal",
+  "band", "bor", "bxor", "bnot", "shl", "shr", "ushr",
   "as", "of", "typeof", "instanceof", "type",
   "new", "delete", "this", "await",
   "class", "extends", "super", "static", "private", "get", "set",
@@ -22,7 +23,7 @@ const KEYWORDS = new Set([
 const BLOCK_STARTERS = new Set([
   "fn", "if", "elif", "else", "unless",
   "while", "until", "for",
-  "match", "when", "witch", "case",
+  "match", "when", "switch", "case",
 ]);
 
 function tokenize(source) {

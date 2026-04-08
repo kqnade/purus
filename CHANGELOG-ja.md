@@ -67,13 +67,26 @@ Purus の構文・仕様・予約語に関する変更履歴です。
   利用可能な標準ライブラリモジュール:
   | モジュール | 説明 |
   |--------|-------------|
-  | `random` | `random`, `randint`, `randrange`, `randbool`, `uniform`, `triangular`, `gauss`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
+  | `random` | `random`, `randint`, `randrange`, `randbool`, `getrandbits`, `randbytes`, `uniform`, `triangular`, `gauss`, `normalvariate`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
   | `math` | JS `Math` エイリアス＋小文字の定数エイリアス（`pi`, `e`, `ln2`, `ln10`, `sqrt2` など） |
   | `string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
   | `datetime` | `now`, `today`, `timestamp`, `create`, `utccreate`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `utcyear`, `utcmonth`, `utcday`, `utcweekday`, `utchour`, `utcminute`, `utcsecond`, `utcms`, `tzyear`, `tzmonth`, `tzday`, `tzweekday`, `tzhour`, `tzminute`, `tzsecond`, `toiso`, `tolocale`, `todate`, `totime`, `format`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds`, `offset`, `localtz` |
   | `json` | `parse`, `stringify`, `prettify` |
 
 - **ツリーシェイキング**: コード中で実際に参照された stdlib 関数のみがコンパイル出力に含まれ、バンドルサイズを最小化します。
+
+- **ビット演算子**: JavaScript のセマンティクスに対応する新しいキーワードベースのビット演算子:
+  ```purus
+  a band b    -- a & b   (ビットAND)
+  a bor b     -- a | b   (ビットOR)
+  a bxor b    -- a ^ b   (ビットXOR)
+  bnot a      -- ~a      (ビットNOT)
+  a shl b     -- a << b  (左シフト)
+  a shr b     -- a >> b  (右シフト)
+  a ushr b    -- a >>> b (符号なし右シフト)
+  ```
+
+- **`random` 標準ライブラリ追加**: `getrandbits`, `randbytes`, `normalvariate` 追加。`randbool` にオプションの確率パラメータを追加。
 
 ### キーワード変更
 
@@ -82,6 +95,7 @@ Purus の構文・仕様・予約語に関する変更履歴です。
 | `is` | 削除（代わりに `eq` を使用） |
 | `use` | 標準ライブラリインポート用（`use ... as ...` のみ） |
 | `from...use` | stdlib では削除（ES import は引き続き利用可: `from "mod" import ...`） |
+| `band` `bor` `bxor` `bnot` `shl` `shr` `ushr` | 追加 — ビット演算子 |
 
 ### Tooling
 

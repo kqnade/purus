@@ -228,6 +228,10 @@
           "name": "keyword.operator.logical.purus"
         },
         {
+          "match": "(?<![a-zA-Z0-9_-])(band|bor|bxor|bnot|shl|shr|ushr)(?![a-zA-Z0-9_-])",
+          "name": "keyword.operator.bitwise.purus"
+        },
+        {
           "match": "(?<![a-zA-Z0-9_-])(coal)(?![a-zA-Z0-9_-])",
           "name": "keyword.operator.nullish.purus"
         },

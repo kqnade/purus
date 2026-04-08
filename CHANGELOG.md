@@ -67,13 +67,26 @@ Change history for Purus syntax, specifications, and reserved keywords.
   Available stdlib modules:
   | Module | Description |
   |--------|-------------|
-  | `random` | `random`, `randint`, `randrange`, `randbool`, `uniform`, `triangular`, `gauss`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
+  | `random` | `random`, `randint`, `randrange`, `randbool`, `getrandbits`, `randbytes`, `uniform`, `triangular`, `gauss`, `normalvariate`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
   | `math` | JS `Math` alias + lowercase constant aliases (`pi`, `e`, `ln2`, `ln10`, `sqrt2`, etc.) |
   | `string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
   | `datetime` | `now`, `today`, `timestamp`, `create`, `utccreate`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `utcyear`, `utcmonth`, `utcday`, `utcweekday`, `utchour`, `utcminute`, `utcsecond`, `utcms`, `tzyear`, `tzmonth`, `tzday`, `tzweekday`, `tzhour`, `tzminute`, `tzsecond`, `toiso`, `tolocale`, `todate`, `totime`, `format`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds`, `offset`, `localtz` |
   | `json` | `parse`, `stringify`, `prettify` |
 
 - **Tree-shaking**: Only the stdlib functions actually referenced in your code are included in the compiled output, keeping bundle size minimal.
+
+- **Bitwise operators**: New keyword-based bitwise operators, matching JavaScript semantics:
+  ```purus
+  a band b    -- a & b   (bitwise AND)
+  a bor b     -- a | b   (bitwise OR)
+  a bxor b    -- a ^ b   (bitwise XOR)
+  bnot a      -- ~a      (bitwise NOT)
+  a shl b     -- a << b  (left shift)
+  a shr b     -- a >> b  (right shift)
+  a ushr b    -- a >>> b (unsigned right shift)
+  ```
+
+- **`random` stdlib additions**: `getrandbits`, `randbytes`, `normalvariate` added. `randbool` now accepts optional probability parameter.
 
 ### Keywords Changed
 
@@ -82,6 +95,7 @@ Change history for Purus syntax, specifications, and reserved keywords.
 | `is` | Removed (use `eq` instead) |
 | `use` | Repurposed for standard library imports (`use ... as ...` only) |
 | `from...use` | Removed for stdlib (still works for ES imports: `from "mod" import ...`) |
+| `band` `bor` `bxor` `bnot` `shl` `shr` `ushr` | Added — bitwise operators |
 
 ### Tooling
 
