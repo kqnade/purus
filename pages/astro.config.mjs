@@ -81,6 +81,11 @@ export default defineConfig({
           autogenerate: { directory: 'reference' },
         },
         {
+          label: 'Standard Library',
+          translations: { ja: '標準ライブラリ' },
+          autogenerate: { directory: 'stdlib' },
+        },
+        {
           label: 'Tools',
           translations: { ja: 'ツール' },
           autogenerate: { directory: 'tools' },

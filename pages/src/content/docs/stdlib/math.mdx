@@ -1,0 +1,159 @@
+---
+title: math
+description: Math functions and constants.
+sidebar:
+  order: 1
+---
+
+The `math` module provides all JavaScript `Math` methods and lowercase constant aliases.
+
+```purus
+use math as m
+```
+
+## Constants
+
+| Name | Value | Description |
+|------|-------|-------------|
+| `pi` | 3.141592653589793 | Ratio of a circle's circumference to its diameter |
+| `e` | 2.718281828459045 | Euler's number |
+| `ln2` | 0.6931471805599453 | Natural logarithm of 2 |
+| `ln10` | 2.302585092994046 | Natural logarithm of 10 |
+| `log2e` | 1.4426950408889634 | Base-2 logarithm of e |
+| `log10e` | 0.4342944819032518 | Base-10 logarithm of e |
+| `sqrt2` | 1.4142135623730951 | Square root of 2 |
+| `sqrt1_2` | 0.7071067811865476 | Square root of 1/2 |
+
+```purus
+use math as m
+console.log[m.pi]   -- 3.141592653589793
+console.log[m.e]    -- 2.718281828459045
+```
+
+## Rounding
+
+### `floor[x]`
+Returns the largest integer less than or equal to `x`.
+
+### `ceil[x]`
+Returns the smallest integer greater than or equal to `x`.
+
+### `round[x]`
+Returns `x` rounded to the nearest integer.
+
+### `trunc[x]`
+Returns the integer part of `x` by removing any fractional digits.
+
+```purus
+use math as m
+m.floor[4.7]   -- 4
+m.ceil[4.1]    -- 5
+m.round[4.5]   -- 5
+m.trunc[4.9]   -- 4
+```
+
+## Arithmetic
+
+### `abs[x]`
+Returns the absolute value of `x`.
+
+### `sign[x]`
+Returns -1, 0, or 1 indicating the sign of `x`.
+
+### `max[a; b; ...]`
+Returns the largest of the given numbers.
+
+### `min[a; b; ...]`
+Returns the smallest of the given numbers.
+
+### `pow[base; exp]`
+Returns `base` raised to the power `exp`.
+
+### `sqrt[x]`
+Returns the square root of `x`.
+
+### `cbrt[x]`
+Returns the cube root of `x`.
+
+### `hypot[a; b; ...]`
+Returns the square root of the sum of squares of its arguments.
+
+### `clz32[x]`
+Returns the number of leading zero bits in the 32-bit integer representation of `x`.
+
+### `fround[x]`
+Returns the nearest 32-bit single precision float representation of `x`.
+
+### `imul[a; b]`
+Returns the result of the C-like 32-bit multiplication of `a` and `b`.
+
+```purus
+use math as m
+m.abs[-5]        -- 5
+m.max[1; 2; 3]   -- 3
+m.min[1; 2; 3]   -- 1
+m.sqrt[16]       -- 4
+m.hypot[3; 4]    -- 5
+```
+
+## Trigonometry
+
+### `sin[x]` / `cos[x]` / `tan[x]`
+Standard trigonometric functions. `x` is in radians.
+
+### `asin[x]` / `acos[x]` / `atan[x]`
+Inverse trigonometric functions. Returns radians.
+
+### `atan2[y; x]`
+Returns the angle in radians between the positive x-axis and the point (x, y).
+
+### `sinh[x]` / `cosh[x]` / `tanh[x]`
+Hyperbolic functions.
+
+### `asinh[x]` / `acosh[x]` / `atanh[x]`
+Inverse hyperbolic functions.
+
+```purus
+use math as m
+m.sin[m.pi div 2]   -- 1
+m.cos[0]             -- 1
+m.atan2[1; 1]        -- 0.7853... (π/4)
+```
+
+## Logarithms and Exponents
+
+### `log[x]`
+Returns the natural logarithm (base e) of `x`.
+
+### `log2[x]`
+Returns the base-2 logarithm of `x`.
+
+### `log10[x]`
+Returns the base-10 logarithm of `x`.
+
+### `exp[x]`
+Returns e raised to the power `x`.
+
+### `expm1[x]`
+Returns `e^x - 1`, accurate for small values of `x`.
+
+### `log1p[x]`
+Returns the natural logarithm of `1 + x`, accurate for small values of `x`.
+
+```purus
+use math as m
+m.log[m.e]     -- 1
+m.log2[8]      -- 3
+m.log10[1000]  -- 3
+m.exp[1]       -- 2.718281828459045
+```
+
+## Random
+
+### `random[]`
+Returns a floating-point number in [0, 1). For more random utilities, see the [`random`](/stdlib/random/) module.
+
+```purus
+use math as m
+const x be m.random[]  -- e.g. 0.4231...
+```
