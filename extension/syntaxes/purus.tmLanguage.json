@@ -220,7 +220,7 @@
     "operator": {
       "patterns": [
         {
-          "match": "(?<![a-zA-Z0-9_-])(be|eq)(?![a-zA-Z0-9_-])",
+          "match": "(?<![a-zA-Z0-9_-])(be|eq|to)(?![a-zA-Z0-9_-])",
           "name": "keyword.operator.assignment.purus"
         },
         {
@@ -249,10 +249,6 @@
         },
         {
           "match": "(?<![a-zA-Z0-9_-])(pipe)(?![a-zA-Z0-9_-])",
-          "name": "keyword.control.arithmetic.purus"
-        },
-        {
-          "match": "(?<![a-zA-Z0-9_-])(to)(?![a-zA-Z0-9_-])",
           "name": "keyword.control.arithmetic.purus"
         }
       ]
