@@ -27,8 +27,31 @@ exports.mod = {
     const n = Math.ceil((stop - start) / step);
     return start + step * Math.floor(Math.random() * n);
   },
-  randbool() {
-    return Math.random() < 0.5;
+  randbool(p) {
+    if (p === undefined) p = 0.5;
+    return Math.random() < p;
+  },
+  getrandbits(k) {
+    if (k <= 0) return 0;
+    if (k <= 32) return (Math.random() * (1 << k)) >>> 0;
+    let result = 0;
+    let remaining = k;
+    while (remaining > 0) {
+      const bits = Math.min(remaining, 32);
+      result = result * (1 << bits) + ((Math.random() * (1 << bits)) >>> 0);
+      remaining -= bits;
+    }
+    return result;
+  },
+  randbytes(n) {
+    const bytes = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      bytes[i] = (Math.random() * 256) >>> 0;
+    }
+    return Array.from(bytes);
+  },
+  normalvariate(mu, sigma) {
+    return this.gauss(mu, sigma);
   },
 
   // --- real-valued distributions ---
