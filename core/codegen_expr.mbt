@@ -140,6 +140,10 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("!")
       self.gen_expr_wrap(inner)
     }
+    UnaryBnot(inner) => {
+      self.write("~")
+      self.gen_expr_wrap(inner)
+    }
     UnaryTypeof(inner) => {
       self.write("typeof ")
       self.gen_expr(inner)
@@ -472,7 +476,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
 /// Wrap expression in parens if it's a binary op, unary, or other compound expr
 fn JsCodegen::gen_expr_wrap(self : JsCodegen, expr : Expr) -> Unit {
   match expr {
-    BinOp(_, _, _) | UnaryNeg(_) | UnaryNot(_) | IfExpr(_, _, _) | Pipe(_, _) => {
+    BinOp(_, _, _) | UnaryNeg(_) | UnaryNot(_) | UnaryBnot(_) | IfExpr(_, _, _) | Pipe(_, _) => {
       self.write("(")
       self.gen_expr(expr)
       self.write(")")
@@ -500,6 +504,12 @@ fn js_binop(op : BinOp) -> String {
     And => "&&"
     Or => "||"
     Coal => "??"
+    Band => "&"
+    Bor => "|"
+    Bxor => "^"
+    Shl => "<<"
+    Shr => ">>"
+    Ushr => ">>>"
   }
 }
 

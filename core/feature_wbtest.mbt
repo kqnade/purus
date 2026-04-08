@@ -315,6 +315,112 @@ test "parser: async fn expression to" {
   }
 }
 
+// ===== Bitwise operator tests =====
+
+///|
+test "parser: band operator" {
+  let stmts = parse_f("const r be x band y")
+  match stmts[0] {
+    VarDecl(Const_, _, BinOp(Band, Ident(l), Ident(r))) => {
+      assert_eq(l, "x")
+      assert_eq(r, "y")
+    }
+    _ => fail("expected BinOp Band")
+  }
+}
+
+///|
+test "parser: bor operator" {
+  let stmts = parse_f("const r be x bor y")
+  match stmts[0] {
+    VarDecl(Const_, _, BinOp(Bor, Ident(l), Ident(r))) => {
+      assert_eq(l, "x")
+      assert_eq(r, "y")
+    }
+    _ => fail("expected BinOp Bor")
+  }
+}
+
+///|
+test "parser: bxor operator" {
+  let stmts = parse_f("const r be x bxor y")
+  match stmts[0] {
+    VarDecl(Const_, _, BinOp(Bxor, Ident(l), Ident(r))) => {
+      assert_eq(l, "x")
+      assert_eq(r, "y")
+    }
+    _ => fail("expected BinOp Bxor")
+  }
+}
+
+///|
+test "parser: shl operator" {
+  let stmts = parse_f("const r be x shl y")
+  match stmts[0] {
+    VarDecl(Const_, _, BinOp(Shl, Ident(l), Ident(r))) => {
+      assert_eq(l, "x")
+      assert_eq(r, "y")
+    }
+    _ => fail("expected BinOp Shl")
+  }
+}
+
+///|
+test "parser: shr operator" {
+  let stmts = parse_f("const r be x shr y")
+  match stmts[0] {
+    VarDecl(Const_, _, BinOp(Shr, Ident(l), Ident(r))) => {
+      assert_eq(l, "x")
+      assert_eq(r, "y")
+    }
+    _ => fail("expected BinOp Shr")
+  }
+}
+
+///|
+test "parser: ushr operator" {
+  let stmts = parse_f("const r be x ushr y")
+  match stmts[0] {
+    VarDecl(Const_, _, BinOp(Ushr, Ident(l), Ident(r))) => {
+      assert_eq(l, "x")
+      assert_eq(r, "y")
+    }
+    _ => fail("expected BinOp Ushr")
+  }
+}
+
+///|
+test "parser: bnot unary operator" {
+  let stmts = parse_f("const r be bnot x")
+  match stmts[0] {
+    VarDecl(Const_, _, UnaryBnot(Ident(name))) => assert_eq(name, "x")
+    _ => fail("expected UnaryBnot")
+  }
+}
+
+///|
+test "parser: bitwise precedence band before bor" {
+  let stmts = parse_f("const r be a bor b band c")
+  match stmts[0] {
+    VarDecl(Const_, _, BinOp(Bor, Ident(_), BinOp(Band, Ident(_), Ident(_)))) =>
+      ()
+    _ => fail("expected bor(a, band(b, c))")
+  }
+}
+
+///|
+test "parser: shift lower than addition" {
+  let stmts = parse_f("const r be a add b shl c")
+  match stmts[0] {
+    VarDecl(
+      Const_,
+      _,
+      BinOp(Shl, BinOp(Add, Ident(_), Ident(_)), Ident(_)),
+    ) => ()
+    _ => fail("expected shl(add(a, b), c)")
+  }
+}
+
 // ===== use stdlib tests =====
 
 ///|

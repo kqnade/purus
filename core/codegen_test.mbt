@@ -754,3 +754,47 @@ test "codegen: from...use is removed" {
   let js = compile("from math use abs")
   assert_true(js.contains("removed"))
 }
+
+// ===== Bitwise operators =====
+
+///|
+test "codegen: band operator" {
+  let js = compile("const r be 5 band 3")
+  assert_true(js.contains("5 & 3"))
+}
+
+///|
+test "codegen: bor operator" {
+  let js = compile("const r be 5 bor 3")
+  assert_true(js.contains("5 | 3"))
+}
+
+///|
+test "codegen: bxor operator" {
+  let js = compile("const r be 5 bxor 3")
+  assert_true(js.contains("5 ^ 3"))
+}
+
+///|
+test "codegen: shl operator" {
+  let js = compile("const r be 1 shl 4")
+  assert_true(js.contains("1 << 4"))
+}
+
+///|
+test "codegen: shr operator" {
+  let js = compile("const r be 16 shr 2")
+  assert_true(js.contains("16 >> 2"))
+}
+
+///|
+test "codegen: ushr operator" {
+  let js = compile("const r be -1 ushr 0")
+  assert_true(js.contains(">>> 0"))
+}
+
+///|
+test "codegen: bnot operator" {
+  let js = compile("const r be bnot 5")
+  assert_true(js.contains("~5"))
+}

@@ -3,13 +3,16 @@
 /// Operator precedence (low to high):
 ///   pipe
 ///   or
-///   and
+///   bor
+///   bxor
+///   band
 ///   eq/neq/is/instanceof
 ///   lt/gt/le/ge
 ///   add/sub
+///   shl/shr/ushr
 ///   mul/div/mod
 ///   pow
-///   unary (not/neg/typeof/await/delete/new)
+///   unary (not/neg/bnot/typeof/await/delete/new)
 ///   postfix (dot access, index access, method call, function call)
 ///   primary
 
@@ -52,11 +55,44 @@ fn Parser::parse_or(self : Parser) -> Expr {
 }
 
 ///|
-fn Parser::parse_and(self : Parser) -> Expr {
+fn Parser::parse_bor(self : Parser) -> Expr {
+  let mut left = self.parse_bxor()
+  while self.peek() == Bor {
+    self.pos += 1
+    let right = self.parse_bxor()
+    left = BinOp(Bor, left, right)
+  }
+  left
+}
+
+///|
+fn Parser::parse_bxor(self : Parser) -> Expr {
+  let mut left = self.parse_band()
+  while self.peek() == Bxor {
+    self.pos += 1
+    let right = self.parse_band()
+    left = BinOp(Bxor, left, right)
+  }
+  left
+}
+
+///|
+fn Parser::parse_band(self : Parser) -> Expr {
   let mut left = self.parse_equality()
-  while self.peek() == And {
+  while self.peek() == Band {
     self.pos += 1
     let right = self.parse_equality()
+    left = BinOp(Band, left, right)
+  }
+  left
+}
+
+///|
+fn Parser::parse_and(self : Parser) -> Expr {
+  let mut left = self.parse_bor()
+  while self.peek() == And {
+    self.pos += 1
+    let right = self.parse_bor()
     left = BinOp(And, left, right)
   }
   left
@@ -104,7 +140,7 @@ fn Parser::parse_equality(self : Parser) -> Expr {
 
 ///|
 fn Parser::parse_comparison(self : Parser) -> Expr {
-  let mut left = self.parse_addition()
+  let mut left = self.parse_shift()
   while self.pos < self.tokens.length() {
     match self.peek() {
       Lt => {
@@ -113,7 +149,7 @@ fn Parser::parse_comparison(self : Parser) -> Expr {
           match self.tokens[self.pos + 1].kind {
             Eq => {
               self.pos += 2
-              let right = self.parse_addition()
+              let right = self.parse_shift()
               left = BinOp(Le, left, right)
               continue
             }
@@ -121,7 +157,7 @@ fn Parser::parse_comparison(self : Parser) -> Expr {
           }
         }
         self.pos += 1
-        let right = self.parse_addition()
+        let right = self.parse_shift()
         left = BinOp(Lt, left, right)
       }
       Gt => {
@@ -130,7 +166,7 @@ fn Parser::parse_comparison(self : Parser) -> Expr {
           match self.tokens[self.pos + 1].kind {
             Eq => {
               self.pos += 2
-              let right = self.parse_addition()
+              let right = self.parse_shift()
               left = BinOp(Ge, left, right)
               continue
             }
@@ -138,17 +174,17 @@ fn Parser::parse_comparison(self : Parser) -> Expr {
           }
         }
         self.pos += 1
-        let right = self.parse_addition()
+        let right = self.parse_shift()
         left = BinOp(Gt, left, right)
       }
       Le => {
         self.pos += 1
-        let right = self.parse_addition()
+        let right = self.parse_shift()
         left = BinOp(Le, left, right)
       }
       Ge => {
         self.pos += 1
-        let right = self.parse_addition()
+        let right = self.parse_shift()
         left = BinOp(Ge, left, right)
       }
       _ => break
@@ -171,6 +207,32 @@ fn Parser::parse_addition(self : Parser) -> Expr {
         self.pos += 1
         let right = self.parse_multiplication()
         left = BinOp(Sub, left, right)
+      }
+      _ => break
+    }
+  }
+  left
+}
+
+///|
+fn Parser::parse_shift(self : Parser) -> Expr {
+  let mut left = self.parse_addition()
+  while self.pos < self.tokens.length() {
+    match self.peek() {
+      Shl => {
+        self.pos += 1
+        let right = self.parse_addition()
+        left = BinOp(Shl, left, right)
+      }
+      Shr => {
+        self.pos += 1
+        let right = self.parse_addition()
+        left = BinOp(Shr, left, right)
+      }
+      Ushr => {
+        self.pos += 1
+        let right = self.parse_addition()
+        left = BinOp(Ushr, left, right)
       }
       _ => break
     }
@@ -226,6 +288,10 @@ fn Parser::parse_unary(self : Parser) -> Expr {
     Neg => {
       self.pos += 1
       UnaryNeg(self.parse_unary())
+    }
+    Bnot => {
+      self.pos += 1
+      UnaryBnot(self.parse_unary())
     }
     Typeof_ => {
       self.pos += 1

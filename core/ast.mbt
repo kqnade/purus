@@ -25,6 +25,7 @@ pub(all) enum Expr {
   BinOp(BinOp, Expr, Expr)
   UnaryNeg(Expr) // neg x
   UnaryNot(Expr) // not x
+  UnaryBnot(Expr) // bnot x (bitwise NOT)
   UnaryTypeof(Expr) // typeof x
 
   // Comparison / type
@@ -95,6 +96,12 @@ pub(all) enum BinOp {
   And
   Or
   Coal
+  Band
+  Bor
+  Bxor
+  Shl
+  Shr
+  Ushr
 } derive(Show)
 
 ///|

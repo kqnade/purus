@@ -562,6 +562,13 @@ fn Lexer::scan_ident(self : Lexer) -> Unit {
     "undefined" => Undefined_
     "nan" => Nan_
     "coal" => Coal
+    "band" => Band
+    "bor" => Bor
+    "bxor" => Bxor
+    "bnot" => Bnot
+    "shl" => Shl
+    "shr" => Shr
+    "ushr" => Ushr
     "list" => List_
     "object" => Object_
     "class" => Class_

@@ -42,6 +42,15 @@ pub(all) enum TokenKind {
   // Nullish coalescing
   Coal
 
+  // Bitwise
+  Band
+  Bor
+  Bxor
+  Bnot
+  Shl
+  Shr
+  Ushr
+
   // Special keywords
   Fn
   Return_
