@@ -798,3 +798,15 @@ test "codegen: bnot operator" {
   let js = compile("const r be bnot 5")
   assert_true(js.contains("~5"))
 }
+
+///|
+test "codegen: binary literal in expression" {
+  let js = compile("const r be 0b1100 band 0b1010")
+  assert_true(js.contains("12 & 10"))
+}
+
+///|
+test "codegen: hex literal in expression" {
+  let js = compile("const r be 0xff")
+  assert_true(js.contains("255"))
+}

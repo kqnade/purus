@@ -27,6 +27,54 @@ test "lexer: negative integer" {
 }
 
 ///|
+test "lexer: binary literal" {
+  let lexer = Lexer::new("0b1100")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[0].kind, Indent(0))
+  assert_eq(tokens[1].kind, Int(12))
+}
+
+///|
+test "lexer: binary literal uppercase" {
+  let lexer = Lexer::new("0B1010")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[0].kind, Indent(0))
+  assert_eq(tokens[1].kind, Int(10))
+}
+
+///|
+test "lexer: hex literal" {
+  let lexer = Lexer::new("0xff")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[0].kind, Indent(0))
+  assert_eq(tokens[1].kind, Int(255))
+}
+
+///|
+test "lexer: hex literal uppercase" {
+  let lexer = Lexer::new("0XAB")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[0].kind, Indent(0))
+  assert_eq(tokens[1].kind, Int(171))
+}
+
+///|
+test "lexer: negative binary literal" {
+  let lexer = Lexer::new("-0b1010")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[0].kind, Indent(0))
+  assert_eq(tokens[1].kind, Int(-10))
+}
+
+///|
+test "lexer: negative hex literal" {
+  let lexer = Lexer::new("-0xff")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[0].kind, Indent(0))
+  assert_eq(tokens[1].kind, Int(-255))
+}
+
+///|
 test "lexer: string" {
   let lexer = Lexer::new("///hello world///")
   let tokens = lexer.tokenize()

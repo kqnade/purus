@@ -71,6 +71,11 @@ fn is_digit(ch : Char) -> Bool {
 }
 
 ///|
+fn is_hex_digit(ch : Char) -> Bool {
+  (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')
+}
+
+///|
 fn parse_int(s : String) -> Int {
   let chars = s.to_array()
   let mut result = 0
@@ -435,9 +440,51 @@ fn Lexer::scan_regex(self : Lexer) -> Unit {
 fn Lexer::scan_number(self : Lexer) -> Unit {
   let line = self.line
   let col = self.col
+  let negative = self.peek() == '-'
+  if negative {
+    self.advance() |> ignore
+  }
+  // Binary literal: 0b...
+  if self.peek() == '0' && (self.peek_at(1) == 'b' || self.peek_at(1) == 'B') {
+    self.advance() |> ignore // skip '0'
+    self.advance() |> ignore // skip 'b'
+    let mut value = 0
+    while self.pos < self.chars.length() &&
+      (self.peek() == '0' || self.peek() == '1') {
+      value = value * 2 + (self.advance().to_int() - '0'.to_int())
+    }
+    if negative {
+      value = -value
+    }
+    self.emit(Int(value), line, col)
+    return
+  }
+  // Hexadecimal literal: 0x...
+  if self.peek() == '0' && (self.peek_at(1) == 'x' || self.peek_at(1) == 'X') {
+    self.advance() |> ignore // skip '0'
+    self.advance() |> ignore // skip 'x'
+    let mut value = 0
+    while self.pos < self.chars.length() && is_hex_digit(self.peek()) {
+      let ch = self.advance()
+      let digit = if ch >= '0' && ch <= '9' {
+        ch.to_int() - '0'.to_int()
+      } else if ch >= 'a' && ch <= 'f' {
+        ch.to_int() - 'a'.to_int() + 10
+      } else {
+        ch.to_int() - 'A'.to_int() + 10
+      }
+      value = value * 16 + digit
+    }
+    if negative {
+      value = -value
+    }
+    self.emit(Int(value), line, col)
+    return
+  }
+  // Decimal number
   let buf = StringBuilder::new()
-  if self.peek() == '-' {
-    buf.write_char(self.advance())
+  if negative {
+    buf.write_char('-')
   }
   while self.pos < self.chars.length() && is_digit(self.peek()) {
     buf.write_char(self.advance())
