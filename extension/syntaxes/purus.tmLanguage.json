@@ -220,19 +220,23 @@
     "operator": {
       "patterns": [
         {
-          "match": "(?<![a-zA-Z0-9_-])(eq|be)(?![a-zA-Z0-9_-])",
-          "name": "keyword.control.arithmetic.purus"
+          "match": "(?<![a-zA-Z0-9_-])(be|eq)(?![a-zA-Z0-9_-])",
+          "name": "keyword.operator.assignment.purus"
+        },
+        {
+          "match": "(?<![a-zA-Z0-9_-])(not|neq)(?![a-zA-Z0-9_-])",
+          "name": "keyword.operator.logical.purus"
         },
         {
           "match": "(?<![a-zA-Z0-9_-])(add|sub|mul|div|mod|neg|pow)(?![a-zA-Z0-9_-])",
           "name": "keyword.control.arithmetic.purus"
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(neq|lt|gt|le|ge)(?![a-zA-Z0-9_-])",
+          "match": "(?<![a-zA-Z0-9_-])(lt|gt|le|ge)(?![a-zA-Z0-9_-])",
           "name": "keyword.control.arithmetic.purus"
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(and|or|not)(?![a-zA-Z0-9_-])",
+          "match": "(?<![a-zA-Z0-9_-])(and|or)(?![a-zA-Z0-9_-])",
           "name": "keyword.control.arithmetic.purus"
         },
         {
