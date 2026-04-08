@@ -221,7 +221,7 @@
       "patterns": [
         {
           "match": "(?<![a-zA-Z0-9_-])(eq|be)(?![a-zA-Z0-9_-])",
-          "name": "keyword.other.equality.purus"
+          "name": "keyword.control.arithmetic.purus"
         },
         {
           "match": "(?<![a-zA-Z0-9_-])(add|sub|mul|div|mod|neg|pow)(?![a-zA-Z0-9_-])",
@@ -229,11 +229,11 @@
         },
         {
           "match": "(?<![a-zA-Z0-9_-])(neq|lt|gt|le|ge)(?![a-zA-Z0-9_-])",
-          "name": "keyword.operator.comparison.purus"
+          "name": "keyword.control.arithmetic.purus"
         },
         {
           "match": "(?<![a-zA-Z0-9_-])(and|or|not)(?![a-zA-Z0-9_-])",
-          "name": "keyword.operator.logical.purus"
+          "name": "keyword.control.arithmetic.purus"
         },
         {
           "match": "(?<![a-zA-Z0-9_-])(band|bor|bxor|bnot|shl|shr|ushr)(?![a-zA-Z0-9_-])",
@@ -241,11 +241,15 @@
         },
         {
           "match": "(?<![a-zA-Z0-9_-])(coal)(?![a-zA-Z0-9_-])",
-          "name": "keyword.operator.nullish.purus"
+          "name": "keyword.control.arithmetic.purus"
         },
         {
           "match": "(?<![a-zA-Z0-9_-])(pipe)(?![a-zA-Z0-9_-])",
-          "name": "keyword.operator.pipe.purus"
+          "name": "keyword.control.arithmetic.purus"
+        },
+        {
+          "match": "(?<![a-zA-Z0-9_-])(to)(?![a-zA-Z0-9_-])",
+          "name": "keyword.control.arithmetic.purus"
         }
       ]
     },
