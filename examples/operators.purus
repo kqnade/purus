@@ -32,8 +32,9 @@ const b be a coal ///fallback///
 const c be a coal b coal ///default///
 
 -- Pipeline
+use json as j
 const data be [1, 2, 3, 4, 5]
-const result be data pipe JSON.stringify
+const result be data pipe j.stringify
 data pipe console.log
 
 -- Exponentiation (right-associative)
