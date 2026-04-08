@@ -70,6 +70,14 @@
     "number": {
       "patterns": [
         {
+          "match": "\\b0[bB][01]+\\b",
+          "name": "constant.numeric.binary.purus"
+        },
+        {
+          "match": "\\b0[xX][0-9a-fA-F]+\\b",
+          "name": "constant.numeric.hex.purus"
+        },
+        {
           "match": "\\b\\d+\\.\\d+\\b",
           "name": "constant.numeric.float.purus"
         },
