@@ -1,140 +1,5 @@
-// Blackbox tests run against the package's public API. Use `@core` to import.
-// Prefer high-level behaviors over implementation details.
+// Codegen tests: purus source → JavaScript output
 // Run `moon test` to execute and `moon test --update` to refresh snapshots.
-
-// Integration tests: full source ↁElex ↁEparse pipeline
-
-///|
-test "integration: hello world" {
-  let src = "console.log[///Hello, World///]"
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 1)
-}
-
-///|
-test "integration: variable + arithmetic" {
-  let src =
-    #|const x be 10
-    #|const y be 20
-    #|const z be x add y
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 3)
-}
-
-///|
-test "integration: function definition" {
-  let src =
-    #|fn add a; b
-    #|  return a add b
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 1)
-}
-
-///|
-test "integration: arrow function with to" {
-  let src = "fn double x to x mul 2"
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 1)
-}
-
-///|
-test "integration: if-elif-else" {
-  let src =
-    #|if x lt 0
-    #|  console.log[///negative///]
-    #|elif x eq 0
-    #|  console.log[///zero///]
-    #|else
-    #|  console.log[///positive///]
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 1)
-}
-
-///|
-test "integration: while loop" {
-  let src =
-    #|let i be 0
-    #|while i lt 10
-    #|  i be i add 1
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 2)
-}
-
-///|
-test "integration: for-in loop" {
-  let src =
-    #|for item in items
-    #|  console.log[item]
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 1)
-}
-
-///|
-test "integration: array and object" {
-  let src =
-    #|const arr be [1, 2, 3]
-    #|const obj be [name be ///alice///, age be 30]
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 2)
-}
-
-///|
-test "integration: pipe" {
-  let src = "const result be data pipe filter pipe map"
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 1)
-}
-
-///|
-test "integration: try-catch" {
-  let src =
-    #|try
-    #|  risky[]
-    #|catch e
-    #|  console.log[e]
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 1)
-}
-
-///|
-test "integration: postfix if" {
-  let src = "console.log[///debug///] if verbose"
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 1)
-}
-
-///|
-test "integration: import" {
-  let src = "import express from ///express///"
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 1)
-}
-
-///|
-test "integration: match" {
-  let src =
-    #|match x
-    #|  when 1 then ///one///
-    #|  when 2 then ///two///
-    #|  else ///other///
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 1)
-}
-
-// ===== Codegen tests: purus source ↁEJavaScript output =====
 
 ///|
 fn compile(src : String) -> String {
@@ -142,6 +7,15 @@ fn compile(src : String) -> String {
   let stmts = @core.Parser::new(tokens).parse()
   @core.JsCodegen::new().generate(stmts, strict=false)
 }
+
+///|
+fn compile_cjs(src : String) -> String {
+  let tokens = @core.Lexer::new(src).tokenize()
+  let stmts = @core.Parser::new(tokens).parse()
+  @core.JsCodegen::new(cjs=true).generate(stmts, strict=false)
+}
+
+// ===== Basic declarations =====
 
 ///|
 test "codegen: const declaration" {
@@ -250,6 +124,8 @@ test "codegen: postfix if" {
   assert_true(js.contains("console.log(\"debug\")"))
 }
 
+// ===== Import codegen =====
+
 ///|
 test "codegen: import default" {
   let js = compile("import express from ///express///")
@@ -273,6 +149,60 @@ test "codegen: named import with attributes" {
     js, "import { name, version } from \"./package.json\" with { type: \"json\" };\n",
   )
 }
+
+///|
+test "codegen: side-effect import" {
+  let js = compile("import ///dotenv/config///")
+  assert_eq(js, "import \"dotenv/config\";\n")
+}
+
+///|
+test "codegen: from import default" {
+  let js = compile("from ///express/// import express")
+  assert_true(js.contains("import express from \"express\";"))
+}
+
+///|
+test "codegen: from import named" {
+  let js = compile("from ///react/// import [useState, useEffect]")
+  assert_true(js.contains("import { useState, useEffect } from \"react\";"))
+}
+
+///|
+test "codegen: from import namespace" {
+  let js = compile("from ///fs/// import all as fs")
+  assert_true(js.contains("import * as fs from \"fs\";"))
+}
+
+///|
+test "codegen: from import default and named" {
+  let js = compile("from ///react/// import React, [useState]")
+  assert_true(js.contains("import React, { useState } from \"react\";"))
+}
+
+///|
+test "codegen: from import with attributes" {
+  let js = compile(
+    "from ///./data.json/// import data with [ type be ///json/// ]",
+  )
+  assert_true(
+    js.contains("import data from \"./data.json\" with { type: \"json\" };"),
+  )
+}
+
+///|
+test "codegen: from import named with attributes" {
+  let js = compile(
+    "from ///./package.json/// import [name, version] with [ type be ///json/// ]",
+  )
+  assert_true(
+    js.contains(
+      "import { name, version } from \"./package.json\" with { type: \"json\" };",
+    ),
+  )
+}
+
+// ===== Literals =====
 
 ///|
 test "codegen: array literal" {
@@ -334,25 +264,7 @@ test "codegen: unary neg" {
   assert_eq(js, "const r = -x;\n")
 }
 
-///|
-test "lexer: shebang at start of file" {
-  let src = "#!/usr/bin/env node\nconst x be 1"
-  let tokens = @core.Lexer::new(src).tokenize()
-  match tokens[0].kind {
-    @core.Shebang(s) => assert_eq(s, "#!/usr/bin/env node")
-    _ => fail("expected Shebang token")
-  }
-}
-
-///|
-test "lexer: no shebang without #!" {
-  let src = "const x be 1"
-  let tokens = @core.Lexer::new(src).tokenize()
-  match tokens[0].kind {
-    @core.Shebang(_) => fail("should not have shebang")
-    _ => () // ok
-  }
-}
+// ===== Header / strict mode =====
 
 ///|
 test "codegen: header comment" {
@@ -386,7 +298,38 @@ test "codegen: no header when empty" {
   assert_eq(js, "const x = 1;\n")
 }
 
-// ===== New feature codegen tests =====
+///|
+test "codegen: strict mode default" {
+  let src = "const x be 42"
+  let tokens = @core.Lexer::new(src).tokenize()
+  let stmts = @core.Parser::new(tokens).parse()
+  let js = @core.JsCodegen::new().generate(stmts)
+  assert_true(js.contains("\"use strict\";"))
+}
+
+///|
+test "codegen: strict mode disabled" {
+  let src = "const x be 42"
+  let tokens = @core.Lexer::new(src).tokenize()
+  let stmts = @core.Parser::new(tokens).parse()
+  let js = @core.JsCodegen::new().generate(stmts, strict=false)
+  assert_false(js.contains("use strict"))
+}
+
+///|
+test "codegen: strict mode with header" {
+  let src = "const x be 42"
+  let tokens = @core.Lexer::new(src).tokenize()
+  let stmts = @core.Parser::new(tokens).parse()
+  let js = @core.JsCodegen::new().generate(
+    stmts,
+    header="// Generated by Purus",
+  )
+  assert_true(js.contains("// Generated by Purus"))
+  assert_true(js.contains("\"use strict\";"))
+}
+
+// ===== Operators =====
 
 ///|
 test "codegen: neq operator" {
@@ -407,6 +350,20 @@ test "codegen: pow operator" {
 }
 
 ///|
+test "codegen: lt eq operator" {
+  let js = compile("const r be x lt eq y")
+  assert_eq(js, "const r = x <= y;\n")
+}
+
+///|
+test "codegen: gt eq operator" {
+  let js = compile("const r be x gt eq y")
+  assert_eq(js, "const r = x >= y;\n")
+}
+
+// ===== Range =====
+
+///|
 test "codegen: inclusive range" {
   let js = compile("const r be [0..5]")
   assert_true(js.contains("Array.from"))
@@ -420,17 +377,7 @@ test "codegen: exclusive range" {
   assert_true(!(js.contains("+ 1")))
 }
 
-///|
-test "codegen: lt eq operator" {
-  let js = compile("const r be x lt eq y")
-  assert_eq(js, "const r = x <= y;\n")
-}
-
-///|
-test "codegen: gt eq operator" {
-  let js = compile("const r be x gt eq y")
-  assert_eq(js, "const r = x >= y;\n")
-}
+// ===== Namespace =====
 
 ///|
 test "codegen: namespace declaration" {
@@ -441,7 +388,7 @@ test "codegen: namespace declaration" {
   assert_true(js.contains("const utils = (() => {"))
 }
 
-// ===== Slice tests =====
+// ===== Slice =====
 
 ///|
 test "codegen: inclusive slice" {
@@ -473,7 +420,7 @@ test "codegen: splice with variable" {
   assert_true(js.contains("numbers.splice(2, 4 - 2 + 1, ...replacement)"))
 }
 
-// ===== Destructuring tests =====
+// ===== Destructuring =====
 
 ///|
 test "codegen: const destructuring" {
@@ -499,7 +446,7 @@ test "codegen: destructuring from array" {
   assert_true(js.contains("const [first, second] = [1, 2]"))
 }
 
-// ===== Optional chaining tests =====
+// ===== Optional chaining =====
 
 ///|
 test "codegen: optional dot access" {
@@ -513,7 +460,7 @@ test "codegen: optional method call" {
   assert_true(js.contains("obj?.method(1, 2)"))
 }
 
-// ===== Computed access tests =====
+// ===== Computed access =====
 
 ///|
 test "codegen: computed access" {
@@ -527,15 +474,7 @@ test "codegen: computed access string key" {
   assert_true(js.contains("obj[\"key\"]"))
 }
 
-// ===== Side-effect import tests =====
-
-///|
-test "codegen: side-effect import" {
-  let js = compile("import ///dotenv/config///")
-  assert_eq(js, "import \"dotenv/config\";\n")
-}
-
-// ===== Async fn expression tests =====
+// ===== Async fn expression =====
 
 ///|
 test "codegen: async fn expression to" {
@@ -553,21 +492,7 @@ test "codegen: async fn expression block" {
   assert_true(js.contains("return x + 1;"))
 }
 
-// ===== Class declaration tests =====
-
-///|
-test "integration: class declaration" {
-  let src =
-    #|class Animal
-    #|  private name
-    #|  fn new name
-    #|    this.name be name
-    #|  fn speak
-    #|    console.log[this.name]
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 1)
-}
+// ===== Class =====
 
 ///|
 test "codegen: basic class" {
@@ -670,49 +595,78 @@ test "codegen: class super expression" {
   assert_true(js.contains("super.method()"))
 }
 
-// ===== Strict mode tests =====
+// ===== Switch/case =====
 
 ///|
-test "codegen: strict mode default" {
-  let src = "const x be 42"
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  let js = @core.JsCodegen::new().generate(stmts)
-  assert_true(js.contains("\"use strict\";"))
+test "codegen: switch/case/default" {
+  let src =
+    #|switch x
+    #|  case 1 then ///one///
+    #|  case 2 then ///two///
+    #|  default ///other///
+  let js = compile(src)
+  assert_true(js.contains("if (x === 1)"))
+  assert_true(js.contains("\"one\""))
+  assert_true(js.contains("\"two\""))
+  assert_true(js.contains("\"other\""))
 }
 
 ///|
-test "codegen: strict mode disabled" {
-  let src = "const x be 42"
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  let js = @core.JsCodegen::new().generate(stmts, strict=false)
-  assert_false(js.contains("use strict"))
+test "codegen: switch with block body" {
+  let src =
+    #|switch status
+    #|  case ///ok///
+    #|    console.log[///success///]
+    #|  case ///error///
+    #|    console.log[///failure///]
+    #|  default
+    #|    console.log[///unknown///]
+  let js = compile(src)
+  assert_true(js.contains("if (status === \"ok\")"))
+  assert_true(js.contains("console.log(\"success\")"))
+  assert_true(js.contains("console.log(\"unknown\")"))
+}
+
+// ===== to return =====
+
+///|
+test "codegen: fn to return" {
+  let js = compile("fn double x to return x mul 2")
+  assert_true(js.contains("function double(x) { return x * 2; }"))
 }
 
 ///|
-test "codegen: strict mode with header" {
-  let src = "const x be 42"
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  let js = @core.JsCodegen::new().generate(
-    stmts,
-    header="// Generated by Purus",
-  )
-  assert_true(js.contains("// Generated by Purus"))
-  assert_true(js.contains("\"use strict\";"))
+test "codegen: class method to return" {
+  let src =
+    #|class Calc
+    #|  fn sum a; b to return a add b
+  let js = compile(src)
+  assert_true(js.contains("sum(a, b) { return a + b; }"))
 }
 
-// ===== Lexer class keyword tests =====
-
-// ===== CJS module type tests =====
+// ===== Public keyword =====
 
 ///|
-fn compile_cjs(src : String) -> String {
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  @core.JsCodegen::new(cjs=true).generate(stmts, strict=false)
+test "codegen: public const" {
+  let js = compile("public const name be ///hello///")
+  assert_true(js.contains("export const name = \"hello\";"))
 }
+
+///|
+test "codegen: public fn" {
+  let js = compile("public fn greet x to console.log[x]")
+  assert_true(js.contains("export function greet(x)"))
+}
+
+// ===== Type check =====
+
+///|
+test "codegen: typeof type check" {
+  let js = compile("if typeof x eq ///string/// then console.log[x]")
+  assert_true(js.contains("typeof x === \"string\""))
+}
+
+// ===== CJS module type =====
 
 ///|
 test "cjs: default import" {
@@ -768,7 +722,6 @@ test "cjs: public fn" {
 
 ///|
 test "cjs: require keyword unchanged" {
-  // CjsRequire is a direct AST variant - test via codegen directly
   let stmts : Array[@core.Stmt] = [
     @core.ImportDecl(@core.CjsRequire("lodash", "lodash")),
   ]
@@ -777,213 +730,12 @@ test "cjs: require keyword unchanged" {
 }
 
 ///|
-test "lexer: class keyword" {
-  let lexer = @core.Lexer::new("class")
-  let tokens = lexer.tokenize()
-  assert_eq(tokens[1].kind, @core.Class_)
-}
-
-///|
-test "lexer: extends keyword" {
-  let lexer = @core.Lexer::new("extends")
-  let tokens = lexer.tokenize()
-  assert_eq(tokens[1].kind, @core.Extends_)
-}
-
-///|
-test "lexer: super keyword" {
-  let lexer = @core.Lexer::new("super")
-  let tokens = lexer.tokenize()
-  assert_eq(tokens[1].kind, @core.Super_)
-}
-
-///|
-test "lexer: static keyword" {
-  let lexer = @core.Lexer::new("static")
-  let tokens = lexer.tokenize()
-  assert_eq(tokens[1].kind, @core.Static_)
-}
-
-///|
-test "lexer: private keyword" {
-  let lexer = @core.Lexer::new("private")
-  let tokens = lexer.tokenize()
-  assert_eq(tokens[1].kind, @core.Private_)
-}
-
-///|
-test "lexer: get keyword" {
-  let lexer = @core.Lexer::new("get")
-  let tokens = lexer.tokenize()
-  assert_eq(tokens[1].kind, @core.Get_)
-}
-
-///|
-test "lexer: set keyword" {
-  let lexer = @core.Lexer::new("set")
-  let tokens = lexer.tokenize()
-  assert_eq(tokens[1].kind, @core.Set_)
-}
-
-// ===== switch/case/default tests =====
-
-///|
-test "lexer: switch keyword" {
-  let lexer = @core.Lexer::new("switch")
-  let tokens = lexer.tokenize()
-  assert_eq(tokens[1].kind, @core.Switch_)
-}
-
-///|
-test "lexer: case keyword" {
-  let lexer = @core.Lexer::new("case")
-  let tokens = lexer.tokenize()
-  assert_eq(tokens[1].kind, @core.Case_)
-}
-
-///|
-test "integration: switch" {
-  let src =
-    #|switch x
-    #|  case 1 then ///one///
-    #|  case 2 then ///two///
-    #|  default ///other///
-  let tokens = @core.Lexer::new(src).tokenize()
-  let stmts = @core.Parser::new(tokens).parse()
-  assert_eq(stmts.length(), 1)
-}
-
-///|
-test "codegen: switch/case/default" {
-  let src =
-    #|switch x
-    #|  case 1 then ///one///
-    #|  case 2 then ///two///
-    #|  default ///other///
-  let js = compile(src)
-  assert_true(js.contains("if (x === 1)"))
-  assert_true(js.contains("\"one\""))
-  assert_true(js.contains("\"two\""))
-  assert_true(js.contains("\"other\""))
-}
-
-///|
-test "codegen: switch with block body" {
-  let src =
-    #|switch status
-    #|  case ///ok///
-    #|    console.log[///success///]
-    #|  case ///error///
-    #|    console.log[///failure///]
-    #|  default
-    #|    console.log[///unknown///]
-  let js = compile(src)
-  assert_true(js.contains("if (status === \"ok\")"))
-  assert_true(js.contains("console.log(\"success\")"))
-  assert_true(js.contains("console.log(\"unknown\")"))
-}
-
-// ===== to return tests =====
-
-///|
-test "codegen: fn to return" {
-  let js = compile("fn double x to return x mul 2")
-  assert_true(js.contains("function double(x) { return x * 2; }"))
-}
-
-///|
-test "codegen: class method to return" {
-  let src =
-    #|class Calc
-    #|  fn sum a; b to return a add b
-  let js = compile(src)
-  assert_true(js.contains("sum(a, b) { return a + b; }"))
-}
-
-// ===== public keyword tests =====
-
-///|
-test "lexer: public keyword" {
-  let lexer = @core.Lexer::new("public")
-  let tokens = lexer.tokenize()
-  assert_eq(tokens[1].kind, @core.Public_)
-}
-
-///|
-test "codegen: public const" {
-  let js = compile("public const name be ///hello///")
-  assert_true(js.contains("export const name = \"hello\";"))
-}
-
-///|
-test "codegen: public fn" {
-  let js = compile("public fn greet x to console.log[x]")
-  assert_true(js.contains("export function greet(x)"))
-}
-
-// ===== from...import tests =====
-
-///|
-test "codegen: from import default" {
-  let js = compile("from ///express/// import express")
-  assert_true(js.contains("import express from \"express\";"))
-}
-
-///|
-test "codegen: from import named" {
-  let js = compile("from ///react/// import [useState, useEffect]")
-  assert_true(js.contains("import { useState, useEffect } from \"react\";"))
-}
-
-///|
-test "codegen: from import namespace" {
-  let js = compile("from ///fs/// import all as fs")
-  assert_true(js.contains("import * as fs from \"fs\";"))
-}
-
-///|
-test "codegen: from import default and named" {
-  let js = compile("from ///react/// import React, [useState]")
-  assert_true(js.contains("import React, { useState } from \"react\";"))
-}
-
-///|
 test "cjs: from import default" {
   let js = compile_cjs("from ///express/// import express")
   assert_eq(js, "const express = require(\"express\");\n")
 }
 
-///|
-test "codegen: from import with attributes" {
-  let js = compile(
-    "from ///./data.json/// import data with [ type be ///json/// ]",
-  )
-  assert_true(
-    js.contains("import data from \"./data.json\" with { type: \"json\" };"),
-  )
-}
-
-///|
-test "codegen: from import named with attributes" {
-  let js = compile(
-    "from ///./package.json/// import [name, version] with [ type be ///json/// ]",
-  )
-  assert_true(
-    js.contains(
-      "import { name, version } from \"./package.json\" with { type: \"json\" };",
-    ),
-  )
-}
-
-// ===== type check with typeof =====
-
-///|
-test "codegen: typeof type check" {
-  let js = compile("if typeof x eq ///string/// then console.log[x]")
-  assert_true(js.contains("typeof x === \"string\""))
-}
-
-// ===== stdlib codegen tests =====
+// ===== stdlib codegen =====
 
 ///|
 test "codegen: use math as m emits marker" {
