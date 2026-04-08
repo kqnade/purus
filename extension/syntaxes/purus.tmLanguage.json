@@ -70,11 +70,11 @@
     "number": {
       "patterns": [
         {
-          "match": "\\b0[bB][01]+\\b",
+          "match": "(?<![a-zA-Z0-9_])0[bB][01]+(?![a-zA-Z0-9_])",
           "name": "constant.numeric.binary.purus"
         },
         {
-          "match": "\\b0[xX][0-9a-fA-F]+\\b",
+          "match": "(?<![a-zA-Z0-9_])0[xX][0-9a-fA-F]+(?![a-zA-Z0-9_])",
           "name": "constant.numeric.hex.purus"
         },
         {
@@ -82,7 +82,7 @@
           "name": "constant.numeric.float.purus"
         },
         {
-          "match": "\\b\\d+\\b",
+          "match": "\\b(?!0[xXbB])\\d+\\b",
           "name": "constant.numeric.integer.purus"
         }
       ]
