@@ -188,7 +188,7 @@
           "name": "keyword.control.conditional.purus"
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(while|until|for|in|range)(?![a-zA-Z0-9_-])",
+          "match": "(?<![a-zA-Z0-9_-])(while|until|do|for|in|range)(?![a-zA-Z0-9_-])",
           "name": "keyword.control.loop.purus"
         },
         {
@@ -200,7 +200,7 @@
           "name": "keyword.control.trycatch.purus"
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(return|break|continue|throw)(?![a-zA-Z0-9_-])",
+          "match": "(?<![a-zA-Z0-9_-])(return|break|continue|throw|yield)(?![a-zA-Z0-9_-])",
           "name": "keyword.control.flow.purus"
         }
       ]

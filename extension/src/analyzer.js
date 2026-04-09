@@ -315,9 +315,35 @@ function analyzePurus(text) {
       ));
     }
 
+    // `do` — deprecated, use while/until
+    if (tok.type === "keyword" && tok.value === "do") {
+      diagnostics.push(diag(
+        tok.line, tok.col, tok.line, tokEnd,
+        "`do...while` is deprecated. Use `while` or `until` instead",
+        vscode.DiagnosticSeverity.Warning, "deprecated-do",
+        [vscode.DiagnosticTag.Deprecated]
+      ));
+    }
+
+    // `yield` — deprecated, generators are a JS concept
+    if (tok.type === "keyword" && tok.value === "yield") {
+      diagnostics.push(diag(
+        tok.line, tok.col, tok.line, tokEnd,
+        "`yield` is deprecated. Consider using async/await or callbacks instead",
+        vscode.DiagnosticSeverity.Warning, "deprecated-yield",
+        [vscode.DiagnosticTag.Deprecated]
+      ));
+    }
+
     // Bare assignment: `ident be expr` without const/let/var
     if (tok.type === "keyword" && tok.value === "be") {
-      if (prev && prev.type === "ident") {
+      // Check if `be` is inside brackets (object literal / function args)
+      let bracketDepth = 0;
+      for (let j = 0; j < ti; j++) {
+        if (sig[j].value === "[") bracketDepth++;
+        else if (sig[j].value === "]") bracketDepth--;
+      }
+      if (prev && prev.type === "ident" && bracketDepth <= 0) {
         // Walk back to see if there's a const/let/var before this ident
         // (skip over type annotations like `ident of Type be ...`)
         let hasDeclKeyword = false;
@@ -325,7 +351,7 @@ function analyzePurus(text) {
           const t = sig[j];
           if (t.type === "keyword" && (DECL_KEYWORDS.has(t.value) || t.value === "private")) { hasDeclKeyword = true; break; }
           // Stop at statement boundaries
-          if (t.type === "keyword" && ["fn", "if", "for", "while", "class", "return", "import", "from",
+          if (t.type === "keyword" && ["fn", "if", "for", "while", "do", "class", "return", "import", "from",
             "use", "export", "public", "try", "catch", "throw", "switch", "match", "case", "when",
             "else", "elif", "default", "unless", "until", "namespace", "type", "static", "async",
             "get", "set"].includes(t.value)) break;
@@ -355,30 +381,6 @@ function analyzePurus(text) {
             ));
           }
         }
-      }
-    }
-
-    // ---- ERRORS: JS reserved words used as identifiers ----
-
-    // `var` keyword used as JS-style `var` (already caught above), but also detect
-    // other common JS keywords that don't exist in Purus
-    if (tok.type === "ident") {
-      const JS_ONLY_KEYWORDS = {
-        "void": "`void` is not valid in Purus. Use `undefined` if needed",
-        "do": "`do...while` is not valid in Purus. Use `while` or `until`",
-        "yield": "`yield` is not valid in Purus. Generators are not supported",
-        "enum": "`enum` is not valid in Purus",
-        "interface": "`interface` is not valid in Purus. Use `type` for type annotations",
-        "implements": "`implements` is not valid in Purus",
-        "package": "`package` is not valid in Purus",
-        "abstract": "`abstract` is not valid in Purus",
-      };
-      const msg = JS_ONLY_KEYWORDS[tok.value];
-      if (msg) {
-        diagnostics.push(diag(
-          tok.line, tok.col, tok.line, tokEnd,
-          msg, vscode.DiagnosticSeverity.Error, "js-keyword"
-        ));
       }
     }
 
