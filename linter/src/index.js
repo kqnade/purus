@@ -4,23 +4,25 @@ const KEYWORDS = new Set([
   "const", "let", "var", "be",
   "fn", "async", "return", "to", "gives",
   "if", "elif", "else", "unless", "then",
-  "while", "until", "for", "in", "range",
+  "while", "until", "do", "for", "in", "range",
   "match", "when", "switch", "case",
   "try", "catch", "finally", "throw",
   "import", "from", "export", "default", "require", "use", "namespace", "public", "all", "with",
-  "add", "sub", "mul", "div", "mod", "neg", "pow",
+  "add", "sub", "mul", "div", "fdiv", "mod", "neg", "pow",
   "eq", "neq", "lt", "gt", "le", "ge",
   "and", "or", "not", "pipe", "coal",
   "band", "bor", "bxor", "bnot", "shl", "shr", "ushr",
   "as", "of", "typeof", "instanceof", "type",
-  "new", "delete", "this", "await",
-  "class", "extends", "super", "static", "private", "get", "set",
-  "true", "false", "null", "nil", "undefined", "nan",
+  "new", "delete", "this", "await", "yield",
+  "class", "extends", "super", "static", "private", "protected", "get", "set",
+  "true", "false", "null", "nil", "undefined", "nan", "infinity",
   "break", "continue",
   "list", "object",
+  "function",
 ]);
 
 function tokenize(source) {
+  source = source.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
   const tokens = [];
   let i = 0;
   let line = 1;
@@ -118,13 +120,21 @@ function tokenize(source) {
       continue;
     }
 
-    // Number
+    // Number (decimal, 0b binary, 0x hex)
     if (/[0-9]/.test(source[i])) {
       let start = i;
-      while (i < len && /[0-9]/.test(source[i])) { i++; col++; }
-      if (i < len && source[i] === "." && i + 1 < len && /[0-9]/.test(source[i + 1])) {
-        i++; col++;
+      if (source[i] === "0" && i + 1 < len && (source[i + 1] === "b" || source[i + 1] === "B")) {
+        i += 2; col += 2;
+        while (i < len && /[01]/.test(source[i])) { i++; col++; }
+      } else if (source[i] === "0" && i + 1 < len && (source[i + 1] === "x" || source[i + 1] === "X")) {
+        i += 2; col += 2;
+        while (i < len && /[0-9a-fA-F]/.test(source[i])) { i++; col++; }
+      } else {
         while (i < len && /[0-9]/.test(source[i])) { i++; col++; }
+        if (i < len && source[i] === "." && i + 1 < len && /[0-9]/.test(source[i + 1])) {
+          i++; col++;
+          while (i < len && /[0-9]/.test(source[i])) { i++; col++; }
+        }
       }
       tokens.push({ type: "number", value: source.slice(start, i), line: startLine, col: startCol });
       continue;
@@ -152,6 +162,15 @@ const defaultRules = {
   "no-var": { severity: "warn", message: "Avoid 'var'; use 'const' or 'let' instead" },
   "bare-assignment": { severity: "warn", message: "Bare assignment without 'const'/'let'; use 'const x be ...' or 'let x be ...' instead" },
   "no-nil": { severity: "warn", message: "Use 'null' instead of 'nil'" },
+  "no-function": { severity: "warn", message: "'function' is deprecated; use 'fn' instead" },
+  "no-protected": { severity: "warn", message: "'protected' is deprecated; use 'private' instead" },
+  "no-else-if": { severity: "warn", message: "Use 'elif' instead of 'else if'" },
+  "no-js-chars": { severity: "error", message: "JavaScript characters are not allowed in Purus" },
+  "no-js-operators": { severity: "error", message: "JavaScript operators are not allowed in Purus" },
+  "no-for-range": { severity: "warn", message: "'for ... in range' is deprecated; use 'for let i be 0; i lt N; i add be 1' instead" },
+  "bracket-match": { severity: "error" },
+  "const-reassign": { severity: "error", message: "Cannot reassign a 'const' variable" },
+  "duplicate-use": { severity: "warn", message: "Duplicate 'use' import" },
   "indent-size": { severity: "warn", size: 2 },
   "no-trailing-whitespace": { severity: "warn", message: "Trailing whitespace" },
   "no-unused-import": { severity: "warn" },
@@ -159,17 +178,36 @@ const defaultRules = {
   "max-line-length": { severity: "off", max: 100 },
 };
 
+const JS_FORBIDDEN_CHARS = new Set(["(", ")", "{", "}", "$", "#", "@", "`"]);
+const JS_OPERATOR_MAP = {
+  "===": "eq", "!==": "neq", "==": "eq", "!=": "neq",
+  "&&": "and", "||": "or", "<<": "shl", ">>": "shr", ">>>": "ushr",
+  "++": "\\add / add\\", "--": "\\sub / sub\\", "**": "pow",
+  "+=": "add be", "-=": "sub be", "*=": "mul be", "/=": "div be",
+  "%=": "mod be", "**=": "pow be",
+  "&=": "band be", "|=": "bor be", "^=": "bxor be",
+  "<<=": "shl be", ">>=": "shr be", ">>>=": "ushr be",
+};
+
 function lint(source, ruleOverrides = {}) {
   const rules = { ...defaultRules, ...ruleOverrides };
   const diagnostics = [];
   const tokens = tokenize(source);
-  const lines = source.split("\n");
+  const lines = source.replace(/\r\n/g, "\n").split("\n");
 
   function report(rule, line, col, message) {
     const sev = rules[rule]?.severity || "warn";
     if (sev === "off") return;
     diagnostics.push({ rule, severity: sev, line, col, message });
   }
+
+  // Track declarations for const-reassign
+  const constVars = new Set();
+  const letVars = new Set();
+  // Track use imports for duplicate-use
+  const useImports = new Set();
+  // Track bracket matching
+  const bracketStack = [];
 
   // --- Token-level rules ---
   for (let i = 0; i < tokens.length; i++) {
@@ -185,8 +223,124 @@ function lint(source, ruleOverrides = {}) {
       report("no-nil", tok.line, tok.col, rules["no-nil"].message);
     }
 
+    // no-function
+    if (rules["no-function"]?.severity !== "off" && tok.type === "keyword" && tok.value === "function") {
+      report("no-function", tok.line, tok.col, rules["no-function"].message);
+    }
+
+    // no-protected
+    if (rules["no-protected"]?.severity !== "off" && tok.type === "keyword" && tok.value === "protected") {
+      report("no-protected", tok.line, tok.col, rules["no-protected"].message);
+    }
+
+    // no-else-if: detect 'else' followed by whitespace then 'if'
+    if (rules["no-else-if"]?.severity !== "off" && tok.type === "keyword" && tok.value === "else") {
+      let j = i + 1;
+      while (j < tokens.length && tokens[j].type === "whitespace") j++;
+      if (j < tokens.length && tokens[j].type === "keyword" && tokens[j].value === "if") {
+        report("no-else-if", tok.line, tok.col, rules["no-else-if"].message);
+      }
+    }
+
+    // no-js-chars
+    if (rules["no-js-chars"]?.severity !== "off" && tok.type === "other" && JS_FORBIDDEN_CHARS.has(tok.value)) {
+      const charNames = { "(": "parenthesis", ")": "parenthesis", "{": "brace", "}": "brace",
+        "$": "'$'", "#": "'#'", "@": "'@'", "`": "backtick" };
+      report("no-js-chars", tok.line, tok.col,
+        `JavaScript character ${charNames[tok.value] || `'${tok.value}'`} is not allowed in Purus`);
+    }
+
+    // no-js-chars: detect JS string quotes
+    if (rules["no-js-chars"]?.severity !== "off" && tok.type === "other" && (tok.value === '"' || tok.value === "'")) {
+      report("no-js-chars", tok.line, tok.col,
+        `Use ///.../// strings instead of ${tok.value === '"' ? 'double' : 'single'} quotes`);
+    }
+
+    // no-js-operators
+    if (rules["no-js-operators"]?.severity !== "off" && tok.type === "other") {
+      // Check multi-char operators by peeking ahead
+      const next1 = i + 1 < tokens.length ? tokens[i + 1] : null;
+      const next2 = i + 2 < tokens.length ? tokens[i + 2] : null;
+      const three = tok.value + (next1?.value || "") + (next2?.value || "");
+      const two = tok.value + (next1?.value || "");
+      if (JS_OPERATOR_MAP[three] && three.length === 3) {
+        report("no-js-operators", tok.line, tok.col,
+          `Use '${JS_OPERATOR_MAP[three]}' instead of '${three}'`);
+      } else if (JS_OPERATOR_MAP[two] && two.length === 2) {
+        report("no-js-operators", tok.line, tok.col,
+          `Use '${JS_OPERATOR_MAP[two]}' instead of '${two}'`);
+      }
+    }
+
+    // bracket-match (and always track bracket depth)
+    if (tok.type === "punct") {
+      if (tok.value === "[") {
+        bracketStack.push(tok);
+      } else if (tok.value === "]") {
+        if (bracketStack.length === 0) {
+          if (rules["bracket-match"]?.severity !== "off") {
+            report("bracket-match", tok.line, tok.col, "Unmatched closing bracket ']'");
+          }
+        } else {
+          bracketStack.pop();
+        }
+      }
+    }
+
+    // Track const/let declarations for const-reassign
+    if (tok.type === "keyword" && (tok.value === "const" || tok.value === "let")) {
+      let j = i + 1;
+      while (j < tokens.length && tokens[j].type === "whitespace") j++;
+      if (j < tokens.length && tokens[j].type === "ident") {
+        if (tok.value === "const") constVars.add(tokens[j].value);
+        else letVars.add(tokens[j].value);
+      }
+    }
+
+    // const-reassign: ident be ... where ident is a known const
+    if (rules["const-reassign"]?.severity !== "off" && tok.type === "keyword" && tok.value === "be" && bracketStack.length === 0) {
+      let j = i - 1;
+      while (j >= 0 && tokens[j].type === "whitespace") j--;
+      if (j >= 0 && tokens[j].type === "ident" && constVars.has(tokens[j].value)) {
+        // Make sure it's not a declaration (const x be ...)
+        let k = j - 1;
+        while (k >= 0 && tokens[k].type === "whitespace") k--;
+        // Skip type annotation: x of Type be ...
+        if (k >= 0 && tokens[k].type === "keyword" && tokens[k].value === "of") {
+          k--;
+          while (k >= 0 && tokens[k].type === "whitespace") k--;
+          if (k >= 0 && (tokens[k].type === "ident" || tokens[k].type === "keyword")) {
+            k--;
+            while (k >= 0 && tokens[k].type === "whitespace") k--;
+          }
+        }
+        const isDecl = k >= 0 && tokens[k].type === "keyword" &&
+          (tokens[k].value === "const" || tokens[k].value === "let" || tokens[k].value === "var" ||
+           tokens[k].value === "private" || tokens[k].value === "protected" || tokens[k].value === "static");
+        if (!isDecl) {
+          report("const-reassign", tokens[j].line, tokens[j].col,
+            `Cannot reassign const variable '${tokens[j].value}'`);
+        }
+      }
+    }
+
+    // duplicate-use
+    if (rules["duplicate-use"]?.severity !== "off" && tok.type === "keyword" && tok.value === "use") {
+      let j = i + 1;
+      while (j < tokens.length && tokens[j].type === "whitespace") j++;
+      if (j < tokens.length && (tokens[j].type === "ident" || tokens[j].type === "keyword")) {
+        const moduleName = tokens[j].value;
+        if (useImports.has(moduleName)) {
+          report("duplicate-use", tok.line, tok.col,
+            `Duplicate 'use' import: '${moduleName}' is already imported`);
+        } else {
+          useImports.add(moduleName);
+        }
+      }
+    }
+
     // bare-assignment: ident be <value> without const/let/var
-    if (rules["bare-assignment"]?.severity !== "off" && tok.type === "keyword" && tok.value === "be") {
+    if (rules["bare-assignment"]?.severity !== "off" && tok.type === "keyword" && tok.value === "be" && bracketStack.length === 0) {
       // Walk backwards to find the statement start
       let j = i - 1;
       // Skip whitespace
@@ -209,9 +363,10 @@ function lint(source, ruleOverrides = {}) {
           k = j - 1;
           while (k >= 0 && tokens[k].type === "whitespace") k--;
         }
-        // Check if preceded by const/let/var
+        // Check if preceded by const/let/var/private/protected/static
         const hasDeclKeyword = k >= 0 && tokens[k].type === "keyword" &&
-          (tokens[k].value === "const" || tokens[k].value === "let" || tokens[k].value === "var");
+          (tokens[k].value === "const" || tokens[k].value === "let" || tokens[k].value === "var" ||
+           tokens[k].value === "private" || tokens[k].value === "protected" || tokens[k].value === "static");
         // Check if preceded by dot (property access: obj.field be ...)
         const isDotAccess = k >= 0 && tokens[k].type === "punct" &&
           (tokens[k].value === "." || tokens[k].value === "\\.");
@@ -228,11 +383,33 @@ function lint(source, ruleOverrides = {}) {
     if (rules["consistent-naming"]?.severity !== "off" && tok.type === "ident") {
       const style = rules["consistent-naming"].style || "kebab-case";
       if (style === "kebab-case") {
-        // Identifiers should be kebab-case (lowercase with hyphens)
-        // Allow PascalCase for class names (starts with uppercase)
-        // Allow underscores (they are equivalent to hyphens)
         if (/[A-Z]/.test(tok.value[0])) continue; // Allow PascalCase
       }
+    }
+
+    // no-for-range: for x in range ...
+    if (rules["no-for-range"]?.severity !== "off" && tok.type === "keyword" && tok.value === "for") {
+      let j = i + 1;
+      while (j < tokens.length && tokens[j].type === "whitespace") j++;
+      // skip ident
+      if (j < tokens.length && tokens[j].type === "ident") {
+        j++;
+        while (j < tokens.length && tokens[j].type === "whitespace") j++;
+        if (j < tokens.length && tokens[j].type === "keyword" && tokens[j].value === "in") {
+          j++;
+          while (j < tokens.length && tokens[j].type === "whitespace") j++;
+          if (j < tokens.length && tokens[j].type === "keyword" && tokens[j].value === "range") {
+            report("no-for-range", tok.line, tok.col, rules["no-for-range"].message);
+          }
+        }
+      }
+    }
+  }
+
+  // bracket-match: report unclosed brackets
+  if (rules["bracket-match"]?.severity !== "off") {
+    for (const open of bracketStack) {
+      report("bracket-match", open.line, open.col, "Unmatched opening bracket '['");
     }
   }
 
