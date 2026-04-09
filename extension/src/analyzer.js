@@ -28,6 +28,10 @@ const FORBIDDEN_CHARS = {
   "<": "Use `lt` for less-than comparison",
   ">": "Use `gt` for greater-than comparison",
   ":": "Unexpected `:` in Purus source",
+  "`": "Use `///` for strings, not template literals",
+  "#": "Unexpected `#` in Purus source. Private fields use `private` keyword",
+  "@": "Unexpected `@` in Purus source. Decorators are not supported",
+  "$": "Unexpected `$` in Purus source",
 };
 
 function diag(line, col, endLine, endCol, msg, severity, code, tags) {
@@ -59,6 +63,26 @@ function analyzePurus(text) {
     t.type !== "ws" && t.type !== "newline" &&
     t.type !== "comment" && t.type !== "block-comment" && t.type !== "shebang"
   );
+
+  // Collect mutable-declared variables (let, for-loop vars, catch vars)
+  const mutableVars = new Set();
+  for (let i = 0; i < sig.length; i++) {
+    // `let <ident>`
+    if (sig[i].type === "keyword" && sig[i].value === "let" && sig[i + 1]?.type === "ident") {
+      mutableVars.add(sig[i + 1].value);
+    }
+    // `for <ident> in` or `for <ident>; <ident> in`
+    if (sig[i].type === "keyword" && sig[i].value === "for") {
+      for (let j = i + 1; j < sig.length && j <= i + 5; j++) {
+        if (sig[j].type === "keyword" && sig[j].value === "in") break;
+        if (sig[j].type === "ident") mutableVars.add(sig[j].value);
+      }
+    }
+    // `catch <ident>`
+    if (sig[i].type === "keyword" && sig[i].value === "catch" && sig[i + 1]?.type === "ident") {
+      mutableVars.add(sig[i + 1].value);
+    }
+  }
 
   // ---- Pre-pass: Multi-character JS operator patterns ----
   const jsOpSkip = new Set();
@@ -94,6 +118,8 @@ function analyzePurus(text) {
         "*=": "`*=` is not valid in Purus. Use `x be x mul ...`",
         "**": "`**` is not valid in Purus. Use `pow` for exponentiation",
         "//": "`//` is not a comment in Purus. Use `--` for comments, `///` for strings",
+        "<<": "`<<` is not valid in Purus. Use `shl` for left shift",
+        ">>": "`>>` is not valid in Purus. Use `shr` for right shift",
       };
       if (JS_OPS[pair]) {
         diagnostics.push(diag(t.line, t.col, n1.line, n1.col + 1, JS_OPS[pair], vscode.DiagnosticSeverity.Error, "js-operator"));
@@ -115,6 +141,17 @@ function analyzePurus(text) {
         tok.line, tok.col, tok.line, tok.col + 1,
         FORBIDDEN_CHARS[tok.value],
         vscode.DiagnosticSeverity.Error, "forbidden-char"
+      ));
+    }
+
+    // ---- ERRORS: JS keywords used instead of Purus equivalents ----
+
+    // `function` — use `fn`
+    if (tok.type === "ident" && tok.value === "function") {
+      diagnostics.push(diag(
+        tok.line, tok.col, tok.line, tokEnd,
+        "`function` is not valid in Purus. Use `fn` to declare functions",
+        vscode.DiagnosticSeverity.Error, "js-function"
       ));
     }
 
@@ -199,6 +236,17 @@ function analyzePurus(text) {
       }
     }
 
+    // ---- WARNINGS: Style issues ----
+
+    // `else if` — should be `elif`
+    if (tok.type === "keyword" && tok.value === "else" && next?.type === "keyword" && next.value === "if") {
+      diagnostics.push(diag(
+        tok.line, tok.col, next.line, next.col + 2,
+        "`else if` should be written as `elif` in Purus",
+        vscode.DiagnosticSeverity.Warning, "else-if"
+      ));
+    }
+
     // ---- WARNINGS: Deprecated features ----
 
     // `var` — use const or let
@@ -265,7 +313,7 @@ function analyzePurus(text) {
         // Check it's a simple ident assignment (not obj.prop be or arr[\i] be)
         const prevPrev = ti >= 2 ? sig[ti - 2] : null;
         const isPropertyAccess = prevPrev && (prevPrev.value === "." || prevPrev.value === "\\." || prevPrev.value === "]");
-        if (!hasDeclKeyword && !isPropertyAccess) {
+        if (!hasDeclKeyword && !isPropertyAccess && !mutableVars.has(prev.value)) {
           diagnostics.push(diag(
             prev.line, prev.col, tok.line, tokEnd,
             "Bare assignment without `const` / `let`. Use `const " + prev.value + " be ...` or `let " + prev.value + " be ...`",

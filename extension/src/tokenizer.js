@@ -160,13 +160,21 @@ function tokenize(source) {
       continue;
     }
 
-    // Number
+    // Number (decimal, binary 0b, hex 0x)
     if (/[0-9]/.test(source[i])) {
       const start = i;
-      while (i < len && /[0-9]/.test(source[i])) { i++; col++; }
-      if (i < len && source[i] === "." && i + 1 < len && /[0-9]/.test(source[i + 1])) {
-        i++; col++;
+      if (source[i] === "0" && i + 1 < len && (source[i + 1] === "b" || source[i + 1] === "B")) {
+        i += 2; col += 2;
+        while (i < len && /[01]/.test(source[i])) { i++; col++; }
+      } else if (source[i] === "0" && i + 1 < len && (source[i + 1] === "x" || source[i + 1] === "X")) {
+        i += 2; col += 2;
+        while (i < len && /[0-9a-fA-F]/.test(source[i])) { i++; col++; }
+      } else {
         while (i < len && /[0-9]/.test(source[i])) { i++; col++; }
+        if (i < len && source[i] === "." && i + 1 < len && /[0-9]/.test(source[i + 1])) {
+          i++; col++;
+          while (i < len && /[0-9]/.test(source[i])) { i++; col++; }
+        }
       }
       tokens.push({ type: "number", value: source.slice(start, i), line: sl, col: sc });
       continue;
