@@ -34,10 +34,10 @@ exports.mod = {
     return [...new Set(arr)];
   },
   zip(...arrs) {
-    const minLen = Math.min(...arrs.map(a => a.length));
+    const minLen = Math.min(...arrs.map((a) => a.length));
     const result = [];
     for (let i = 0; i < minLen; i++) {
-      result.push(arrs.map(a => a[i]));
+      result.push(arrs.map((a) => a[i]));
     }
     return result;
   },

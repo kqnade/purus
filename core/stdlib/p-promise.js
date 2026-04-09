@@ -25,13 +25,17 @@ exports.mod = {
     return new Promise(executor);
   },
   delay(ms) {
-    return new Promise(function (resolve) { setTimeout(resolve, ms); });
+    return new Promise(function (resolve) {
+      setTimeout(resolve, ms);
+    });
   },
   timeout(promise, ms) {
     return Promise.race([
       promise,
       new Promise(function (_, reject) {
-        setTimeout(function () { reject(new Error("Promise timed out")); }, ms);
+        setTimeout(function () {
+          reject(new Error("Promise timed out"));
+        }, ms);
       }),
     ]);
   },

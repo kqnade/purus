@@ -27,7 +27,7 @@
     "README-ja.md"
   ],
   "scripts": {
-    "test": "moon test",
+    "test": "moon test --target js",
     "build:compiler": "moon build --target js",
     "build:copy": "node scripts/build.js",
     "build": "npm run build:compiler && npm run build:copy",
