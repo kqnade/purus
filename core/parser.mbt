@@ -216,6 +216,30 @@ fn Parser::maybe_postfix(self : Parser, stmt : Stmt) -> Stmt {
 fn Parser::parse_ident_name(self : Parser) -> String {
   match self.advance() {
     Ident(s) => s
+    // Allow keywords as property names (e.g. obj.from, obj.default, obj.delete)
+    From_ => "from"
+    Default_ => "default"
+    Delete_ => "delete"
+    Get_ => "get"
+    Set_ => "set"
+    New_ => "new"
+    In_ => "in"
+    Of => "of"
+    As => "as"
+    Type_ => "type"
+    All_ => "all"
+    List_ => "list"
+    Object_ => "object"
+    Return_ => "return"
+    Export_ => "export"
+    Import_ => "import"
+    Static_ => "static"
+    Private_ => "private"
+    Public_ => "public"
+    Class_ => "class"
+    Super_ => "super"
+    Extends_ => "extends"
+    This_ => "this"
     _ => "unknown"
   }
 }
