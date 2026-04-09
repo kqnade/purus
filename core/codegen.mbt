@@ -332,7 +332,7 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.write("// @purus-stdlib:whole:")
       self.write(module_name)
       self.write(":")
-      self.write(binding)
+      self.write(js_ident(binding))
       self.write("\n")
     }
     ModDecl(name, body) => {

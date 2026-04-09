@@ -112,6 +112,7 @@ pub(all) enum TokenKind {
   Nil_
   Undefined_
   Nan_
+  Infinity_
 
   // Explicit constructors (reserved keywords)
   List_

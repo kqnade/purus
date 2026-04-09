@@ -425,11 +425,11 @@ test "parser: shift lower than addition" {
 
 ///|
 test "parser: use stdlib module with alias" {
-  let stmts = parse_f("use random as r")
+  let stmts = parse_f("use p-random as r")
   assert_eq(stmts.length(), 1)
   match stmts[0] {
     UseStdlib(module_name, binding) => {
-      assert_eq(module_name, "random")
+      assert_eq(module_name, "p-random")
       assert_eq(binding, "r")
     }
     _ => fail("expected UseStdlib with alias")
@@ -437,8 +437,21 @@ test "parser: use stdlib module with alias" {
 }
 
 ///|
+test "parser: use stdlib module without alias" {
+  let stmts = parse_f("use p-math")
+  assert_eq(stmts.length(), 1)
+  match stmts[0] {
+    UseStdlib(module_name, binding) => {
+      assert_eq(module_name, "p-math")
+      assert_eq(binding, "p-math")
+    }
+    _ => fail("expected UseStdlib without alias")
+  }
+}
+
+///|
 test "parser: from...use is rejected" {
-  let stmts = parse_f("from random use randint, choice")
+  let stmts = parse_f("from p-random use randint, choice")
   assert_eq(stmts.length(), 1)
   match stmts[0] {
     UseStdlib(_, _) => fail("from...use should be rejected")

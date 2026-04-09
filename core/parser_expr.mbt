@@ -287,7 +287,13 @@ fn Parser::parse_unary(self : Parser) -> Expr {
     }
     Neg => {
       self.pos += 1
-      UnaryNeg(self.parse_unary())
+      // neg infinity → InfinityLit(false) directly
+      if self.peek() == Infinity_ {
+        self.pos += 1
+        InfinityLit(false)
+      } else {
+        UnaryNeg(self.parse_unary())
+      }
     }
     Bnot => {
       self.pos += 1
@@ -538,6 +544,10 @@ fn Parser::parse_primary(self : Parser) -> Expr {
     Nan_ => {
       self.pos += 1
       NanLit
+    }
+    Infinity_ => {
+      self.pos += 1
+      InfinityLit(true)
     }
     This_ => {
       self.pos += 1

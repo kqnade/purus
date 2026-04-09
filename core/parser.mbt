@@ -755,9 +755,14 @@ fn Parser::parse_string_value(self : Parser) -> String {
 fn Parser::parse_use_stmt(self : Parser) -> Stmt {
   self.pos += 1 // skip use
   let module_name = self.parse_ident_name()
-  self.expect(As)
-  let binding = self.parse_ident_name()
-  UseStdlib(module_name, binding)
+  // `as` is optional: `use p-math` is equivalent to `use p-math as p-math`
+  if self.peek() == As {
+    self.pos += 1 // skip as
+    let binding = self.parse_ident_name()
+    UseStdlib(module_name, binding)
+  } else {
+    UseStdlib(module_name, module_name)
+  }
 }
 
 ///|

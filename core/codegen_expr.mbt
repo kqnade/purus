@@ -35,6 +35,12 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
     NullLit => self.write("null")
     UndefinedLit => self.write("undefined")
     NanLit => self.write("NaN")
+    InfinityLit(positive) =>
+      if positive {
+        self.write("Infinity")
+      } else {
+        self.write("-Infinity")
+      }
     ArrayLit(elems) => {
       self.write("[")
       let mut first = true

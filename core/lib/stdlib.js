@@ -135,7 +135,7 @@ function resolveWhole(moduleName, binding, restOfCode) {
  */
 function postProcess(js) {
   return js.replace(
-    /^(\s*)\/\/ @purus-stdlib:whole:(\w+):(\w+)$/gm,
+    /^(\s*)\/\/ @purus-stdlib:whole:([\w-]+):([\w-]+)$/gm,
     (match, indent, moduleName, binding) => {
       // Everything after this marker is "rest of code" for tree-shaking
       const markerEnd = js.indexOf(match) + match.length;

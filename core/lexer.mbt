@@ -183,6 +183,18 @@ pub fn Lexer::tokenize(self : Lexer) -> Array[Token] {
         continue
       }
     }
+    // Special: -infinity literal
+    if ch == '-' && self.peek_at(1) == 'i' && self.peek_at(2) == 'n' &&
+       self.peek_at(3) == 'f' && self.peek_at(4) == 'i' && self.peek_at(5) == 'n' &&
+       self.peek_at(6) == 'i' && self.peek_at(7) == 't' && self.peek_at(8) == 'y' &&
+       not(is_ident_char(self.peek_at(9))) {
+      let line = self.line
+      let col = self.col
+      self.advance() |> ignore // consume '-'
+      self.emit(Neg, line, col)
+      self.scan_ident() // scans "infinity" → Infinity_
+      continue
+    }
     // Punctuation
     if ch == '[' {
       let line = self.line
@@ -608,6 +620,7 @@ fn Lexer::scan_ident(self : Lexer) -> Unit {
     "nil" => Nil_
     "undefined" => Undefined_
     "nan" => Nan_
+    "infinity" => Infinity_
     "coal" => Coal
     "band" => Band
     "bor" => Bor

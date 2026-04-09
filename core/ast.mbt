@@ -11,6 +11,7 @@ pub(all) enum Expr {
   NullLit // null / nil
   UndefinedLit
   NanLit // nan → NaN
+  InfinityLit(Bool) // true = Infinity, false = -Infinity
   ArrayLit(Array[Expr])
   RangeArray(Expr, Expr, Bool) // [start..end] (inclusive=true) or [start...end] (inclusive=false)
   Slice(Expr, Expr, Expr, Bool) // obj[start..end] (inclusive) or obj[start...end] (exclusive)

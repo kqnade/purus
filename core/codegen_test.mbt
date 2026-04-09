@@ -232,6 +232,24 @@ test "codegen: nan literal" {
 }
 
 ///|
+test "codegen: infinity literal" {
+  let js = compile("const x be infinity")
+  assert_eq(js, "const x = Infinity;\n")
+}
+
+///|
+test "codegen: neg infinity via keyword" {
+  let js = compile("const x be neg infinity")
+  assert_eq(js, "const x = -Infinity;\n")
+}
+
+///|
+test "codegen: -infinity literal" {
+  let js = compile("const x be -infinity")
+  assert_eq(js, "const x = -Infinity;\n")
+}
+
+///|
 test "codegen: return statement" {
   let src =
     #|fn foo
@@ -738,20 +756,26 @@ test "cjs: from import default" {
 // ===== stdlib codegen =====
 
 ///|
-test "codegen: use math as m emits marker" {
-  let js = compile("use math as m")
-  assert_true(js.contains("// @purus-stdlib:whole:math:m"))
+test "codegen: use p-math as m emits marker" {
+  let js = compile("use p-math as m")
+  assert_true(js.contains("// @purus-stdlib:whole:p-math:m"))
 }
 
 ///|
-test "codegen: use random as r emits marker" {
-  let js = compile("use random as r")
-  assert_true(js.contains("// @purus-stdlib:whole:random:r"))
+test "codegen: use p-random as r emits marker" {
+  let js = compile("use p-random as r")
+  assert_true(js.contains("// @purus-stdlib:whole:p-random:r"))
+}
+
+///|
+test "codegen: use p-math without alias emits js_ident binding" {
+  let js = compile("use p-math")
+  assert_true(js.contains("// @purus-stdlib:whole:p-math:p_math"))
 }
 
 ///|
 test "codegen: from...use is removed" {
-  let js = compile("from math use abs")
+  let js = compile("from p-math use abs")
   assert_true(js.contains("removed"))
 }
 
