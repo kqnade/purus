@@ -45,7 +45,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("[")
       let mut first = true
       for e in elems {
-        if !(first) {
+        if !first {
           self.write(", ")
         }
         self.gen_expr(e)
@@ -89,7 +89,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("{ ")
       let mut first = true
       for pair in pairs {
-        if !(first) {
+        if !first {
           self.write(", ")
         }
         let key = pair.0
@@ -131,13 +131,23 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write(index.to_string())
       self.write("]")
     }
-    BinOp(op, left, right) => {
-      self.gen_expr_wrap(left)
-      self.write(" ")
-      self.write(js_binop(op))
-      self.write(" ")
-      self.gen_expr_wrap(right)
-    }
+    BinOp(op, left, right) =>
+      match op {
+        Fdiv => {
+          self.write("Math.floor(")
+          self.gen_expr_wrap(left)
+          self.write(" / ")
+          self.gen_expr_wrap(right)
+          self.write(")")
+        }
+        _ => {
+          self.gen_expr_wrap(left)
+          self.write(" ")
+          self.write(js_binop(op))
+          self.write(" ")
+          self.gen_expr_wrap(right)
+        }
+      }
     UnaryNeg(inner) => {
       self.write("-")
       self.gen_expr_wrap(inner)
@@ -166,7 +176,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("(")
       let mut first = true
       for p in params {
-        if !(first) {
+        if !first {
           self.write(", ")
         }
         self.write(js_ident(p))
@@ -185,7 +195,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("(")
       let mut first = true
       for p in params {
-        if !(first) {
+        if !first {
           self.write(", ")
         }
         self.write(js_ident(p))
@@ -199,7 +209,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("(")
       let mut first = true
       for a in args {
-        if !(first) {
+        if !first {
           self.write(", ")
         }
         self.gen_expr(a)
@@ -214,7 +224,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("(")
       let mut first = true
       for a in args {
-        if !(first) {
+        if !first {
           self.write(", ")
         }
         self.gen_expr(a)
@@ -228,7 +238,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("(")
       let mut first = true
       for a in args {
-        if !(first) {
+        if !first {
           self.write(", ")
         }
         self.gen_expr(a)
@@ -244,11 +254,11 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
           self.gen_expr(callee)
           self.write("(")
           self.gen_expr(left)
-          if !(args.is_empty()) {
+          if !args.is_empty() {
             self.write(", ")
             let mut first = true
             for a in args {
-              if !(first) {
+              if !first {
                 self.write(", ")
               }
               self.gen_expr(a)
@@ -265,7 +275,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
           self.write("(")
           let mut first = true
           for a in args {
-            if !(first) {
+            if !first {
               self.write(", ")
             }
             self.gen_expr(a)
@@ -344,7 +354,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       let mut first = true
       for arm in arms {
         self.write_indent()
-        if !(first) {
+        if !first {
           self.write("else ")
         }
         match arm.pattern {
@@ -421,6 +431,22 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
         None => ()
       }
     }
+    PostInc(inner) => {
+      self.gen_expr(inner)
+      self.write("++")
+    }
+    PostDec(inner) => {
+      self.gen_expr(inner)
+      self.write("--")
+    }
+    PreInc(inner) => {
+      self.write("++")
+      self.gen_expr(inner)
+    }
+    PreDec(inner) => {
+      self.write("--")
+      self.gen_expr(inner)
+    }
     DeleteExpr(inner) => {
       self.write("delete ")
       self.gen_expr(inner)
@@ -439,7 +465,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("(")
       let mut first = true
       for a in args {
-        if !(first) {
+        if !first {
           self.write(", ")
         }
         self.gen_expr(a)
@@ -457,7 +483,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("async (")
       let mut first = true
       for p in params {
-        if !(first) {
+        if !first {
           self.write(", ")
         }
         self.write(js_ident(p))
@@ -476,7 +502,7 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("async (")
       let mut first = true
       for p in params {
-        if !(first) {
+        if !first {
           self.write(", ")
         }
         self.write(js_ident(p))
@@ -492,7 +518,12 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
 /// Wrap expression in parens if it's a binary op, unary, or other compound expr
 fn JsCodegen::gen_expr_wrap(self : JsCodegen, expr : Expr) -> Unit {
   match expr {
-    BinOp(_, _, _) | UnaryNeg(_) | UnaryNot(_) | UnaryBnot(_) | IfExpr(_, _, _) | Pipe(_, _) => {
+    BinOp(_, _, _)
+    | UnaryNeg(_)
+    | UnaryNot(_)
+    | UnaryBnot(_)
+    | IfExpr(_, _, _)
+    | Pipe(_, _) => {
       self.write("(")
       self.gen_expr(expr)
       self.write(")")
@@ -526,6 +557,7 @@ fn js_binop(op : BinOp) -> String {
     Shl => "<<"
     Shr => ">>"
     Ushr => ">>>"
+    Fdiv => "/" // unreachable: Fdiv handled specially in gen_expr
   }
 }
 
@@ -534,6 +566,26 @@ fn js_binop(op : BinOp) -> String {
 /// Replaces hyphens with underscores
 fn js_ident(name : String) -> String {
   name.replace_all(old="-", new="_")
+}
+
+///|
+/// Convert BinOp to compound assignment operator string
+fn compound_op_str(op : BinOp) -> String {
+  match op {
+    Add => " += "
+    Sub => " -= "
+    Mul => " *= "
+    Div => " /= "
+    Mod => " %= "
+    Pow => " **= "
+    Band => " &= "
+    Bor => " |= "
+    Bxor => " ^= "
+    Shl => " <<= "
+    Shr => " >>= "
+    Ushr => " >>>= "
+    _ => " += " // unreachable (Fdiv handled specially, logical ops not used)
+  }
 }
 
 ///|
@@ -578,16 +630,13 @@ fn is_valid_js_ident(s : String) -> Bool {
   }
   let chars = s.to_array()
   let first = chars[0]
-  if !(is_alpha_codegen(first)) && first != '_' && first != '$' {
+  if !is_alpha_codegen(first) && first != '_' && first != '$' {
     return false
   }
   let mut i = 1
   while i < chars.length() {
     let c = chars[i]
-    if !(is_alpha_codegen(c)) &&
-      !(c >= '0' && c <= '9') &&
-      c != '_' &&
-      c != '$' {
+    if !is_alpha_codegen(c) && !(c >= '0' && c <= '9') && c != '_' && c != '$' {
       return false
     }
     i += 1

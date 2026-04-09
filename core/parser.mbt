@@ -176,13 +176,47 @@ fn Parser::parse_stmt(self : Parser) -> Stmt? {
     Class_ => Some(self.parse_class_decl())
     _ => {
       let expr = self.parse_expr()
-      // Check for assignment: EXPR be EXPR
-      if self.peek() == Be {
-        self.pos += 1
-        let value = self.parse_expr()
-        Some(self.maybe_postfix(Assign(expr, value)))
-      } else {
-        Some(self.maybe_postfix(ExprStmt(expr)))
+      // Check for compound assignment: EXPR add be EXPR, etc.
+      match self.peek() {
+        Add
+        | Sub
+        | Mul
+        | Div
+        | Mod
+        | Pow
+        | Fdiv
+        | Band
+        | Bor
+        | Bxor
+        | Shl
+        | Shr
+        | Ushr => {
+          let op = match self.peek() {
+            Add => BinOp::Add
+            Sub => BinOp::Sub
+            Mul => BinOp::Mul
+            Div => BinOp::Div
+            Mod => BinOp::Mod
+            Pow => BinOp::Pow
+            Fdiv => BinOp::Fdiv
+            Band => BinOp::Band
+            Bor => BinOp::Bor
+            Bxor => BinOp::Bxor
+            Shl => BinOp::Shl
+            Shr => BinOp::Shr
+            _ => BinOp::Ushr // Ushr
+          }
+          self.pos += 1
+          self.expect(Be)
+          let value = self.parse_expr()
+          Some(self.maybe_postfix(CompoundAssign(op, expr, value)))
+        }
+        Be => {
+          self.pos += 1
+          let value = self.parse_expr()
+          Some(self.maybe_postfix(Assign(expr, value)))
+        }
+        _ => Some(self.maybe_postfix(ExprStmt(expr)))
       }
     }
   }
@@ -486,6 +520,11 @@ fn Parser::parse_do_while_stmt(self : Parser) -> Stmt {
 ///|
 fn Parser::parse_for_stmt(self : Parser) -> Stmt {
   self.pos += 1 // skip for
+  // Check for JS-style for: for let/const/var i be 0; cond; update
+  match self.peek() {
+    Const_ | Let_ | Var_ => return self.parse_for_classic()
+    _ => ()
+  }
   let first = self.parse_ident_name()
   // Check for index; element pattern
   if self.peek() == Semicolon {
@@ -529,6 +568,68 @@ fn Parser::parse_for_stmt(self : Parser) -> Stmt {
 }
 
 ///|
+fn Parser::parse_for_classic(self : Parser) -> Stmt {
+  // Parse init: let/const/var name be expr
+  let init = match self.peek() {
+    Const_ => self.parse_var_decl(DeclKind::Const_)
+    Let_ => self.parse_var_decl(DeclKind::Let_)
+    _ => self.parse_var_decl(DeclKind::Var_)
+  }
+  self.expect(Semicolon)
+  // Parse condition
+  let cond = self.parse_expr()
+  self.expect(Semicolon)
+  // Parse update: expr (add be / sub be / be / etc.)
+  let update_expr = self.parse_expr()
+  let update : Stmt = match self.peek() {
+    Add
+    | Sub
+    | Mul
+    | Div
+    | Mod
+    | Pow
+    | Fdiv
+    | Band
+    | Bor
+    | Bxor
+    | Shl
+    | Shr
+    | Ushr => {
+      let op = match self.peek() {
+        Add => BinOp::Add
+        Sub => BinOp::Sub
+        Mul => BinOp::Mul
+        Div => BinOp::Div
+        Mod => BinOp::Mod
+        Pow => BinOp::Pow
+        Fdiv => BinOp::Fdiv
+        Band => BinOp::Band
+        Bor => BinOp::Bor
+        Bxor => BinOp::Bxor
+        Shl => BinOp::Shl
+        Shr => BinOp::Shr
+        _ => BinOp::Ushr
+      }
+      self.pos += 1
+      self.expect(Be)
+      let value = self.parse_expr()
+      CompoundAssign(op, update_expr, value)
+    }
+    Be => {
+      self.pos += 1
+      let value = self.parse_expr()
+      Assign(update_expr, value)
+    }
+    _ => ExprStmt(update_expr)
+  }
+  let saved = self.pos
+  let indent = self.skip_newlines_and_indent()
+  let _ = saved
+  let body = self.parse_block(indent)
+  ForClassic(init, cond, update, body)
+}
+
+///|
 fn Parser::parse_match_stmt(self : Parser) -> Stmt {
   self.pos += 1 // skip match
   let subject = self.parse_expr()
@@ -552,7 +653,7 @@ fn Parser::parse_match_arms(self : Parser, min_indent : Int) -> Array[MatchArm] 
       self.pos = saved
       break
     }
-    if !(self.parse_one_match_arm(arms)) {
+    if !self.parse_one_match_arm(arms) {
       self.pos = saved
       break
     }

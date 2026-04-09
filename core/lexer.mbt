@@ -72,7 +72,9 @@ fn is_digit(ch : Char) -> Bool {
 
 ///|
 fn is_hex_digit(ch : Char) -> Bool {
-  (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')
+  (ch >= '0' && ch <= '9') ||
+  (ch >= 'a' && ch <= 'f') ||
+  (ch >= 'A' && ch <= 'F')
 }
 
 ///|
@@ -184,10 +186,16 @@ pub fn Lexer::tokenize(self : Lexer) -> Array[Token] {
       }
     }
     // Special: -infinity literal
-    if ch == '-' && self.peek_at(1) == 'i' && self.peek_at(2) == 'n' &&
-       self.peek_at(3) == 'f' && self.peek_at(4) == 'i' && self.peek_at(5) == 'n' &&
-       self.peek_at(6) == 'i' && self.peek_at(7) == 't' && self.peek_at(8) == 'y' &&
-       not(is_ident_char(self.peek_at(9))) {
+    if ch == '-' &&
+      self.peek_at(1) == 'i' &&
+      self.peek_at(2) == 'n' &&
+      self.peek_at(3) == 'f' &&
+      self.peek_at(4) == 'i' &&
+      self.peek_at(5) == 'n' &&
+      self.peek_at(6) == 'i' &&
+      self.peek_at(7) == 't' &&
+      self.peek_at(8) == 'y' &&
+      !is_ident_char(self.peek_at(9)) {
       let line = self.line
       let col = self.col
       self.advance() |> ignore // consume '-'
@@ -462,7 +470,7 @@ fn Lexer::scan_number(self : Lexer) -> Unit {
     self.advance() |> ignore // skip 'b'
     let mut value = 0
     while self.pos < self.chars.length() &&
-      (self.peek() == '0' || self.peek() == '1') {
+          (self.peek() == '0' || self.peek() == '1') {
       value = value * 2 + (self.advance().to_int() - '0'.to_int())
     }
     if negative {
@@ -557,6 +565,7 @@ fn Lexer::scan_ident(self : Lexer) -> Unit {
     "sub" => Sub
     "mul" => Mul
     "div" => Div
+    "fdiv" => Fdiv
     "mod" => Mod
     "neg" => Neg
     "pow" => Pow

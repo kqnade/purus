@@ -22,6 +22,7 @@ pub(all) enum TokenKind {
   Sub
   Mul
   Div
+  Fdiv
   Mod
   Neg
   Pow

@@ -34,7 +34,8 @@ fn stmts_have_yield(stmts : Array[Stmt]) -> Bool {
 ///|
 fn stmt_has_yield(stmt : Stmt) -> Bool {
   match stmt {
-    ExprStmt(e) | Return(Some(e)) | Throw(e) | DeleteStmt(e) => expr_has_yield(e)
+    ExprStmt(e) | Return(Some(e)) | Throw(e) | DeleteStmt(e) =>
+      expr_has_yield(e)
     VarDecl(_, _, e) | Assign(_, e) => expr_has_yield(e)
     If(cond, body, elifs, else_body) => {
       if expr_has_yield(cond) || stmts_have_yield(body) {
@@ -200,7 +201,7 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.write(" [")
       let mut first = true
       for n in names {
-        if !(first) {
+        if !first {
           self.write(", ")
         }
         self.write(js_ident(n))
@@ -221,7 +222,7 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.write(" { ")
       let mut first = true
       for n in names {
-        if !(first) {
+        if !first {
           self.write(", ")
         }
         self.write(js_ident(n))
@@ -267,6 +268,25 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
           self.write(";\n")
         }
       }
+    CompoundAssign(op, target, value) => {
+      self.write_indent()
+      match op {
+        Fdiv => {
+          self.gen_expr(target)
+          self.write(" = Math.floor(")
+          self.gen_expr(target)
+          self.write(" / ")
+          self.gen_expr(value)
+          self.write(");\n")
+        }
+        _ => {
+          self.gen_expr(target)
+          self.write(compound_op_str(op))
+          self.gen_expr(value)
+          self.write(";\n")
+        }
+      }
+    }
     FnDecl(decl) => self.gen_fn_decl(decl)
     If(cond, body, elifs, else_body) =>
       self.gen_if(cond, body, elifs, else_body)
@@ -360,6 +380,22 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.write("; ")
       self.write(js_ident(name))
       self.write("++) {\n")
+      self.indent_level += 1
+      for s in body {
+        self.gen_stmt(s)
+      }
+      self.indent_level -= 1
+      self.writeln("}")
+    }
+    ForClassic(init, cond, update, body) => {
+      self.write_indent()
+      self.write("for (")
+      self.gen_for_part(init)
+      self.write("; ")
+      self.gen_expr(cond)
+      self.write("; ")
+      self.gen_for_part(update)
+      self.write(") {\n")
       self.indent_level += 1
       for s in body {
         self.gen_stmt(s)
@@ -600,6 +636,64 @@ fn JsCodegen::gen_stmt_inline(self : JsCodegen, stmt : Stmt) -> Unit {
           self.write(";")
         }
       }
+    CompoundAssign(op, target, value) =>
+      match op {
+        Fdiv => {
+          self.gen_expr(target)
+          self.write(" = Math.floor(")
+          self.gen_expr(target)
+          self.write(" / ")
+          self.gen_expr(value)
+          self.write(");")
+        }
+        _ => {
+          self.gen_expr(target)
+          self.write(compound_op_str(op))
+          self.gen_expr(value)
+          self.write(";")
+        }
+      }
+    _ => self.gen_stmt(stmt) // fallback
+  }
+}
+
+///|
+fn JsCodegen::gen_for_part(self : JsCodegen, stmt : Stmt) -> Unit {
+  match stmt {
+    VarDecl(kind, name, value) => {
+      let kw = match kind {
+        Const_ => "const"
+        Let_ => "let"
+        Var_ => "var"
+      }
+      self.write(kw)
+      self.write(" ")
+      self.write(js_ident(name))
+      self.write(" = ")
+      self.gen_expr(value)
+    }
+    Assign(target, value) => {
+      self.gen_expr(target)
+      self.write(" = ")
+      self.gen_expr(value)
+    }
+    CompoundAssign(op, target, value) =>
+      match op {
+        Fdiv => {
+          self.gen_expr(target)
+          self.write(" = Math.floor(")
+          self.gen_expr(target)
+          self.write(" / ")
+          self.gen_expr(value)
+          self.write(")")
+        }
+        _ => {
+          self.gen_expr(target)
+          self.write(compound_op_str(op))
+          self.gen_expr(value)
+        }
+      }
+    ExprStmt(expr) => self.gen_expr(expr)
     _ => self.gen_stmt(stmt) // fallback
   }
 }
@@ -625,7 +719,7 @@ fn JsCodegen::gen_fn_decl(self : JsCodegen, decl : FnDecl) -> Unit {
   self.write("(")
   let mut first = true
   for p in decl.params {
-    if !(first) {
+    if !first {
       self.write(", ")
     }
     self.write(js_ident(p))
@@ -700,7 +794,7 @@ fn JsCodegen::gen_class_decl(self : JsCodegen, decl : ClassDecl) -> Unit {
         self.write("constructor(")
         let mut first = true
         for p in params {
-          if !(first) {
+          if !first {
             self.write(", ")
           }
           self.write(js_ident(p))
@@ -721,7 +815,7 @@ fn JsCodegen::gen_class_decl(self : JsCodegen, decl : ClassDecl) -> Unit {
         self.write("(")
         let mut first = true
         for p in params {
-          if !(first) {
+          if !first {
             self.write(", ")
           }
           self.write(js_ident(p))
@@ -866,7 +960,7 @@ fn JsCodegen::gen_match(
   self.write_indent()
   let mut first = true
   for arm in arms {
-    if !(first) {
+    if !first {
       self.write(" else ")
     }
     match arm.pattern {
@@ -959,7 +1053,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
             self.write("const { ")
             let mut first = true
             for n in names {
-              if !(first) {
+              if !first {
                 self.write(", ")
               }
               self.write(n)
@@ -981,7 +1075,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
             self.write("const { ")
             let mut first = true
             for nm in names {
-              if !(first) {
+              if !first {
                 self.write(", ")
               }
               self.write(nm)
@@ -1028,7 +1122,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
             self.write("{ ")
             let mut first = true
             for n in names {
-              if !(first) {
+              if !first {
                 self.write(", ")
               }
               self.write(n)
@@ -1097,7 +1191,7 @@ fn JsCodegen::gen_import_attributes(
       self.write(" with { ")
       let mut first = true
       for pair in pairs {
-        if !(first) {
+        if !first {
           self.write(", ")
         }
         self.write(pair.0)

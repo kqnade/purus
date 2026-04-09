@@ -75,6 +75,12 @@ pub(all) enum Expr {
 
   // Generator
   YieldExpr(Expr?) // yield / yield expr
+
+  // Increment / Decrement
+  PostInc(Expr) // x\add → x++
+  PostDec(Expr) // x\sub → x--
+  PreInc(Expr) // add\x → ++x
+  PreDec(Expr) // sub\x → --x
 }
 
 ///|
@@ -106,6 +112,7 @@ pub(all) enum BinOp {
   Shl
   Shr
   Ushr
+  Fdiv
 } derive(Show)
 
 ///|
@@ -136,6 +143,7 @@ pub(all) enum Stmt {
 
   // Assignment
   Assign(Expr, Expr)
+  CompoundAssign(BinOp, Expr, Expr) // x add be 1 → x += 1
 
   // Function declaration
   FnDecl(FnDecl)
@@ -148,6 +156,7 @@ pub(all) enum Stmt {
   DoWhile(Expr, Array[Stmt])
   ForIn(String, String?, Expr, Array[Stmt]) // for x in coll / for i; x in coll
   ForRange(String, Expr, Expr, Array[Stmt]) // for i in range a; b
+  ForClassic(Stmt, Expr, Stmt, Array[Stmt]) // for let i be 0; i lt 10; i add be 1
 
   // Match statement
   MatchStmt(Expr, Array[MatchArm])
