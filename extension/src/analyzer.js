@@ -3,7 +3,7 @@
 const vscode = require("vscode");
 const { tokenize } = require("./tokenizer");
 
-const STDLIB_MODULES = new Set(["p-random", "p-math", "p-string", "p-datetime", "p-json", "p-object", "p-number", "p-array", "p-error"]);
+const STDLIB_MODULES = new Set(["p-random", "p-math", "p-string", "p-datetime", "p-json", "p-object", "p-number", "p-array", "p-error", "p-regexp", "p-promise", "p-set", "p-map"]);
 
 const DECL_KEYWORDS = new Set(["const", "let", "var"]);
 
@@ -66,10 +66,15 @@ function analyzePurus(text) {
 
   // Collect mutable-declared variables (let, for-loop vars, catch vars)
   const mutableVars = new Set();
+  const constVars = new Set();
   for (let i = 0; i < sig.length; i++) {
     // `let <ident>`
     if (sig[i].type === "keyword" && sig[i].value === "let" && sig[i + 1]?.type === "ident") {
       mutableVars.add(sig[i + 1].value);
+    }
+    // `const <ident>`
+    if (sig[i].type === "keyword" && sig[i].value === "const" && sig[i + 1]?.type === "ident") {
+      constVars.add(sig[i + 1].value);
     }
     // `for <ident> in` or `for <ident>; <ident> in`
     if (sig[i].type === "keyword" && sig[i].value === "for") {
@@ -86,6 +91,7 @@ function analyzePurus(text) {
 
   // ---- Pre-pass: Multi-character JS operator patterns ----
   const jsOpSkip = new Set();
+  const seenStdlibs = new Set();
   for (let i = 0; i < sig.length; i++) {
     const t = sig[i];
     if (t.type !== "other") continue;
@@ -238,12 +244,13 @@ function analyzePurus(text) {
 
     // ---- WARNINGS: Style issues ----
 
-    // `else if` — should be `elif`
+    // `else if` — deprecated, use `elif`
     if (tok.type === "keyword" && tok.value === "else" && next?.type === "keyword" && next.value === "if") {
       diagnostics.push(diag(
         tok.line, tok.col, next.line, next.col + 2,
-        "`else if` should be written as `elif` in Purus",
-        vscode.DiagnosticSeverity.Warning, "else-if"
+        "`else if` is deprecated. Use `elif` instead",
+        vscode.DiagnosticSeverity.Warning, "deprecated-else-if",
+        [vscode.DiagnosticTag.Deprecated]
       ));
     }
 
@@ -296,12 +303,12 @@ function analyzePurus(text) {
         let hasDeclKeyword = false;
         for (let j = ti - 1; j >= 0; j--) {
           const t = sig[j];
-          if (t.type === "keyword" && DECL_KEYWORDS.has(t.value)) { hasDeclKeyword = true; break; }
+          if (t.type === "keyword" && (DECL_KEYWORDS.has(t.value) || t.value === "private")) { hasDeclKeyword = true; break; }
           // Stop at statement boundaries
           if (t.type === "keyword" && ["fn", "if", "for", "while", "class", "return", "import", "from",
             "use", "export", "public", "try", "catch", "throw", "switch", "match", "case", "when",
             "else", "elif", "default", "unless", "until", "namespace", "type", "static", "async",
-            "private", "get", "set"].includes(t.value)) break;
+            "get", "set"].includes(t.value)) break;
           // Stop if we see `be` (previous statement)
           if (t.type === "keyword" && t.value === "be") break;
           // Stop at newline-significant tokens (the `be` is on the same line as the ident)
@@ -314,12 +321,75 @@ function analyzePurus(text) {
         const prevPrev = ti >= 2 ? sig[ti - 2] : null;
         const isPropertyAccess = prevPrev && (prevPrev.value === "." || prevPrev.value === "\\." || prevPrev.value === "]");
         if (!hasDeclKeyword && !isPropertyAccess && !mutableVars.has(prev.value)) {
-          diagnostics.push(diag(
-            prev.line, prev.col, tok.line, tokEnd,
-            "Bare assignment without `const` / `let`. Use `const " + prev.value + " be ...` or `let " + prev.value + " be ...`",
-            vscode.DiagnosticSeverity.Warning, "bare-assignment"
-          ));
+          if (constVars.has(prev.value)) {
+            diagnostics.push(diag(
+              prev.line, prev.col, tok.line, tokEnd,
+              "Cannot reassign `const` variable `" + prev.value + "`. Use `let` if you need to reassign",
+              vscode.DiagnosticSeverity.Error, "const-reassign"
+            ));
+          } else {
+            diagnostics.push(diag(
+              prev.line, prev.col, tok.line, tokEnd,
+              "Bare assignment without `const` / `let`. Use `const " + prev.value + " be ...` or `let " + prev.value + " be ...`",
+              vscode.DiagnosticSeverity.Warning, "bare-assignment"
+            ));
+          }
         }
+      }
+    }
+
+    // ---- ERRORS: JS reserved words used as identifiers ----
+
+    // `var` keyword used as JS-style `var` (already caught above), but also detect
+    // other common JS keywords that don't exist in Purus
+    if (tok.type === "ident") {
+      const JS_ONLY_KEYWORDS = {
+        "function": "Use `fn` to declare functions",
+        "const": null, // valid in Purus
+        "let": null,
+        "void": "`void` is not valid in Purus. Use `undefined` if needed",
+        "do": "`do...while` is not valid in Purus. Use `while` or `until`",
+        "with": null, // valid in Purus
+        "yield": "`yield` is not valid in Purus. Generators are not supported",
+        "enum": "`enum` is not valid in Purus",
+        "interface": "`interface` is not valid in Purus. Use `type` for type annotations",
+        "implements": "`implements` is not valid in Purus",
+        "package": "`package` is not valid in Purus",
+        "protected": "`protected` is not valid in Purus. Use `private` or `public`",
+        "abstract": "`abstract` is not valid in Purus",
+      };
+      const msg = JS_ONLY_KEYWORDS[tok.value];
+      if (msg) {
+        diagnostics.push(diag(
+          tok.line, tok.col, tok.line, tokEnd,
+          msg, vscode.DiagnosticSeverity.Error, "js-keyword"
+        ));
+      }
+    }
+
+    // ---- WARNINGS: Duplicate `use` imports ----
+    // Tracked during the loop
+    if (tok.type === "keyword" && tok.value === "use" && next?.type === "ident") {
+      if (seenStdlibs.has(next.value)) {
+        diagnostics.push(diag(
+          tok.line, tok.col, next.line, next.col + next.value.length,
+          "Duplicate `use " + next.value + "` import",
+          vscode.DiagnosticSeverity.Warning, "duplicate-use"
+        ));
+      } else {
+        seenStdlibs.add(next.value);
+      }
+    }
+
+    // ---- INFO: `use` without `as` ----
+    if (tok.type === "keyword" && tok.value === "use" && next?.type === "ident" && STDLIB_MODULES.has(next.value)) {
+      const afterModule = ti + 2 < sig.length ? sig[ti + 2] : null;
+      if (!afterModule || afterModule.value !== "as") {
+        diagnostics.push(diag(
+          tok.line, tok.col, next.line, next.col + next.value.length,
+          "Consider adding an alias: `use " + next.value + " as <name>`",
+          vscode.DiagnosticSeverity.Information, "use-no-alias"
+        ));
       }
     }
   }
