@@ -8,7 +8,7 @@ const is-active be true
 
 -- Variables
 let score be 100
-score be score add 50
+score add be 50
 
 -- Underscores in identifiers (equivalent to hyphens)
 const my_variable be 42
