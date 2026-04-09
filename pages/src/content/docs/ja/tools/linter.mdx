@@ -48,6 +48,7 @@ purus-lint
 | ルール | デフォルト | 説明 |
 |---|---|---|
 | `no-var` | `warn` | `var` を避け、`const` または `let` を使用 |
+| `bare-assignment` | `warn` | `const`/`let`/`var` なしの裸の代入を避ける |
 | `no-nil` | `off` | `nil` の代わりに `null` を使用 |
 | `indent-size` | `warn` (2) | インデントはNスペースの倍数であること |
 | `no-trailing-whitespace` | `warn` | 末尾空白なし |
@@ -64,6 +65,7 @@ purus-lint
 ```purus
 -- リンター設定
 const lint.no-var be ///warn///
+const lint.bare-assignment be ///warn///
 const lint.no-nil be ///off///
 const lint.indent-size be 2
 const lint.max-line-length be ///off///

@@ -1,5 +1,5 @@
 ---
-title: string
+title: p-string
 description: String utility functions.
 sidebar:
   order: 3
@@ -8,7 +8,7 @@ sidebar:
 The `string` module provides utility functions for string manipulation.
 
 ```purus
-use string as s
+use p-string as s
 ```
 
 ## Query
@@ -17,7 +17,7 @@ use string as s
 Returns the length of the string.
 
 ```purus
-use string as s
+use p-string as s
 s.len[///hello///]  -- 5
 ```
 
@@ -25,7 +25,7 @@ s.len[///hello///]  -- 5
 Returns `true` if `str` contains `sub`.
 
 ```purus
-use string as s
+use p-string as s
 s.contains[///hello world///; ///world///]  -- true
 ```
 
@@ -36,7 +36,7 @@ Returns `true` if `str` starts with `prefix`.
 Returns `true` if `str` ends with `suffix`.
 
 ```purus
-use string as s
+use p-string as s
 s.startswith[///hello///; ///he///]  -- true
 s.endswith[///hello///; ///lo///]    -- true
 ```
@@ -45,7 +45,7 @@ s.endswith[///hello///; ///lo///]    -- true
 Returns the index of the first occurrence of `sub` in `str`, or -1 if not found.
 
 ```purus
-use string as s
+use p-string as s
 s.indexof[///hello///; ///ll///]  -- 2
 s.indexof[///hello///; ///xyz///] -- -1
 ```
@@ -54,7 +54,7 @@ s.indexof[///hello///; ///xyz///] -- -1
 Returns the number of non-overlapping occurrences of `sub` in `str`.
 
 ```purus
-use string as s
+use p-string as s
 s.count[///banana///; ///an///]  -- 2
 ```
 
@@ -67,7 +67,7 @@ Returns the string converted to uppercase.
 Returns the string converted to lowercase.
 
 ```purus
-use string as s
+use p-string as s
 s.upper[///hello///]  -- "HELLO"
 s.lower[///HELLO///]  -- "hello"
 ```
@@ -79,7 +79,7 @@ Returns the string with the first character capitalized.
 Returns the string with the first character of each word capitalized.
 
 ```purus
-use string as s
+use p-string as s
 s.capitalize[///hello world///]  -- "Hello world"
 s.title[///hello world///]       -- "Hello World"
 ```
@@ -94,7 +94,7 @@ Removes whitespace from the start.
 Removes whitespace from the end.
 
 ```purus
-use string as s
+use p-string as s
 s.trim[///  hello  ///]       -- "hello"
 s.trimstart[///  hello  ///]  -- "hello  "
 s.trimend[///  hello  ///]    -- "  hello"
@@ -104,7 +104,7 @@ s.trimend[///  hello  ///]    -- "  hello"
 Returns the reversed string.
 
 ```purus
-use string as s
+use p-string as s
 s.reverse[///hello///]  -- "olleh"
 ```
 
@@ -112,7 +112,7 @@ s.reverse[///hello///]  -- "olleh"
 Returns the string repeated `n` times.
 
 ```purus
-use string as s
+use p-string as s
 s.repeat[///ab///; 3]  -- "ababab"
 ```
 
@@ -123,7 +123,7 @@ Replaces **all** occurrences of `old` with `new`.
 Replaces the **first** occurrence of `old` with `new`.
 
 ```purus
-use string as s
+use p-string as s
 s.replace[///aabaa///; ///a///; ///x///]       -- "xxbxx"
 s.replacefirst[///aabaa///; ///a///; ///x///]   -- "xabaa"
 ```
@@ -135,7 +135,7 @@ Pads the start of the string to reach `len`. The `fill` character defaults to a 
 Pads the end of the string to reach `len`. The `fill` character defaults to a space.
 
 ```purus
-use string as s
+use p-string as s
 s.padstart[///42///; 5; ///0///]  -- "00042"
 s.padend[///hi///; 5; ///.///]    -- "hi..."
 ```
@@ -158,7 +158,7 @@ Joins an array of strings with `sep`.
 Returns an array of individual characters.
 
 ```purus
-use string as s
+use p-string as s
 s.split[///a,b,c///; ///,///]   -- ["a", "b", "c"]
 s.words[///hello  world///]     -- ["hello", "world"]
 s.join[[///a///; ///b///]; ///-///]  -- "a-b"
@@ -180,7 +180,7 @@ Returns the Unicode code point at index `i`.
 Returns the character for the given Unicode code point.
 
 ```purus
-use string as s
+use p-string as s
 s.slice[///hello///; 1; 3]   -- "el"
 s.charat[///hello///; 0]     -- "h"
 s.codeat[///A///; 0]         -- 65

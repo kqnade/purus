@@ -1,0 +1,106 @@
+---
+title: p-object
+description: Objectユーティリティ関数。
+sidebar:
+  order: 6
+---
+
+`object` モジュールはJavaScriptオブジェクトを操作するためのユーティリティ関数を提供します。
+
+```purus
+use p-object as o
+```
+
+## 検査
+
+### `keys[obj]`
+オブジェクトの自身のプロパティ名の配列を返します。
+
+### `values[obj]`
+オブジェクトの自身のプロパティ値の配列を返します。
+
+### `entries[obj]`
+`[key, value]` ペアの配列を返します。
+
+### `len[obj]`
+自身のプロパティの数を返します。
+
+### `hasown[obj; key]`
+オブジェクトが指定された自身のプロパティを持っていれば `true` を返します。
+
+### `is[a; b]`
+`a` と `b` が同じ値であれば `true` を返します（`Object.is` セマンティクス）。
+
+```purus
+use p-object as o
+const obj be [name be ///Purus///, version be 1]
+o.keys[obj]        -- ["name", "version"]
+o.values[obj]      -- ["Purus", 1]
+o.entries[obj]     -- [["name", "Purus"], ["version", 1]]
+o.len[obj]         -- 2
+o.hasown[obj; ///name///]  -- true
+```
+
+## 作成
+
+### `fromentries[arr]`
+`[key, value]` ペアの配列からオブジェクトを作成します。
+
+### `create[proto; props]`
+指定されたプロトタイプとオプションのプロパティ記述子で新しいオブジェクトを作成します。
+
+### `assign[target; ...sources]`
+ソースオブジェクトの自身のプロパティをターゲットにコピーします。ターゲットを返します。
+
+### `merge[...objs]`
+複数のオブジェクトを新しいオブジェクトにマージします（浅いマージ）。
+
+### `clone[obj]`
+オブジェクトのディープクローンを返します（`structuredClone` を使用）。
+
+```purus
+use p-object as o
+const a be [x be 1]
+const b be [y be 2]
+o.merge[a; b]      -- { x: 1, y: 2 }
+o.clone[a]         -- { x: 1 }（ディープコピー）
+
+const pairs be [[///a///; 1]; [///b///; 2]]
+o.fromentries[pairs]  -- { a: 1, b: 2 }
+```
+
+## フリーズ / シール
+
+### `freeze[obj]`
+オブジェクトをフリーズし（変更を禁止）、フリーズされたオブジェクトを返します。
+
+### `seal[obj]`
+オブジェクトをシールし（プロパティの追加/削除を禁止、既存の変更は可能）、シールされたオブジェクトを返します。
+
+### `isfrozen[obj]`
+オブジェクトがフリーズされていれば `true` を返します。
+
+### `issealed[obj]`
+オブジェクトがシールされていれば `true` を返します。
+
+```purus
+use p-object as o
+const obj be [x be 1]
+o.freeze[obj]
+o.isfrozen[obj]    -- true
+```
+
+## 選択
+
+### `pick[obj; keys]`
+指定されたキーのみを含む新しいオブジェクトを返します。
+
+### `omit[obj; keys]`
+指定されたキーを除外した新しいオブジェクトを返します。
+
+```purus
+use p-object as o
+const obj be [a be 1; b be 2; c be 3]
+o.pick[obj; [///a///; ///c///]]  -- { a: 1, c: 3 }
+o.omit[obj; [///b///]]           -- { a: 1, c: 3 }
+```

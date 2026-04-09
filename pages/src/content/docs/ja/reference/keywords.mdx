@@ -67,7 +67,7 @@ sidebar:
 | `export` | `export` | ESMエクスポート |
 | `default` | `default` | デフォルトエクスポート |
 | `require` | `require()` | CJS require |
-| `use` | _（インラインJS）_ | 標準ライブラリインポート |
+| `use` | _（インラインJS）_ | 標準ライブラリインポート（`p-` プレフィックス、`as` は任意） |
 | `namespace` | IIFE | モジュール名前空間 |
 | `public` | `export` | パブリックエクスポート |
 | `all` | `* as` | 名前空間インポート |
@@ -144,6 +144,7 @@ sidebar:
 | `list` | 配列リテラル |
 | `object` | オブジェクトリテラル |
 | `nan` | `NaN` |
+| `infinity` | `Infinity`（`neg infinity` / `-infinity` → `-Infinity`） |
 
 ## クラス
 

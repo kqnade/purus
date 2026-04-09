@@ -1,0 +1,78 @@
+---
+title: p-error
+description: エラーの作成と検査ユーティリティ。
+sidebar:
+  order: 9
+---
+
+`error` モジュールはJavaScriptエラーの作成と検査のための関数を提供します。
+
+```purus
+use p-error as e
+```
+
+## エラーの作成
+
+### `create[message]`
+汎用的な `Error` を作成します。
+
+### `type[message]`
+`TypeError` を作成します。
+
+### `range[message]`
+`RangeError` を作成します。
+
+### `reference[message]`
+`ReferenceError` を作成します。
+
+### `syntax[message]`
+`SyntaxError` を作成します。
+
+### `uri[message]`
+`URIError` を作成します。
+
+### `wrap[message; cause]`
+`cause` 付きの `Error` を作成します（エラーチェーン用）。
+
+```purus
+use p-error as e
+throw e.create[///何かがおかしい///]
+throw e.type[///文字列が期待されます///]
+throw e.range[///インデックスが範囲外///]
+
+-- エラーチェーン
+try
+  riskyOperation[]
+catch err
+  throw e.wrap[///操作に失敗///; err]
+```
+
+## エラーの検査
+
+### `iserror[val]`
+`val` が `Error` のインスタンスであれば `true` を返します。
+
+### `message[err]`
+エラーメッセージを返します。`err` が Error でない場合は `String(err)` を返します。
+
+### `name[err]`
+エラー名（例: `"TypeError"`, `"RangeError"`）を返します。非Error値の場合は `"Error"` を返します。
+
+### `stack[err]`
+スタックトレースを文字列で返します。非Error値の場合は `""` を返します。
+
+### `cause[err]`
+エラーの原因を返します（`wrap` またはオプションで設定された場合）。
+
+```purus
+use p-error as e
+const err be e.type[///不正な引数///]
+e.iserror[err]      -- true
+e.message[err]      -- "不正な引数"
+e.name[err]         -- "TypeError"
+e.stack[err]        -- "TypeError: 不正な引数\n    at ..."
+
+const wrapped be e.wrap[///失敗///; err]
+e.cause[wrapped]    -- 元のTypeError
+e.message[wrapped]  -- "失敗"
+```

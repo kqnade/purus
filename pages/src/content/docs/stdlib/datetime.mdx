@@ -1,5 +1,5 @@
 ---
-title: datetime
+title: p-datetime
 description: Date and time utility functions.
 sidebar:
   order: 5
@@ -8,7 +8,7 @@ sidebar:
 The `datetime` module provides date/time creation, extraction, formatting, and arithmetic functions. All timestamps are millisecond-precision Unix epoch values.
 
 ```purus
-use datetime as dt
+use p-datetime as dt
 ```
 
 ## Current Time
@@ -23,7 +23,7 @@ Returns the timestamp for the start of today (midnight, local time).
 Returns the current Unix timestamp in **seconds** (integer).
 
 ```purus
-use datetime as dt
+use p-datetime as dt
 const t be dt.now[]        -- e.g. 1712534400000
 const s be dt.timestamp[]  -- e.g. 1712534400
 ```
@@ -34,7 +34,7 @@ const s be dt.timestamp[]  -- e.g. 1712534400
 Creates a timestamp from local date/time components. Only `year` is required; others default to sensible values (month=1, day=1, hour/minute/second/ms=0).
 
 ```purus
-use datetime as dt
+use p-datetime as dt
 const t be dt.create[2026; 4; 8]
 const t2 be dt.create[2026; 4; 8; 14; 30; 0; 0]
 ```
@@ -43,7 +43,7 @@ const t2 be dt.create[2026; 4; 8; 14; 30; 0; 0]
 Same as `create` but interprets components as UTC.
 
 ```purus
-use datetime as dt
+use p-datetime as dt
 const t be dt.utccreate[2026; 4; 8; 0; 0; 0; 0]
 ```
 
@@ -51,7 +51,7 @@ const t be dt.utccreate[2026; 4; 8; 0; 0; 0; 0]
 Parses an ISO 8601 date string and returns a timestamp.
 
 ```purus
-use datetime as dt
+use p-datetime as dt
 const t be dt.fromiso[///2026-04-08T00:00:00Z///]
 ```
 
@@ -63,10 +63,10 @@ These functions extract date/time components in the local timezone.
 Returns the full year (e.g. 2026).
 
 ### `month[t]`
-Returns the month (1–12).
+Returns the month (1窶・2).
 
 ### `day[t]`
-Returns the day of the month (1–31).
+Returns the day of the month (1窶・1).
 
 ### `weekday[t]`
 Returns the day of the week (0=Sunday, 6=Saturday).
@@ -75,7 +75,7 @@ Returns the day of the week (0=Sunday, 6=Saturday).
 Returns the respective time component.
 
 ```purus
-use datetime as dt
+use p-datetime as dt
 const t be dt.now[]
 console.log[dt.year[t]]     -- e.g. 2026
 console.log[dt.month[t]]    -- e.g. 4
@@ -90,7 +90,7 @@ Same as local extraction but in UTC.
 ### `utchour[t]` / `utcminute[t]` / `utcsecond[t]` / `utcms[t]`
 
 ```purus
-use datetime as dt
+use p-datetime as dt
 const t be dt.now[]
 console.log[dt.utchour[t]]  -- UTC hour
 ```
@@ -103,7 +103,7 @@ Extract components for a specific IANA timezone.
 ### `tzhour[t; tz]` / `tzminute[t; tz]` / `tzsecond[t; tz]`
 
 ```purus
-use datetime as dt
+use p-datetime as dt
 const t be dt.now[]
 console.log[dt.tzhour[t; ///America/New_York///]]
 console.log[dt.tzhour[t; ///Asia/Tokyo///]]
@@ -115,7 +115,7 @@ console.log[dt.tzhour[t; ///Asia/Tokyo///]]
 Returns the ISO 8601 string representation.
 
 ```purus
-use datetime as dt
+use p-datetime as dt
 dt.toiso[dt.now[]]  -- e.g. "2026-04-08T05:00:00.000Z"
 ```
 
@@ -132,7 +132,7 @@ Returns a locale-formatted time string (time only).
 Returns a formatted string for a specific timezone and locale.
 
 ```purus
-use datetime as dt
+use p-datetime as dt
 const t be dt.now[]
 dt.tolocale[t; ///en-US///]
 dt.todate[t; ///ja-JP///]
@@ -157,7 +157,7 @@ Adds `n` hours.
 Adds `n` days.
 
 ```purus
-use datetime as dt
+use p-datetime as dt
 const t be dt.now[]
 const tomorrow be dt.adddays[t; 1]
 const later be dt.addhours[t; 3]
@@ -181,7 +181,7 @@ Returns the difference in minutes.
 Returns the difference in seconds.
 
 ```purus
-use datetime as dt
+use p-datetime as dt
 const a be dt.create[2026; 4; 10]
 const b be dt.create[2026; 4; 8]
 console.log[dt.diffdays[a; b]]  -- 2
@@ -196,7 +196,7 @@ Returns the timezone offset in minutes for the given timestamp (or now if omitte
 Returns the local IANA timezone name (e.g. `"Asia/Tokyo"`).
 
 ```purus
-use datetime as dt
+use p-datetime as dt
 console.log[dt.localtz[]]   -- e.g. "Asia/Tokyo"
 console.log[dt.offset[]]    -- e.g. -540
 ```

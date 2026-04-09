@@ -48,6 +48,7 @@ You can pass files and directories as positional arguments.
 | Rule | Default | Description |
 |---|---|---|
 | `no-var` | `warn` | Avoid `var`; use `const` or `let` |
+| `bare-assignment` | `warn` | Avoid bare assignment without `const`/`let`/`var` |
 | `no-nil` | `off` | Use `null` instead of `nil` |
 | `indent-size` | `warn` (2) | Indentation must be a multiple of N spaces |
 | `no-trailing-whitespace` | `warn` | No trailing whitespace |
@@ -64,6 +65,7 @@ Linter settings can be configured in `config.purus` alongside build settings:
 ```purus
 -- Linter settings
 const lint.no-var be ///warn///
+const lint.bare-assignment be ///warn///
 const lint.no-nil be ///off///
 const lint.indent-size be 2
 const lint.max-line-length be ///off///

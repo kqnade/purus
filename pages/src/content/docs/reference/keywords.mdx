@@ -67,7 +67,7 @@ sidebar:
 | `export` | `export` | ESM export |
 | `default` | `default` | Default export |
 | `require` | `require()` | CJS require |
-| `use` | _(inline JS)_ | Standard library import |
+| `use` | _(inline JS)_ | Standard library import (`p-` prefix, `as` optional) |
 | `namespace` | IIFE | Module namespace |
 | `public` | `export` | Public export |
 | `all` | `* as` | Namespace import |
@@ -144,6 +144,7 @@ sidebar:
 | `list` | array literal |
 | `object` | object literal |
 | `nan` | `NaN` |
+| `infinity` | `Infinity` (`neg infinity` / `-infinity` → `-Infinity`) |
 
 ## Class
 

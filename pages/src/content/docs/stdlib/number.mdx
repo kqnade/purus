@@ -1,0 +1,103 @@
+---
+title: p-number
+description: Number utility functions and constants.
+sidebar:
+  order: 7
+---
+
+The `number` module provides Number utility functions and numeric constants.
+
+```purus
+use p-number as n
+```
+
+## Type Checks
+
+### `isfinite[val]`
+Returns `true` if `val` is a finite number.
+
+### `isinteger[val]`
+Returns `true` if `val` is an integer.
+
+### `isnan[val]`
+Returns `true` if `val` is `NaN`.
+
+### `issafe[val]`
+Returns `true` if `val` is a safe integer (within `Number.MAX_SAFE_INTEGER` range).
+
+```purus
+use p-number as n
+n.isfinite[42]       -- true
+n.isfinite[infinity] -- false
+n.isinteger[3.0]     -- true
+n.isinteger[3.5]     -- false
+n.isnan[nan]         -- true
+n.issafe[42]         -- true
+```
+
+## Parsing
+
+### `parsefloat[str]`
+Parses a string and returns a floating-point number.
+
+### `parseint[str; radix]`
+Parses a string and returns an integer. `radix` defaults to 10.
+
+```purus
+use p-number as n
+n.parsefloat[///3.14///]     -- 3.14
+n.parseint[///FF///; 16]     -- 255
+n.parseint[///42///]         -- 42
+```
+
+## Formatting
+
+### `tofixed[num; digits]`
+Returns a string with the number formatted to `digits` decimal places. `digits` defaults to 0.
+
+### `toprecision[num; digits]`
+Returns a string with the number formatted to `digits` significant digits.
+
+### `toexponential[num; digits]`
+Returns a string in exponential notation with `digits` decimal places.
+
+### `tostring[num; radix]`
+Returns a string representation in the specified base. `radix` defaults to 10.
+
+```purus
+use p-number as n
+n.tofixed[3.14159; 2]       -- "3.14"
+n.toprecision[123.456; 4]   -- "123.5"
+n.toexponential[1234; 2]    -- "1.23e+3"
+n.tostring[255; 16]         -- "ff"
+```
+
+## Utility
+
+### `clamp[num; min; max]`
+Returns `num` clamped to the range [min, max].
+
+```purus
+use p-number as n
+n.clamp[15; 0; 10]   -- 10
+n.clamp[-5; 0; 10]   -- 0
+n.clamp[5; 0; 10]    -- 5
+```
+
+## Constants
+
+| Name | JS Equivalent | Description |
+|------|--------------|-------------|
+| `maxsafe` | `Number.MAX_SAFE_INTEGER` | Maximum safe integer (2^53 - 1) |
+| `minsafe` | `Number.MIN_SAFE_INTEGER` | Minimum safe integer (-(2^53 - 1)) |
+| `epsilon` | `Number.EPSILON` | Smallest difference between representable numbers |
+| `maxvalue` | `Number.MAX_VALUE` | Maximum representable number |
+| `minvalue` | `Number.MIN_VALUE` | Minimum positive representable number |
+| `posinf` | `Number.POSITIVE_INFINITY` | Positive infinity |
+| `neginf` | `Number.NEGATIVE_INFINITY` | Negative infinity |
+
+```purus
+use p-number as n
+console.log[n.maxsafe]   -- 9007199254740991
+console.log[n.epsilon]   -- 2.220446049250313e-16
+```

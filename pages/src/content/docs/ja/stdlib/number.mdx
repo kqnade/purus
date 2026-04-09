@@ -1,0 +1,103 @@
+---
+title: p-number
+description: Numberユーティリティ関数と定数。
+sidebar:
+  order: 7
+---
+
+`number` モジュールはNumberユーティリティ関数と数値定数を提供します。
+
+```purus
+use p-number as n
+```
+
+## 型チェック
+
+### `isfinite[val]`
+`val` が有限数であれば `true` を返します。
+
+### `isinteger[val]`
+`val` が整数であれば `true` を返します。
+
+### `isnan[val]`
+`val` が `NaN` であれば `true` を返します。
+
+### `issafe[val]`
+`val` が安全な整数（`Number.MAX_SAFE_INTEGER` 範囲内）であれば `true` を返します。
+
+```purus
+use p-number as n
+n.isfinite[42]       -- true
+n.isfinite[infinity] -- false
+n.isinteger[3.0]     -- true
+n.isinteger[3.5]     -- false
+n.isnan[nan]         -- true
+n.issafe[42]         -- true
+```
+
+## パース
+
+### `parsefloat[str]`
+文字列をパースし、浮動小数点数を返します。
+
+### `parseint[str; radix]`
+文字列をパースし、整数を返します。`radix` のデフォルトは 10。
+
+```purus
+use p-number as n
+n.parsefloat[///3.14///]     -- 3.14
+n.parseint[///FF///; 16]     -- 255
+n.parseint[///42///]         -- 42
+```
+
+## フォーマット
+
+### `tofixed[num; digits]`
+`digits` 桁の小数点以下にフォーマットした文字列を返します。`digits` のデフォルトは 0。
+
+### `toprecision[num; digits]`
+`digits` 桁の有効数字にフォーマットした文字列を返します。
+
+### `toexponential[num; digits]`
+`digits` 桁の小数点以下の指数表記文字列を返します。
+
+### `tostring[num; radix]`
+指定された基数での文字列表現を返します。`radix` のデフォルトは 10。
+
+```purus
+use p-number as n
+n.tofixed[3.14159; 2]       -- "3.14"
+n.toprecision[123.456; 4]   -- "123.5"
+n.toexponential[1234; 2]    -- "1.23e+3"
+n.tostring[255; 16]         -- "ff"
+```
+
+## ユーティリティ
+
+### `clamp[num; min; max]`
+`num` を [min, max] の範囲にクランプして返します。
+
+```purus
+use p-number as n
+n.clamp[15; 0; 10]   -- 10
+n.clamp[-5; 0; 10]   -- 0
+n.clamp[5; 0; 10]    -- 5
+```
+
+## 定数
+
+| 名前 | JS 等価 | 説明 |
+|------|---------|------|
+| `maxsafe` | `Number.MAX_SAFE_INTEGER` | 最大安全整数 (2^53 - 1) |
+| `minsafe` | `Number.MIN_SAFE_INTEGER` | 最小安全整数 (-(2^53 - 1)) |
+| `epsilon` | `Number.EPSILON` | 表現可能な数値間の最小差 |
+| `maxvalue` | `Number.MAX_VALUE` | 表現可能な最大数 |
+| `minvalue` | `Number.MIN_VALUE` | 表現可能な最小正数 |
+| `posinf` | `Number.POSITIVE_INFINITY` | 正の無限大 |
+| `neginf` | `Number.NEGATIVE_INFINITY` | 負の無限大 |
+
+```purus
+use p-number as n
+console.log[n.maxsafe]   -- 9007199254740991
+console.log[n.epsilon]   -- 2.220446049250313e-16
+```

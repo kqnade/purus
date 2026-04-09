@@ -1,5 +1,5 @@
 ---
-title: math
+title: p-math
 description: 数学関数と定数。
 sidebar:
   order: 1
@@ -8,7 +8,7 @@ sidebar:
 `math` モジュールはJavaScriptの `Math` メソッドすべてと、小文字の定数エイリアスを提供します。
 
 ```purus
-use math as m
+use p-math as m
 ```
 
 ## 定数
@@ -25,7 +25,7 @@ use math as m
 | `sqrt1_2` | 0.7071067811865476 | 1/2の平方根 |
 
 ```purus
-use math as m
+use p-math as m
 console.log[m.pi]   -- 3.141592653589793
 console.log[m.e]    -- 2.718281828459045
 ```
@@ -45,7 +45,7 @@ console.log[m.e]    -- 2.718281828459045
 `x` の小数部分を除去した整数部分を返します。
 
 ```purus
-use math as m
+use p-math as m
 m.floor[4.7]   -- 4
 m.ceil[4.1]    -- 5
 m.round[4.5]   -- 5
@@ -67,7 +67,7 @@ m.trunc[4.9]   -- 4
 与えられた数値の最小値を返します。
 
 ### `pow[base; exp]`
-`base` の `exp` 乗を返します。
+`base` を `exp` 乗した値を返します。
 
 ### `sqrt[x]`
 `x` の平方根を返します。
@@ -76,19 +76,19 @@ m.trunc[4.9]   -- 4
 `x` の立方根を返します。
 
 ### `hypot[a; b; ...]`
-引数の二乗和の平方根を返します。
+引数の二乗の和の平方根を返します。
 
 ### `clz32[x]`
 `x` の32ビット整数表現における先頭のゼロビット数を返します。
 
 ### `fround[x]`
-`x` に最も近い32ビット単精度浮動小数点数を返します。
+`x` の最も近い32ビット単精度浮動小数点数表現を返します。
 
 ### `imul[a; b]`
-`a` と `b` のC言語風の32ビット乗算結果を返します。
+`a` と `b` のC言語風32ビット乗算の結果を返します。
 
 ```purus
-use math as m
+use p-math as m
 m.abs[-5]        -- 5
 m.max[1; 2; 3]   -- 3
 m.min[1; 2; 3]   -- 1
@@ -99,13 +99,13 @@ m.hypot[3; 4]    -- 5
 ## 三角関数
 
 ### `sin[x]` / `cos[x]` / `tan[x]`
-標準的な三角関数。`x` はラジアンです。
+標準三角関数。`x` はラジアン。
 
 ### `asin[x]` / `acos[x]` / `atan[x]`
 逆三角関数。ラジアンを返します。
 
 ### `atan2[y; x]`
-正のx軸と点(x, y)の間の角度をラジアンで返します。
+正のx軸と点(x, y)との間の角度をラジアンで返します。
 
 ### `sinh[x]` / `cosh[x]` / `tanh[x]`
 双曲線関数。
@@ -114,7 +114,7 @@ m.hypot[3; 4]    -- 5
 逆双曲線関数。
 
 ```purus
-use math as m
+use p-math as m
 m.sin[m.pi div 2]   -- 1
 m.cos[0]             -- 1
 m.atan2[1; 1]        -- 0.7853... (π/4)
@@ -135,25 +135,25 @@ m.atan2[1; 1]        -- 0.7853... (π/4)
 e の `x` 乗を返します。
 
 ### `expm1[x]`
-`e^x - 1` を返します。小さな `x` に対して精度が高くなります。
+`e^x - 1` を返します。`x` が小さい場合に正確です。
 
 ### `log1p[x]`
-`1 + x` の自然対数を返します。小さな `x` に対して精度が高くなります。
+`1 + x` の自然対数を返します。`x` が小さい場合に正確です。
 
 ```purus
-use math as m
+use p-math as m
 m.log[m.e]     -- 1
 m.log2[8]      -- 3
 m.log10[1000]  -- 3
 m.exp[1]       -- 2.718281828459045
 ```
 
-## 乱数
+## ランダム
 
 ### `random[]`
-[0, 1) の範囲の浮動小数点数を返します。より多くの乱数ユーティリティについては [`random`](/ja/stdlib/random/) モジュールを参照してください。
+[0, 1) の範囲の浮動小数点数を返します。その他のランダムユーティリティは [`random`](/ja/stdlib/random/) モジュールを参照してください。
 
 ```purus
-use math as m
+use p-math as m
 const x be m.random[]  -- 例: 0.4231...
 ```
