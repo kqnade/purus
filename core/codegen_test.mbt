@@ -834,3 +834,37 @@ test "codegen: hex literal in expression" {
   let js = compile("const r be 0xff")
   assert_true(js.contains("255"))
 }
+
+///|
+test "codegen: function keyword as fn alias" {
+  let js = compile("function greet name to console.log[name]")
+  assert_true(js.contains("function greet(name)"))
+  assert_true(js.contains("console.log(name)"))
+}
+
+///|
+test "codegen: function keyword anonymous" {
+  let js = compile("const square be function x to x mul 2")
+  assert_true(js.contains("const square ="))
+  assert_true(js.contains("(x) =>"))
+  assert_true(js.contains("x * 2"))
+}
+
+///|
+test "codegen: async function keyword" {
+  let js = compile("async function fetch-data url\n  const res be await fetch[url]\n  return res")
+  assert_true(js.contains("async function fetch_data(url)"))
+  assert_true(js.contains("await fetch(url)"))
+}
+
+///|
+test "codegen: protected keyword as private alias" {
+  let src =
+    #|class Foo
+    #|  protected bar be 0
+    #|  fn new
+    #|    this.bar be 1
+  let js = compile(src)
+  assert_true(js.contains("#bar = 0"))
+  assert_true(js.contains("this.#bar = 1"))
+}

@@ -636,6 +636,8 @@ fn Lexer::scan_ident(self : Lexer) -> Unit {
     "super" => Super_
     "static" => Static_
     "private" => Private_
+    "protected" => Private_ // JS compat (deprecated, use `private`)
+    "function" => Fn // JS compat (deprecated, use `fn`)
     "get" => Get_
     "set" => Set_
     _ => Ident(word)

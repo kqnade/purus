@@ -295,6 +295,26 @@ function analyzePurus(text) {
       ));
     }
 
+    // `function` — deprecated, use fn
+    if (tok.type === "keyword" && tok.value === "function") {
+      diagnostics.push(diag(
+        tok.line, tok.col, tok.line, tokEnd,
+        "`function` is deprecated. Use `fn` instead",
+        vscode.DiagnosticSeverity.Warning, "deprecated-function",
+        [vscode.DiagnosticTag.Deprecated]
+      ));
+    }
+
+    // `protected` — deprecated, use private
+    if (tok.type === "keyword" && tok.value === "protected") {
+      diagnostics.push(diag(
+        tok.line, tok.col, tok.line, tokEnd,
+        "`protected` is deprecated. Use `private` instead",
+        vscode.DiagnosticSeverity.Warning, "deprecated-protected",
+        [vscode.DiagnosticTag.Deprecated]
+      ));
+    }
+
     // Bare assignment: `ident be expr` without const/let/var
     if (tok.type === "keyword" && tok.value === "be") {
       if (prev && prev.type === "ident") {
@@ -344,18 +364,13 @@ function analyzePurus(text) {
     // other common JS keywords that don't exist in Purus
     if (tok.type === "ident") {
       const JS_ONLY_KEYWORDS = {
-        "function": "Use `fn` to declare functions",
-        "const": null, // valid in Purus
-        "let": null,
         "void": "`void` is not valid in Purus. Use `undefined` if needed",
         "do": "`do...while` is not valid in Purus. Use `while` or `until`",
-        "with": null, // valid in Purus
         "yield": "`yield` is not valid in Purus. Generators are not supported",
         "enum": "`enum` is not valid in Purus",
         "interface": "`interface` is not valid in Purus. Use `type` for type annotations",
         "implements": "`implements` is not valid in Purus",
         "package": "`package` is not valid in Purus",
-        "protected": "`protected` is not valid in Purus. Use `private` or `public`",
         "abstract": "`abstract` is not valid in Purus",
       };
       const msg = JS_ONLY_KEYWORDS[tok.value];

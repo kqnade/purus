@@ -14,10 +14,11 @@ const KEYWORDS = new Set([
   "band", "bor", "bxor", "bnot", "shl", "shr", "ushr",
   "as", "of", "typeof", "instanceof", "type",
   "new", "delete", "this", "await",
-  "class", "extends", "super", "static", "private", "get", "set",
+  "class", "extends", "super", "static", "private", "protected", "get", "set",
   "true", "false", "null", "nil", "undefined", "nan", "infinity",
   "break", "continue",
   "list", "object",
+  "function",
 ]);
 
 function tokenize(source) {
