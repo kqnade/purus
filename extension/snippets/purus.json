@@ -179,7 +179,53 @@
   },
   "Use (stdlib)": {
     "prefix": "use",
-    "body": "use ${1|random,math,string,datetime,json|} as ${2:alias}",
+    "body": "use ${1|math,json,string,random,datetime,object,number,array,error,regexp,promise,set,map|} as ${2:alias}",
     "description": "Import stdlib module"
+  },
+  "Do-While": {
+    "prefix": "dowhile",
+    "body": [
+      "do",
+      "  ${1}",
+      "while ${0:condition}"
+    ],
+    "description": "Do-while loop"
+  },
+  "Yield": {
+    "prefix": "yield",
+    "body": "yield ${0:value}",
+    "description": "Yield expression (generator)"
+  },
+  "Generator Function": {
+    "prefix": "genfn",
+    "body": [
+      "fn ${1:name} ${2:params}",
+      "  yield ${0}"
+    ],
+    "description": "Generator function (uses yield)"
+  },
+  "Class": {
+    "prefix": "class",
+    "body": [
+      "class ${1:Name} ${2:extends ${3:Parent}}",
+      "  fn constructor ${4:params}",
+      "    ${0}"
+    ],
+    "description": "Class declaration"
+  },
+  "Postfix Increment": {
+    "prefix": "inc",
+    "body": "${1:x}\\add",
+    "description": "Postfix increment (x\\add → x++)"
+  },
+  "Postfix Decrement": {
+    "prefix": "dec",
+    "body": "${1:x}\\sub",
+    "description": "Postfix decrement (x\\sub → x--)"
+  },
+  "Floor Division": {
+    "prefix": "fdiv",
+    "body": "${1:a} fdiv ${2:b}",
+    "description": "Floor division (Math.floor(a / b))"
   }
 }
