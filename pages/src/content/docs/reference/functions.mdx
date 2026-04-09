@@ -247,3 +247,57 @@ Type annotations with `of` and `gives` are erased in the JavaScript output.
 fn get-value
   return 42
 ```
+
+## Generator Functions
+
+A function that contains `yield` is automatically compiled as a generator (`function*`). No special syntax is required — just use `yield` inside the function body:
+
+```purus
+fn count-up limit
+  let i be 0
+  while i lt limit
+    yield i
+    i be i add 1
+```
+
+```js
+function* countUp(limit) {
+  let i = 0;
+  while (i < limit) {
+    yield i;
+    i = i + 1;
+  }
+}
+```
+
+### Yield with no value
+
+```purus
+fn signals
+  yield
+  console.log[///resumed///]
+  yield
+```
+
+```js
+function* signals() {
+  yield;
+  console.log("resumed");
+  yield;
+}
+```
+
+### Using generators
+
+```purus
+const gen be count-up[5]
+for val in gen
+  console.log[val]
+```
+
+```js
+const gen = countUp(5);
+for (const val of gen) {
+  console.log(val);
+}
+```

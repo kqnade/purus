@@ -50,6 +50,26 @@ let y be 10
 y be 20
 ```
 
+## 複合代入
+
+算術演算と代入を組み合わせた複合代入演算子:
+
+```purus
+x add be 1      -- x += 1
+x sub be 1      -- x -= 1
+x mul be 2      -- x *= 2
+x div be 2      -- x /= 2
+x mod be 3      -- x %= 3
+x pow be 2      -- x **= 2
+```
+
+プロパティアクセスやインデックスアクセスにも使用可能:
+
+```purus
+obj.count add be 1    -- obj.count += 1
+arr[\i] mul be 2      -- arr[i] *= 2
+```
+
 ## 算術
 
 ```purus

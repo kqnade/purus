@@ -49,12 +49,21 @@ purus-lint
 |---|---|---|
 | `no-var` | `warn` | `var` を避け、`const` または `let` を使用 |
 | `bare-assignment` | `warn` | `const`/`let`/`var` なしの裸の代入を避ける |
-| `no-nil` | `off` | `nil` の代わりに `null` を使用 |
+| `no-nil` | `warn` | `nil` の代わりに `null` を使用 |
+| `no-function` | `warn` | `function` は非推奨、`fn` を使用 |
+| `no-protected` | `warn` | `protected` は非推奨、`private` を使用 |
+| `no-else-if` | `warn` | `else if` の代わりに `elif` を使用 |
+| `no-js-chars` | `error` | JavaScript文字（`(){}""''$#@`\``）は使用不可 |
+| `no-js-operators` | `error` | JavaScript演算子（`===`, `!==`, `&&`, `\|\|`, `+=`, `-=` など）は使用不可 |
+| `no-for-range` | `warn` | `for ... in range` は非推奨; JS スタイルの `for` ループを使用 |
+| `bracket-match` | `error` | `[` または `]` の括弧不一致 |
+| `const-reassign` | `error` | `const` 変数の再代入不可 |
+| `duplicate-use` | `warn` | `use` インポートの重複 |
 | `indent-size` | `warn` (2) | インデントはNスペースの倍数であること |
 | `no-trailing-whitespace` | `warn` | 末尾空白なし |
 | `max-line-length` | `off` (100) | 最大行長 |
 | `no-unused-import` | `warn` | 未使用importへの警告 |
-| `consistent-naming` | `off` (kebab-case) | 命名規則 |
+| `consistent-naming` | `warn` (kebab-case) | 命名規則 |
 
 ## 設定
 
@@ -66,12 +75,20 @@ purus-lint
 -- リンター設定
 const lint.no-var be ///warn///
 const lint.bare-assignment be ///warn///
-const lint.no-nil be ///off///
+const lint.no-nil be ///warn///
+const lint.no-function be ///warn///
+const lint.no-protected be ///warn///
+const lint.no-else-if be ///warn///
+const lint.no-js-chars be ///error///
+const lint.no-js-operators be ///error///
+const lint.bracket-match be ///error///
+const lint.const-reassign be ///error///
+const lint.duplicate-use be ///warn///
 const lint.indent-size be 2
 const lint.max-line-length be ///off///
 const lint.no-trailing-whitespace be ///warn///
 const lint.no-unused-import be ///warn///
-const lint.consistent-naming be ///off///
+const lint.consistent-naming be ///warn///
 ```
 
 ## プログラマティックAPI

@@ -25,6 +25,8 @@ sidebar:
 | `gives` | _(erased)_ | Return type annotation |
 | `async` | `async` | Async function |
 | `await` | `await` | Await expression |
+| `yield` | `yield` | Yield expression (generator) |
+| `function` | _(deprecated)_ | Deprecated alias for `fn` |
 
 ## Conditional
 
@@ -47,6 +49,7 @@ sidebar:
 | `range` | _(numeric range)_ | Range-based loop |
 | `break` | `break` | Break |
 | `continue` | `continue` | Continue |
+| `do` | `do` | Do-while loop (deprecated) |
 
 ## Pattern Matching
 
@@ -86,6 +89,17 @@ sidebar:
 | `mod` | `%` |
 | `pow` | `**` |
 | `neg` | `-` (unary) |
+
+### Compound Assignment
+
+| Keyword | JS Output |
+|---|---|
+| `add be` | `+=` |
+| `sub be` | `-=` |
+| `mul be` | `*=` |
+| `div be` | `/=` |
+| `mod be` | `%=` |
+| `pow be` | `**=` |
 
 ### Comparison
 
@@ -155,6 +169,7 @@ sidebar:
 | `super` | `super` | Parent class reference |
 | `static` | `static` | Static method |
 | `private` | `#field` | Private field declaration |
+| `protected` | _(deprecated)_ | Deprecated alias for `private` |
 | `get` | `get` | Getter accessor |
 | `set` | `set` | Setter accessor |
 
