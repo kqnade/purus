@@ -19,38 +19,27 @@ Change history for Purus syntax, specifications, and reserved keywords.
   typeof x eq ///string///  -- typeof x === "string"
   ```
 
-- **`use ... as ...` for stdlib**: The `use` keyword imports Purus standard library modules. The `as` keyword is required to specify the binding name. `from...use` named imports have been removed.
-  ```purus
-  -- Before (v0.8.x, deprecated):
-  use std.math
-  from std.math use sin, cos
-
-  -- After (v0.9.0):
-  use random as r               -- import with alias (as is required)
-  use math as m                 -- import math module
-  ```
-
 ### New Features
 
-- **`use ... as ...` for standard library**: The `use` keyword imports built-in Purus standard library modules. Tree-shaking ensures only used functions are included in the output.
+- **`use ... [as ...]` for standard library**: The `use` keyword imports built-in Purus standard library modules. All modules are prefixed with `p-` to avoid keyword conflicts. The `as` keyword is optional — when omitted, the module name is used as the binding. Tree-shaking ensures only used functions are included in the output.
   ```purus
-  use random as r
+  use p-random as r
   r.randint[1; 10]              -- random integer between 1 and 10
   r.gauss[0; 1]                 -- gaussian distribution
   r.choice[list[1; 2; 3]]      -- random element from array
   r.shuffle[list[1; 2; 3]]     -- shuffled copy of array
 
-  use math as m
+  use p-math as m
   m.floor[3.7]                  -- 3
   m.pi                          -- 3.14159...
   m.abs[-5]                     -- 5
 
-  use string as s
+  use p-string as s
   s.upper[///hello///]           -- ///HELLO///
   s.reverse[///abc///]           -- ///cba///
   s.words[///foo bar baz///]     -- [///foo///; ///bar///; ///baz///]
 
-  use datetime as dt
+  use p-datetime as dt
   dt.now[]                       -- current timestamp (ms)
   dt.year[dt.now[]]              -- current year
   dt.toiso[dt.now[]]             -- ISO 8601 string
@@ -59,19 +48,39 @@ Change history for Purus syntax, specifications, and reserved keywords.
   dt.format[dt.now[]; ///Asia/Tokyo///]        -- formatted in Tokyo tz
   dt.localtz[]                   -- local timezone name
 
-  use json as j
+  use p-json as j
   j.parse[///{ "a": 1 }///]     -- { a: 1 }
   j.stringify[obj]               -- JSON string
+
+  use p-object as o
+  o.keys[obj]                    -- object keys
+  o.merge[a; b]                  -- merge objects
+
+  use p-number as n
+  n.isinteger[42]                -- true
+  n.clamp[15; 0; 10]             -- 10
+
+  use p-array as a
+  a.unique[list[1; 2; 2; 3]]    -- [1; 2; 3]
+  a.chunk[list[1; 2; 3; 4]; 2]  -- [[1; 2]; [3; 4]]
+
+  use p-error as e
+  e.create[///something went wrong///]
+  e.iserror[err]                 -- true
   ```
 
   Available stdlib modules:
   | Module | Description |
   |--------|-------------|
-  | `random` | `random`, `randint`, `randrange`, `randbool`, `getrandbits`, `randbytes`, `uniform`, `triangular`, `gauss`, `normalvariate`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
-  | `math` | JS `Math` alias + lowercase constant aliases (`pi`, `e`, `ln2`, `ln10`, `sqrt2`, etc.) |
-  | `string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
-  | `datetime` | `now`, `today`, `timestamp`, `create`, `utccreate`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `utcyear`, `utcmonth`, `utcday`, `utcweekday`, `utchour`, `utcminute`, `utcsecond`, `utcms`, `tzyear`, `tzmonth`, `tzday`, `tzweekday`, `tzhour`, `tzminute`, `tzsecond`, `toiso`, `tolocale`, `todate`, `totime`, `format`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds`, `offset`, `localtz` |
-  | `json` | `parse`, `stringify`, `prettify` |
+  | `p-random` | `random`, `randint`, `randrange`, `randbool`, `getrandbits`, `randbytes`, `uniform`, `triangular`, `gauss`, `normalvariate`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
+  | `p-math` | JS `Math` alias + lowercase constant aliases (`pi`, `e`, `ln2`, `ln10`, `sqrt2`, etc.) |
+  | `p-string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
+  | `p-datetime` | `now`, `today`, `timestamp`, `create`, `utccreate`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `utcyear`, `utcmonth`, `utcday`, `utcweekday`, `utchour`, `utcminute`, `utcsecond`, `utcms`, `tzyear`, `tzmonth`, `tzday`, `tzweekday`, `tzhour`, `tzminute`, `tzsecond`, `toiso`, `tolocale`, `todate`, `totime`, `format`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds`, `offset`, `localtz` |
+  | `p-json` | `parse`, `stringify`, `prettify` |
+  | `p-object` | `keys`, `values`, `entries`, `fromentries`, `assign`, `freeze`, `seal`, `isfrozen`, `issealed`, `hasown`, `create`, `is`, `len`, `merge`, `clone`, `pick`, `omit` |
+  | `p-number` | `isfinite`, `isinteger`, `isnan`, `issafe`, `parsefloat`, `parseint`, `tofixed`, `toprecision`, `toexponential`, `tostring`, `clamp` + constants |
+  | `p-array` | `isarray`, `from`, `of`, `len`, `first`, `last`, `range`, `flatten`, `unique`, `zip`, `unzip`, `chunk`, `sum`, `product`, `min`, `max`, `sortasc`, `sortdesc`, `compact`, `count`, `groupby` |
+  | `p-error` | `create`, `type`, `range`, `reference`, `syntax`, `uri`, `iserror`, `message`, `name`, `stack`, `cause`, `wrap` |
 
 - **Tree-shaking**: Only the stdlib functions actually referenced in your code are included in the compiled output, keeping bundle size minimal.
 
@@ -88,20 +97,42 @@ Change history for Purus syntax, specifications, and reserved keywords.
 
 - **`random` stdlib additions**: `getrandbits`, `randbytes`, `normalvariate` added. `randbool` now accepts optional probability parameter.
 
+- **New stdlib modules**: `p-object` (Object utility), `p-number` (Number utility + constants), `p-array` (Array utility), `p-error` (Error creation/inspection).
+
+- **`infinity` / `-infinity` literals**: Added `infinity` as a reserved keyword. `neg infinity` and `-infinity` both compile to `-Infinity`.
+  ```purus
+  const x be infinity           -- Infinity
+  const y be neg infinity       -- -Infinity
+  const z be -infinity          -- -Infinity (special case)
+  ```
+
 ### Keywords Changed
 
 | Keyword | Change |
 |---|---|
 | `is` | Removed (use `eq` instead) |
-| `use` | Repurposed for standard library imports (`use ... as ...` only) |
+| `use` | Added for standard library imports (`use p-... [as ...]`) |
 | `from...use` | Removed for stdlib (still works for ES imports: `from "mod" import ...`) |
 | `band` `bor` `bxor` `bnot` `shl` `shr` `ushr` | Added — bitwise operators |
+| `infinity` | Added — `Infinity` literal (`neg infinity` / `-infinity` for negative) |
+
+### Deprecations
+
+- **Bare variable assignment**: Using `x be value` without a declaration keyword (`const`/`let`) is now deprecated. Property assignments (`obj.field be value`, `arr[\i] be value`) are not affected.
+  ```purus
+  -- Deprecated:
+  x be 42
+
+  -- Use instead:
+  const x be 42
+  let x be 42
+  ```
 
 ### Tooling
 
-- Linter: `0.7.1` → `0.8.0` — removed `is` keyword
+- Linter: `0.7.1` → `0.8.0` — removed `is` keyword, added `bare-assignment` rule
 - Prettier Plugin: `0.7.1` → `0.8.0` — removed `is` keyword
-- VS Code Extension: `0.6.1` → `0.7.0` — removed `is` from syntax highlighting, added `use` stdlib syntax
+- VS Code Extension: `0.6.1` → `0.7.0` — removed `is` from syntax highlighting, added `use` stdlib syntax, added real-time diagnostics (errors, warnings, deprecation notices), reorganized source into `src/` folder
 
 ---
 

@@ -150,6 +150,7 @@ function tokenize(source) {
 
 const defaultRules = {
   "no-var": { severity: "warn", message: "Avoid 'var'; use 'const' or 'let' instead" },
+  "bare-assignment": { severity: "warn", message: "Bare assignment without 'const'/'let'; use 'const x be ...' or 'let x be ...' instead" },
   "no-nil": { severity: "warn", message: "Use 'null' instead of 'nil'" },
   "indent-size": { severity: "warn", size: 2 },
   "no-trailing-whitespace": { severity: "warn", message: "Trailing whitespace" },
@@ -182,6 +183,45 @@ function lint(source, ruleOverrides = {}) {
     // no-nil
     if (rules["no-nil"]?.severity !== "off" && tok.type === "keyword" && tok.value === "nil") {
       report("no-nil", tok.line, tok.col, rules["no-nil"].message);
+    }
+
+    // bare-assignment: ident be <value> without const/let/var
+    if (rules["bare-assignment"]?.severity !== "off" && tok.type === "keyword" && tok.value === "be") {
+      // Walk backwards to find the statement start
+      let j = i - 1;
+      // Skip whitespace
+      while (j >= 0 && tokens[j].type === "whitespace") j--;
+      // The token before `be` should be an ident (the variable name)
+      if (j >= 0 && tokens[j].type === "ident") {
+        // Skip type annotations: ident of Type be ...
+        let k = j - 1;
+        while (k >= 0 && tokens[k].type === "whitespace") k--;
+        if (k >= 0 && tokens[k].type === "keyword" && tokens[k].value === "of") {
+          // Skip back past 'of' and its type
+          k--;
+          while (k >= 0 && tokens[k].type === "whitespace") k--;
+          // Skip the identifier before 'of'
+          if (k >= 0 && tokens[k].type === "ident") {
+            k--;
+            while (k >= 0 && tokens[k].type === "whitespace") k--;
+          }
+        } else {
+          k = j - 1;
+          while (k >= 0 && tokens[k].type === "whitespace") k--;
+        }
+        // Check if preceded by const/let/var
+        const hasDeclKeyword = k >= 0 && tokens[k].type === "keyword" &&
+          (tokens[k].value === "const" || tokens[k].value === "let" || tokens[k].value === "var");
+        // Check if preceded by dot (property access: obj.field be ...)
+        const isDotAccess = k >= 0 && tokens[k].type === "punct" &&
+          (tokens[k].value === "." || tokens[k].value === "\\.");
+        // Check if preceded by ] (computed access: arr[\i] be ...)
+        const isBracketAccess = k >= 0 && tokens[k].type === "punct" && tokens[k].value === "]";
+        if (!hasDeclKeyword && !isDotAccess && !isBracketAccess) {
+          report("bare-assignment", tokens[j].line, tokens[j].col,
+            rules["bare-assignment"].message);
+        }
+      }
     }
 
     // consistent-naming

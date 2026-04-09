@@ -19,59 +19,64 @@ Purus の構文・仕様・予約語に関する変更履歴です。
   typeof x eq ///string///  -- typeof x === "string"
   ```
 
-- **`use ... as ...` への変更**: 非推奨のドットパスインポート構文を削除。`use` は標準ライブラリモジュールのインポートに使用。`as` キーワードが必須。`from...use` による名前付きインポートは削除。
-  ```purus
-  -- 変更前 (v0.8.x, 非推奨):
-  use std.math
-  from std.math use sin, cos
-
-  -- 変更後 (v0.9.0):
-  use random as r               -- エイリアス付きインポート（as は必須）
-  use math as m                 -- math モジュールをインポート
-  ```
-
 ### New Features
 
-- **`use ... as ...` による標準ライブラリ**: `use` キーワードで Purus 組み込み標準ライブラリモジュールをインポート。ツリーシェイキングにより使用した関数のみが出力に含まれます。
+- **`use ... [as ...]` による標準ライブラリ**: `use` キーワードで Purus 組み込み標準ライブラリモジュールをインポート。すべてのモジュール名に `p-` プレフィックスが付いており、予約語との競合を防止します。`as` は任意で、省略時はモジュール名がそのままバインディング名になります。ツリーシェイキングにより使用した関数のみが出力に含まれます。
   ```purus
-  use random as r
+  use p-random as r
   r.randint[1; 10]              -- 1〜10のランダムな整数
   r.gauss[0; 1]                 -- ガウス分布
   r.choice[list[1; 2; 3]]      -- 配列からランダムな要素
   r.shuffle[list[1; 2; 3]]     -- 配列のシャッフルコピー
 
-  use math as m
+  use p-math as m
   m.floor[3.7]                  -- 3
   m.pi                          -- 3.14159...
   m.abs[-5]                     -- 5
 
-  use string as s
+  use p-string as s
   s.upper[///hello///]           -- ///HELLO///
   s.reverse[///abc///]           -- ///cba///
   s.words[///foo bar baz///]     -- [///foo///; ///bar///; ///baz///]
 
-  use datetime as dt
+  use p-datetime as dt
   dt.now[]                       -- 現在のタイムスタンプ（ms）
   dt.year[dt.now[]]              -- 現在の年
   dt.toiso[dt.now[]]             -- ISO 8601 文字列
-  dt.utchour[dt.now[]]           -- 現在の時（UTC）
-  dt.tzhour[dt.now[]; ///America/New_York///]  -- NYの時
-  dt.format[dt.now[]; ///Asia/Tokyo///]        -- 東京TZでフォーマット
-  dt.localtz[]                   -- ローカルタイムゾーン名
 
-  use json as j
+  use p-json as j
   j.parse[///{ "a": 1 }///]     -- { a: 1 }
   j.stringify[obj]               -- JSON 文字列
+
+  use p-object as o
+  o.keys[obj]                    -- オブジェクトのキー
+  o.merge[a; b]                  -- オブジェクトのマージ
+
+  use p-number as n
+  n.isinteger[42]                -- true
+  n.clamp[15; 0; 10]             -- 10
+
+  use p-array as a
+  a.unique[list[1; 2; 2; 3]]    -- [1; 2; 3]
+  a.chunk[list[1; 2; 3; 4]; 2]  -- [[1; 2]; [3; 4]]
+
+  use p-error as e
+  e.create[///何かがおかしい///]
+  e.iserror[err]                 -- true
   ```
 
   利用可能な標準ライブラリモジュール:
   | モジュール | 説明 |
   |--------|-------------|
-  | `random` | `random`, `randint`, `randrange`, `randbool`, `getrandbits`, `randbytes`, `uniform`, `triangular`, `gauss`, `normalvariate`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
-  | `math` | JS `Math` エイリアス＋小文字の定数エイリアス（`pi`, `e`, `ln2`, `ln10`, `sqrt2` など） |
-  | `string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
-  | `datetime` | `now`, `today`, `timestamp`, `create`, `utccreate`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `utcyear`, `utcmonth`, `utcday`, `utcweekday`, `utchour`, `utcminute`, `utcsecond`, `utcms`, `tzyear`, `tzmonth`, `tzday`, `tzweekday`, `tzhour`, `tzminute`, `tzsecond`, `toiso`, `tolocale`, `todate`, `totime`, `format`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds`, `offset`, `localtz` |
-  | `json` | `parse`, `stringify`, `prettify` |
+  | `p-random` | `random`, `randint`, `randrange`, `randbool`, `getrandbits`, `randbytes`, `uniform`, `triangular`, `gauss`, `normalvariate`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
+  | `p-math` | JS `Math` エイリアス＋小文字の定数エイリアス（`pi`, `e`, `ln2`, `ln10`, `sqrt2` など） |
+  | `p-string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
+  | `p-datetime` | `now`, `today`, `timestamp`, `create`, `utccreate`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `utcyear`, `utcmonth`, `utcday`, `utcweekday`, `utchour`, `utcminute`, `utcsecond`, `utcms`, `tzyear`, `tzmonth`, `tzday`, `tzweekday`, `tzhour`, `tzminute`, `tzsecond`, `toiso`, `tolocale`, `todate`, `totime`, `format`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds`, `offset`, `localtz` |
+  | `p-json` | `parse`, `stringify`, `prettify` |
+  | `p-object` | `keys`, `values`, `entries`, `fromentries`, `assign`, `freeze`, `seal`, `isfrozen`, `issealed`, `hasown`, `create`, `is`, `len`, `merge`, `clone`, `pick`, `omit` |
+  | `p-number` | `isfinite`, `isinteger`, `isnan`, `issafe`, `parsefloat`, `parseint`, `tofixed`, `toprecision`, `toexponential`, `tostring`, `clamp` + 定数 |
+  | `p-array` | `isarray`, `from`, `of`, `len`, `first`, `last`, `range`, `flatten`, `unique`, `zip`, `unzip`, `chunk`, `sum`, `product`, `min`, `max`, `sortasc`, `sortdesc`, `compact`, `count`, `groupby` |
+  | `p-error` | `create`, `type`, `range`, `reference`, `syntax`, `uri`, `iserror`, `message`, `name`, `stack`, `cause`, `wrap` |
 
 - **ツリーシェイキング**: コード中で実際に参照された stdlib 関数のみがコンパイル出力に含まれ、バンドルサイズを最小化します。
 
@@ -86,22 +91,36 @@ Purus の構文・仕様・予約語に関する変更履歴です。
   a ushr b    -- a >>> b (符号なし右シフト)
   ```
 
-- **`random` 標準ライブラリ追加**: `getrandbits`, `randbytes`, `normalvariate` 追加。`randbool` にオプションの確率パラメータを追加。
+- **`p-random` 標準ライブラリ追加**: `getrandbits`, `randbytes`, `normalvariate` 追加。`randbool` にオプションの確率パラメータを追加。
+
+- **新標準ライブラリモジュール追加**: `p-object`（Objectユーティリティ）、`p-number`（Numberユーティリティ＋定数）、`p-array`（Arrayユーティリティ）、`p-error`（Error作成/検査）。
+
+- **`infinity` / `-infinity` リテラル**: `infinity` を予約語として追加。`neg infinity` および `-infinity` はどちらも `-Infinity` にコンパイルされます。
+  ```purus
+  const x be infinity           -- Infinity
+  const y be neg infinity       -- -Infinity
+  const z be -infinity          -- -Infinity（特例）
+  ```
 
 ### キーワード変更
 
 | キーワード | 変更 |
 |---|---|
 | `is` | 削除（代わりに `eq` を使用） |
-| `use` | 標準ライブラリインポート用（`use ... as ...` のみ） |
+| `use` | 標準ライブラリインポート用に追加（`use p-... [as ...]`） |
 | `from...use` | stdlib では削除（ES import は引き続き利用可: `from "mod" import ...`） |
 | `band` `bor` `bxor` `bnot` `shl` `shr` `ushr` | 追加 — ビット演算子 |
+| `infinity` | 追加 — `Infinity` リテラル（`neg infinity` / `-infinity` で負の値） |
+
+### Deprecations
+
+- **裸の変数代入の非推奨化**: `const`/`let`/`var` なしの変数代入（例: `x be 10`）は非推奨です。暗黙のグローバル変数を避けるため、`const x be 10` または `let x be 10` を使用してください。プロパティアクセスへの代入（例: `obj.field be 10`）は引き続き有効です。
 
 ### Tooling
 
-- Linter: `0.7.1` → `0.8.0` — `is` キーワード削除
+- Linter: `0.7.1` → `0.8.0` — `is` キーワード削除、`bare-assignment` ルール追加
 - Prettier Plugin: `0.7.1` → `0.8.0` — `is` キーワード削除
-- VS Code Extension: `0.6.1` → `0.7.0` — `is` シンタックスハイライト削除、`use` 標準ライブラリ構文追加
+- VS Code Extension: `0.6.1` → `0.7.0` — `is` シンタックスハイライト削除、`use` 標準ライブラリ構文追加、リアルタイム診断機能追加（エラー、警告、非推奨通知）、ソースを `src/` に再編成
 
 ---
 

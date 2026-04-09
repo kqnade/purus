@@ -178,7 +178,7 @@ The following words are reserved and cannot be used as identifiers:
 
 **Module:** `import`, `from`, `export`, `default`, `require`, `use`, `namespace`, `public`, `all`
 
-**Value:** `true`, `false`, `null`, `nil`, `undefined`, `nan`
+**Value:** `true`, `false`, `null`, `nil`, `undefined`, `nan`, `infinity`
 
 **Constructor:** `list`, `object`
 
@@ -201,6 +201,8 @@ The following words are reserved and cannot be used as identifiers:
 | Null | `null` / `nil` | `null` |
 | Undefined | `undefined` | `undefined` |
 | NaN | `nan` | `NaN` |
+| Infinity | `infinity` | `Infinity` |
+| -Infinity | `neg infinity` / `-infinity` | `-Infinity` |
 
 **Negative number literals** are recognized after these tokens: `[`, `,`, `;`, `be`, `\`, newline, indent, `return`, `to`, `then`, `coal`.
 
@@ -312,10 +314,14 @@ const a be null
 const b be nil         -- alias for null
 const c be undefined
 const d be nan         -- NaN
+const e be infinity    -- Infinity
+const f be neg infinity -- -Infinity
+const g be -infinity   -- -Infinity (special case)
 ```
 
 Both `null` and `nil` compile to JavaScript `null`.
 `nan` compiles to JavaScript `NaN`.
+`infinity` compiles to JavaScript `Infinity`. `neg infinity` and `-infinity` both compile to `-Infinity`.
 
 ### 4.6 Regular Expressions
 
@@ -596,6 +602,8 @@ Compiles to:
 x = 42;
 obj.field = "new value";
 ```
+
+> **Deprecation Warning:** Bare variable assignment (`x be 42`) without a declaration keyword (`const`/`let`) is discouraged. Property assignments (`obj.field be value`, `arr[\i] be value`) are still valid without a declaration keyword. Use `const` for immutable bindings and `let` for mutable variables.
 
 ### 6.5 Type Alias
 
@@ -1118,16 +1126,24 @@ This is equivalent to the `import...from` syntax in §10.1 with reversed order.
 
 ### 10.3 Use (Standard Library Import)
 
-The `use ... as ...` syntax imports Purus built-in standard library modules. The `as` keyword is required — it specifies the binding name. Tree-shaking ensures only the functions you actually reference are included in the compiled output.
+The `use` keyword imports Purus built-in standard library modules. All module names are prefixed with `p-` to avoid keyword conflicts. The `as` keyword is optional — when omitted, the module name is used as the binding name (with `-` converted to `_` in the JS output).
+
+Tree-shaking ensures only the functions you actually reference are included in the compiled output.
 
 **Syntax:**
 
 ```
-use random as r
-use math as m
-use string as s
-use datetime as dt
-use json as j
+use p-random as r
+use p-math as m
+use p-math                 -- equivalent to: use p-math as p-math (binding: p_math)
+use p-string as s
+use p-datetime as dt
+use p-json as j
+use p-json                 -- equivalent to: use p-json as p-json (binding: p_json)
+use p-object as o
+use p-number as n
+use p-array as a
+use p-error as e
 ```
 
 ```js
@@ -1137,19 +1153,23 @@ const m = { floor: Math.floor, pi: Math.PI };
 const s = { upper(str) { ... }, reverse(str) { ... } };
 ```
 
-The `math` module is a direct alias for JS `Math` — all standard `Math` methods (e.g. `abs`, `floor`, `sin`, `sqrt`) are available, plus lowercase constant aliases (`pi`, `e`, `ln2`, etc.).
+The `p-math` module is a direct alias for JS `Math` — all standard `Math` methods (e.g. `abs`, `floor`, `sin`, `sqrt`) are available, plus lowercase constant aliases (`pi`, `e`, `ln2`, etc.).
 
 **Available standard library modules:**
 
 | Module | Contents |
 |--------|----------|
-| `random` | `random`, `randint`, `randrange`, `randbool`, `uniform`, `triangular`, `gauss`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
-| `math` | JS `Math` alias + lowercase constant aliases (`pi`, `e`, `ln2`, `ln10`, `log2e`, `log10e`, `sqrt2`, `sqrt1_2`) |
-| `string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
-| `datetime` | `now`, `today`, `timestamp`, `create`, `utccreate`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `utcyear`, `utcmonth`, `utcday`, `utcweekday`, `utchour`, `utcminute`, `utcsecond`, `utcms`, `tzyear`, `tzmonth`, `tzday`, `tzweekday`, `tzhour`, `tzminute`, `tzsecond`, `toiso`, `tolocale`, `todate`, `totime`, `format`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds`, `offset`, `localtz` |
-| `json` | `parse`, `stringify`, `prettify` |
+| `p-random` | `random`, `randint`, `randrange`, `randbool`, `uniform`, `triangular`, `gauss`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
+| `p-math` | JS `Math` alias + lowercase constant aliases (`pi`, `e`, `ln2`, `ln10`, `log2e`, `log10e`, `sqrt2`, `sqrt1_2`) |
+| `p-string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
+| `p-datetime` | `now`, `today`, `timestamp`, `create`, `utccreate`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `utcyear`, `utcmonth`, `utcday`, `utcweekday`, `utchour`, `utcminute`, `utcsecond`, `utcms`, `tzyear`, `tzmonth`, `tzday`, `tzweekday`, `tzhour`, `tzminute`, `tzsecond`, `toiso`, `tolocale`, `todate`, `totime`, `format`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds`, `offset`, `localtz` |
+| `p-json` | `parse`, `stringify`, `prettify` |
+| `p-object` | `keys`, `values`, `entries`, `fromentries`, `assign`, `freeze`, `seal`, `isfrozen`, `issealed`, `hasown`, `create`, `is`, `len`, `merge`, `clone`, `pick`, `omit` |
+| `p-number` | `isfinite`, `isinteger`, `isnan`, `issafe`, `parsefloat`, `parseint`, `tofixed`, `toprecision`, `toexponential`, `tostring`, `clamp` + constants: `maxsafe`, `minsafe`, `epsilon`, `maxvalue`, `minvalue`, `posinf`, `neginf` |
+| `p-array` | `isarray`, `from`, `of`, `len`, `first`, `last`, `range`, `flatten`, `unique`, `zip`, `unzip`, `chunk`, `sum`, `product`, `min`, `max`, `sortasc`, `sortdesc`, `compact`, `count`, `groupby` |
+| `p-error` | `create`, `type`, `range`, `reference`, `syntax`, `uri`, `iserror`, `message`, `name`, `stack`, `cause`, `wrap` |
 
-**`random` module API:**
+**`p-random` module API:**
 
 | Function | Description | Example |
 |----------|-------------|---------|
@@ -1179,7 +1199,7 @@ The `math` module is a direct alias for JS `Math` — all standard `Math` method
 | `clamp[val; lo; hi]` | Clamp value to range | `r.clamp[15; 0; 10]` → `10` |
 | `lerp[a; b; t]` | Linear interpolation | `r.lerp[0; 100; 0.5]` → `50` |
 
-**`string` module API:**
+**`p-string` module API:**
 
 | Function | Description | Example |
 |----------|-------------|---------|
@@ -1209,7 +1229,7 @@ The `math` module is a direct alias for JS `Math` — all standard `Math` method
 | `codeat[str; i]` | Code point at index | `s.codeat[///A///; 0]` → `65` |
 | `fromcode[code]` | String from code point | `s.fromcode[65]` → `///A///` |
 
-**`datetime` module API:**
+**`p-datetime` module API:**
 
 | Function | Description | Example |
 |----------|-------------|---------|
@@ -1243,7 +1263,7 @@ The `math` module is a direct alias for JS `Math` — all standard `Math` method
 | `offset[t]` | Local UTC offset (minutes) | `dt.offset[dt.now[]]` → `-540` |
 | `localtz[]` | Local timezone name | `dt.localtz[]` → `///Asia/Tokyo///` |
 
-**`json` module API:**
+**`p-json` module API:**
 
 | Function | Description | Example |
 |----------|-------------|---------|
@@ -1251,7 +1271,7 @@ The `math` module is a direct alias for JS `Math` — all standard `Math` method
 | `stringify[val]` | Convert to JSON string | `j.stringify[obj]` → `///{"a":1}///` |
 | `prettify[val; indent]` | Pretty-print JSON | `j.prettify[obj; 2]` → formatted string |
 
-**`math` module — lowercase constant aliases:**
+**`p-math` module — lowercase constant aliases:**
 
 | Alias | Original | Value |
 |-------|----------|-------|
@@ -1260,6 +1280,96 @@ The `math` module is a direct alias for JS `Math` — all standard `Math` method
 | `ln2` | `Math.LN2` | `0.69314...` |
 | `ln10` | `Math.LN10` | `2.30258...` |
 | `sqrt2` | `Math.SQRT2` | `1.41421...` |
+
+**`p-object` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `keys[obj]` | Object keys | `o.keys[obj]` → `[///a///; ///b///]` |
+| `values[obj]` | Object values | `o.values[obj]` → `[1; 2]` |
+| `entries[obj]` | Key-value pairs | `o.entries[obj]` → `[[///a///; 1]; [///b///; 2]]` |
+| `fromentries[arr]` | Object from entries | `o.fromentries[list[list[///a///; 1]]]` → `{ a: 1 }` |
+| `assign[target; ...sources]` | Merge objects | `o.assign[a; b]` → merged object |
+| `freeze[obj]` | Freeze object | `o.freeze[obj]` |
+| `seal[obj]` | Seal object | `o.seal[obj]` |
+| `isfrozen[obj]` | Check if frozen | `o.isfrozen[obj]` → `true` |
+| `issealed[obj]` | Check if sealed | `o.issealed[obj]` → `true` |
+| `hasown[obj; key]` | Check own property | `o.hasown[obj; ///a///]` → `true` |
+| `is[a; b]` | Object.is comparison | `o.is[nan; nan]` → `true` |
+| `len[obj]` | Number of keys | `o.len[obj]` → `2` |
+| `merge[...objs]` | Merge into new object | `o.merge[a; b]` → new merged object |
+| `clone[obj]` | Deep clone | `o.clone[obj]` → deep copy |
+| `pick[obj; keys]` | Pick keys | `o.pick[obj; list[///a///]]` → `{ a: 1 }` |
+| `omit[obj; keys]` | Omit keys | `o.omit[obj; list[///a///]]` → `{ b: 2 }` |
+
+**`p-number` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `isfinite[val]` | Check finite | `n.isfinite[42]` → `true` |
+| `isinteger[val]` | Check integer | `n.isinteger[3.5]` → `false` |
+| `isnan[val]` | Check NaN | `n.isnan[nan]` → `true` |
+| `issafe[val]` | Safe integer check | `n.issafe[42]` → `true` |
+| `parsefloat[str]` | Parse float | `n.parsefloat[///3.14///]` → `3.14` |
+| `parseint[str; radix]` | Parse integer | `n.parseint[///ff///; 16]` → `255` |
+| `tofixed[num; digits]` | Fixed decimals | `n.tofixed[3.14159; 2]` → `///3.14///` |
+| `toprecision[num; digits]` | Precision string | `n.toprecision[123.456; 4]` → `///123.5///` |
+| `toexponential[num; digits]` | Exponential notation | `n.toexponential[12345; 2]` → `///1.23e+4///` |
+| `tostring[num; radix]` | Number to string | `n.tostring[255; 16]` → `///ff///` |
+| `clamp[num; min; max]` | Clamp to range | `n.clamp[15; 0; 10]` → `10` |
+
+**`p-number` module — constants:**
+
+| Constant | Original | Value |
+|----------|----------|-------|
+| `maxsafe` | `Number.MAX_SAFE_INTEGER` | `9007199254740991` |
+| `minsafe` | `Number.MIN_SAFE_INTEGER` | `-9007199254740991` |
+| `epsilon` | `Number.EPSILON` | `2.220446049250313e-16` |
+| `maxvalue` | `Number.MAX_VALUE` | `1.7976931348623157e+308` |
+| `minvalue` | `Number.MIN_VALUE` | `5e-324` |
+| `posinf` | `Number.POSITIVE_INFINITY` | `Infinity` |
+| `neginf` | `Number.NEGATIVE_INFINITY` | `-Infinity` |
+
+**`p-array` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `isarray[val]` | Check if array | `a.isarray[list[1; 2]]` → `true` |
+| `from[val]` | Array from iterable | `a.from[///abc///]` → `[///a///; ///b///; ///c///]` |
+| `of[...args]` | Create array | `a.of[1; 2; 3]` → `[1; 2; 3]` |
+| `len[arr]` | Array length | `a.len[list[1; 2; 3]]` → `3` |
+| `first[arr]` | First element | `a.first[list[1; 2; 3]]` → `1` |
+| `last[arr]` | Last element | `a.last[list[1; 2; 3]]` → `3` |
+| `range[start; end; step]` | Number range | `a.range[0; 5]` → `[0; 1; 2; 3; 4]` |
+| `flatten[arr; depth]` | Flatten nested | `a.flatten[list[list[1; 2]; list[3]]]` → `[1; 2; 3]` |
+| `unique[arr]` | Remove duplicates | `a.unique[list[1; 2; 2; 3]]` → `[1; 2; 3]` |
+| `zip[...arrs]` | Zip arrays | `a.zip[list[1; 2]; list[///a///; ///b///]]` → `[[1; ///a///]; [2; ///b///]]` |
+| `chunk[arr; size]` | Split into chunks | `a.chunk[list[1; 2; 3; 4]; 2]` → `[[1; 2]; [3; 4]]` |
+| `sum[arr]` | Sum numbers | `a.sum[list[1; 2; 3]]` → `6` |
+| `product[arr]` | Product of numbers | `a.product[list[2; 3; 4]]` → `24` |
+| `min[arr]` | Minimum value | `a.min[list[3; 1; 2]]` → `1` |
+| `max[arr]` | Maximum value | `a.max[list[3; 1; 2]]` → `3` |
+| `sortasc[arr]` | Sort ascending | `a.sortasc[list[3; 1; 2]]` → `[1; 2; 3]` |
+| `sortdesc[arr]` | Sort descending | `a.sortdesc[list[3; 1; 2]]` → `[3; 2; 1]` |
+| `compact[arr]` | Remove falsy | `a.compact[list[0; 1; null; 2]]` → `[1; 2]` |
+| `groupby[arr; fn]` | Group by function | `a.groupby[list[1; 2; 3]; fn x to x mod 2]` |
+
+**`p-error` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `create[msg]` | Create Error | `e.create[///oops///]` |
+| `type[msg]` | Create TypeError | `e.type[///bad type///]` |
+| `range[msg]` | Create RangeError | `e.range[///out of range///]` |
+| `reference[msg]` | Create ReferenceError | `e.reference[///not defined///]` |
+| `syntax[msg]` | Create SyntaxError | `e.syntax[///bad syntax///]` |
+| `uri[msg]` | Create URIError | `e.uri[///bad uri///]` |
+| `iserror[val]` | Check if Error | `e.iserror[err]` → `true` |
+| `message[err]` | Get message | `e.message[err]` → `///oops///` |
+| `name[err]` | Get name | `e.name[err]` → `///Error///` |
+| `stack[err]` | Get stack trace | `e.stack[err]` → stack string |
+| `cause[err]` | Get cause | `e.cause[err]` → underlying error |
+| `wrap[msg; cause]` | Wrap with cause | `e.wrap[///failed///; original-err]` |
 
 ### 10.4 Export / Public
 
@@ -1983,6 +2093,8 @@ class Secret {
 | `nil` | `null` | Null alias |
 | `undefined` | `undefined` | Undefined value |
 | `nan` | `NaN` | NaN value |
+| `infinity` | `Infinity` | Infinity value |
+| `-infinity` | `-Infinity` | Negative infinity (special case) |
 
 ### Punctuation
 
@@ -2067,7 +2179,7 @@ FromImportDecl = "from" String "import"
               ("all" "as" Ident | "[" IdentList "]" | Ident ["," "[" IdentList "]"])
               ;
 
-UseDecl       = "use" Ident "as" Ident                               (* stdlib import *)
+UseDecl       = "use" Ident ["as" Ident]                              (* stdlib import *)
               ;
 
 ModDecl       = "namespace" Ident INDENT Block DEDENT ;
