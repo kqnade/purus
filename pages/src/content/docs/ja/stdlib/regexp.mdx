@@ -1,0 +1,43 @@
+---
+title: p-regexp
+description: 正規表現ユーティリティ。
+sidebar:
+  order: 10
+---
+
+`regexp` モジュールは、正規表現の作成と操作のための関数を提供します。
+
+```purus
+use p-regexp as r
+```
+
+## 作成
+
+| 関数 | 説明 |
+|------|------|
+| `r.create[pattern; flags]` | 文字列パターンとオプションのフラグから `RegExp` を作成 |
+| `r.escape[str]` | 文字列内の正規表現特殊文字をエスケープ |
+
+## テスト・マッチ
+
+| 関数 | 説明 |
+|------|------|
+| `r.test[re; str]` | 文字列がパターンにマッチするかテスト。`true`/`false` を返す |
+| `r.match[re; str]` | 文字列をパターンにマッチさせる。マッチ配列または `null` を返す |
+| `r.matchall[re; str]` | すべてのマッチを返す（必要に応じて `g` フラグを自動付与） |
+| `r.exec[re; str]` | 正規表現を実行し、詳細なマッチ結果を返す |
+
+## 置換・分割
+
+| 関数 | 説明 |
+|------|------|
+| `r.replace[re; str; replacement]` | 最初のマッチを置換 |
+| `r.replaceall[re; str; replacement]` | すべてのマッチを置換 |
+| `r.split[re; str]` | 正規表現パターンで文字列を分割 |
+
+## 検査
+
+| 関数 | 説明 |
+|------|------|
+| `r.source[re]` | 正規表現のソースパターンを取得 |
+| `r.flags[re]` | 正規表現のフラグを取得 |

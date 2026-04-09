@@ -1,0 +1,48 @@
+---
+title: p-set
+description: Setの作成と操作。
+sidebar:
+  order: 12
+---
+
+`set` モジュールは、`Set` オブジェクトの作成と操作のための関数を提供します。
+
+```purus
+use p-set as s
+```
+
+## 作成
+
+| 関数 | 説明 |
+|------|------|
+| `s.create[items...]` | 個別の値からSetを作成 |
+| `s.from[iterable]` | 配列やイテラブルからSetを作成 |
+
+## クエリ
+
+| 関数 | 説明 |
+|------|------|
+| `s.has[set; value]` | 値がセットに存在するか確認 |
+| `s.size[set]` | 要素数を取得 |
+| `s.values[set]` | 配列に変換 |
+| `s.toarray[set]` | 配列に変換（エイリアス） |
+
+## 変更
+
+| 関数 | 説明 |
+|------|------|
+| `s.add[set; value]` | 値を追加した新しいSetを返す |
+| `s.delete[set; value]` | 値を削除した新しいSetを返す |
+| `s.clear[set]` | 空のSetを返す |
+
+## 集合演算
+
+| 関数 | 説明 |
+|------|------|
+| `s.union[a; b]` | どちらかのSetに含まれる要素を返す |
+| `s.intersection[a; b]` | 両方のSetに含まれる要素を返す |
+| `s.difference[a; b]` | `a` にあって `b` にない要素を返す |
+| `s.symmetricdifference[a; b]` | どちらか一方のみに含まれる要素を返す |
+| `s.issubset[a; b]` | `a` が `b` の部分集合か確認 |
+| `s.issuperset[a; b]` | `a` が `b` の上位集合か確認 |
+| `s.isdisjoint[a; b]` | `a` と `b` に共通要素がないか確認 |
