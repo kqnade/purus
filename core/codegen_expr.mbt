@@ -411,6 +411,16 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
       self.write("await ")
       self.gen_expr(inner)
     }
+    YieldExpr(inner) => {
+      self.write("yield")
+      match inner {
+        Some(expr) => {
+          self.write(" ")
+          self.gen_expr(expr)
+        }
+        None => ()
+      }
+    }
     DeleteExpr(inner) => {
       self.write("delete ")
       self.gen_expr(inner)

@@ -307,6 +307,13 @@ fn Parser::parse_unary(self : Parser) -> Expr {
       self.pos += 1
       AwaitExpr(self.parse_unary())
     }
+    Yield_ => {
+      self.pos += 1
+      match self.peek() {
+        Newline | Eof | Indent(_) | RBracket => YieldExpr(None)
+        _ => YieldExpr(Some(self.parse_unary()))
+      }
+    }
     New_ => {
       self.pos += 1
       let callee = self.parse_primary()

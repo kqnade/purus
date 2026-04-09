@@ -14,6 +14,119 @@ pub fn JsCodegen::new(cjs? : Bool = false) -> JsCodegen {
 }
 
 ///|
+fn body_has_yield(body : FnBody) -> Bool {
+  match body {
+    Block(stmts) => stmts_have_yield(stmts)
+    ToExpr(expr) | ToReturnExpr(expr) => expr_has_yield(expr)
+  }
+}
+
+///|
+fn stmts_have_yield(stmts : Array[Stmt]) -> Bool {
+  for s in stmts {
+    if stmt_has_yield(s) {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn stmt_has_yield(stmt : Stmt) -> Bool {
+  match stmt {
+    ExprStmt(e) | Return(Some(e)) | Throw(e) | DeleteStmt(e) => expr_has_yield(e)
+    VarDecl(_, _, e) | Assign(_, e) => expr_has_yield(e)
+    If(cond, body, elifs, else_body) => {
+      if expr_has_yield(cond) || stmts_have_yield(body) {
+        return true
+      }
+      for b in elifs {
+        if expr_has_yield(b.cond) || stmts_have_yield(b.body) {
+          return true
+        }
+      }
+      match else_body {
+        Some(eb) => stmts_have_yield(eb)
+        None => false
+      }
+    }
+    While(cond, body) | Until(cond, body) | DoWhile(cond, body) =>
+      expr_has_yield(cond) || stmts_have_yield(body)
+    ForIn(_, _, iter, body) => expr_has_yield(iter) || stmts_have_yield(body)
+    ForRange(_, start, end, body) =>
+      expr_has_yield(start) || expr_has_yield(end) || stmts_have_yield(body)
+    TryCatch(try_body, _, catch_body, finally_body) => {
+      if stmts_have_yield(try_body) || stmts_have_yield(catch_body) {
+        return true
+      }
+      match finally_body {
+        Some(fb) => stmts_have_yield(fb)
+        None => false
+      }
+    }
+    PostfixIf(s, cond) | PostfixUnless(s, cond) =>
+      stmt_has_yield(s) || expr_has_yield(cond)
+    PostfixFor(s, _, _) => stmt_has_yield(s)
+    ExportDefault(s) | PublicDecl(s) => stmt_has_yield(s)
+    // Don't recurse into nested FnDecl/ClassDecl - yield in nested functions is separate
+    _ => false
+  }
+}
+
+///|
+fn expr_has_yield(expr : Expr) -> Bool {
+  match expr {
+    YieldExpr(_) => true
+    BinOp(_, l, r) => expr_has_yield(l) || expr_has_yield(r)
+    UnaryNot(e) | UnaryNeg(e) | UnaryBnot(e) | UnaryTypeof(e) | AwaitExpr(e) =>
+      expr_has_yield(e)
+    Call(callee, args) => {
+      if expr_has_yield(callee) {
+        return true
+      }
+      for a in args {
+        if expr_has_yield(a) {
+          return true
+        }
+      }
+      false
+    }
+    MethodCall(obj, _, args) | OptMethodCall(obj, _, args) => {
+      if expr_has_yield(obj) {
+        return true
+      }
+      for a in args {
+        if expr_has_yield(a) {
+          return true
+        }
+      }
+      false
+    }
+    ArrayLit(elems) => {
+      for e in elems {
+        if expr_has_yield(e) {
+          return true
+        }
+      }
+      false
+    }
+    ObjectLit(pairs) => {
+      for p in pairs {
+        if expr_has_yield(p.1) {
+          return true
+        }
+      }
+      false
+    }
+    DotAccess(e, _) | ComputedAccess(e, _) | OptDotAccess(e, _) =>
+      expr_has_yield(e)
+    IfExpr(c, t, e) =>
+      expr_has_yield(c) || expr_has_yield(t) || expr_has_yield(e)
+    _ => false
+  }
+}
+
+///|
 fn JsCodegen::write(self : JsCodegen, s : String) -> Unit {
   self.buf.write_string(s)
 }
@@ -192,6 +305,19 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       }
       self.indent_level -= 1
       self.writeln("}")
+    }
+    DoWhile(cond, body) => {
+      self.write_indent()
+      self.write("do {\n")
+      self.indent_level += 1
+      for s in body {
+        self.gen_stmt(s)
+      }
+      self.indent_level -= 1
+      self.write_indent()
+      self.write("} while (")
+      self.gen_expr(cond)
+      self.write(");\n")
     }
     ForIn(name, index, iter, body) => {
       match index {
@@ -484,7 +610,11 @@ fn JsCodegen::gen_fn_decl(self : JsCodegen, decl : FnDecl) -> Unit {
   if decl.is_async {
     self.write("async ")
   }
-  self.write("function")
+  if decl.is_generator || body_has_yield(decl.body) {
+    self.write("function*")
+  } else {
+    self.write("function")
+  }
   match decl.name {
     Some(n) => {
       self.write(" ")

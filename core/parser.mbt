@@ -132,6 +132,7 @@ fn Parser::parse_stmt(self : Parser) -> Stmt? {
     Unless => Some(self.parse_unless_stmt())
     While_ => Some(self.parse_while_stmt())
     Until => Some(self.parse_until_stmt())
+    Do_ => Some(self.parse_do_while_stmt())
     For_ => Some(self.parse_for_stmt())
     Match_ | Switch_ => Some(self.parse_match_stmt())
     Return_ => {
@@ -342,7 +343,7 @@ fn Parser::parse_fn_decl(self : Parser, is_async : Bool) -> Stmt? {
     self.skip_type_annotation()
   }
   let body : FnBody = self.parse_to_body()
-  let decl : FnDecl = { name, params, body, is_async }
+  let decl : FnDecl = { name, params, body, is_async, is_generator: false }
   Some(FnDecl(decl))
 }
 
@@ -466,6 +467,20 @@ fn Parser::parse_until_stmt(self : Parser) -> Stmt {
   let _ = saved
   let body = self.parse_block(indent)
   Until(cond, body)
+}
+
+///|
+fn Parser::parse_do_while_stmt(self : Parser) -> Stmt {
+  self.pos += 1 // skip do
+  let saved = self.pos
+  let indent = self.skip_newlines_and_indent()
+  let _ = saved
+  let body = self.parse_block(indent)
+  // After body, skip whitespace and expect `while`
+  self.skip_newlines_and_indent() |> ignore
+  self.expect(While_)
+  let cond = self.parse_expr()
+  DoWhile(cond, body)
 }
 
 ///|

@@ -579,6 +579,8 @@ fn Lexer::scan_ident(self : Lexer) -> Unit {
     "then" => Then_
     "while" => While_
     "until" => Until
+    "do" => Do_
+    "yield" => Yield_
     "for" => For_
     "in" => In_
     "range" => Range_

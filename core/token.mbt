@@ -62,6 +62,8 @@ pub(all) enum TokenKind {
   Then_
   While_
   Until
+  Do_
+  Yield_
   For_
   In_
   Range_

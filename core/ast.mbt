@@ -72,6 +72,9 @@ pub(all) enum Expr {
   // Async function expressions
   AsyncFnExpr(Array[String], Array[Stmt]) // async fn (block)
   AsyncFnExprTo(Array[String], Expr) // async fn to EXPR
+
+  // Generator
+  YieldExpr(Expr?) // yield / yield expr
 }
 
 ///|
@@ -142,6 +145,7 @@ pub(all) enum Stmt {
   Unless(Expr, Array[Stmt])
   While(Expr, Array[Stmt])
   Until(Expr, Array[Stmt])
+  DoWhile(Expr, Array[Stmt])
   ForIn(String, String?, Expr, Array[Stmt]) // for x in coll / for i; x in coll
   ForRange(String, Expr, Expr, Array[Stmt]) // for i in range a; b
 
@@ -193,6 +197,7 @@ pub(all) struct FnDecl {
   params : Array[String]
   body : FnBody
   is_async : Bool
+  is_generator : Bool
 }
 
 ///|

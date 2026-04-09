@@ -739,6 +739,42 @@ test "cjs: public fn" {
 }
 
 ///|
+test "do while basic" {
+  let js = compile("do\n  console.log[i]\nwhile i lt 10")
+  assert_eq(js, "do {\n  console.log(i);\n} while (i < 10);\n")
+}
+
+///|
+test "do while multi-line body" {
+  let js = compile("do\n  x be x add 1\n  console.log[x]\nwhile x lt 100")
+  assert_eq(
+    js,
+    "do {\n  x = x + 1;\n  console.log(x);\n} while (x < 100);\n",
+  )
+}
+
+///|
+test "yield basic" {
+  let js = compile("fn gen\n  yield 1\n  yield 2")
+  assert_eq(js, "function* gen() {\n  yield 1;\n  yield 2;\n}\n")
+}
+
+///|
+test "yield without value" {
+  let js = compile("fn gen\n  yield\n  yield 42")
+  assert_eq(js, "function* gen() {\n  yield;\n  yield 42;\n}\n")
+}
+
+///|
+test "yield in async generator" {
+  let js = compile("async fn gen\n  yield await fetch[url]")
+  assert_eq(
+    js,
+    "async function* gen() {\n  yield await fetch(url);\n}\n",
+  )
+}
+
+///|
 test "cjs: require keyword unchanged" {
   let stmts : Array[@core.Stmt] = [
     @core.ImportDecl(@core.CjsRequire("lodash", "lodash")),
