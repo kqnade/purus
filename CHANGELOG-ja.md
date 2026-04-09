@@ -95,11 +95,88 @@ Purus の構文・仕様・予約語に関する変更履歴です。
 
 - **新標準ライブラリモジュール追加**: `p-object`（Objectユーティリティ）、`p-number`（Numberユーティリティ＋定数）、`p-array`（Arrayユーティリティ）、`p-error`（Error作成/検査）。
 
+- **追加標準ライブラリモジュール**: `p-regexp`（RegExpユーティリティ）、`p-promise`（Promiseユーティリティ）、`p-set`（Setユーティリティ）、`p-map`（Mapユーティリティ）。
+
 - **`infinity` / `-infinity` リテラル**: `infinity` を予約語として追加。`neg infinity` および `-infinity` はどちらも `-Infinity` にコンパイルされます。
   ```purus
   const x be infinity           -- Infinity
   const y be neg infinity       -- -Infinity
   const z be -infinity          -- -Infinity（特例）
+  ```
+
+- **`do...while` ループ**: ブロックを少なくとも一回実行し、条件が真の間繰り返します:
+  ```purus
+  do
+    process-item[]
+  while has-more[]
+  ```
+
+- **`yield` / ジェネレータ関数**: `yield` を含む関数は自動的にジェネレータ（`function*`）としてコンパイルされます:
+  ```purus
+  fn count-up limit
+    let i be 0
+    while i lt limit
+      yield i
+      i be i add 1
+  ```
+
+- **2進数 / 16進数リテラル**: `0b` および `0x` プレフィックスの数値リテラルをサポート:
+  ```purus
+  const mask be 0b1010
+  const color be 0xFF00FF
+  ```
+
+- **`function` キーワード（非推奨エイリアス）**: `function` は受け入れられますが非推奨警告が出ます。代わりに `fn` を使用してください。
+
+- **`protected` キーワード（非推奨エイリアス）**: クラス本体で `protected` は受け入れられますが非推奨警告が出ます。代わりに `private` を使用してください。
+
+- **複合代入演算子**: 新しい `add be`, `sub be`, `mul be`, `div be`, `mod be`, `pow be` 複合代入構文:
+  ```purus
+  x add be 1        -- x += 1
+  x sub be 1        -- x -= 1
+  x mul be 2        -- x *= 2
+  x div be 2        -- x /= 2
+  x mod be 3        -- x %= 3
+  x pow be 2        -- x **= 2
+  obj.count add be 1   -- obj.count += 1
+  arr[\i] mul be 2     -- arr[i] *= 2
+  ```
+
+- **JS スタイル `for` ループ**: 初期化・条件・更新を備えたCスタイルのforループ構文。複合代入演算子と組み合わせ可能:
+  ```purus
+  for let i be 0; i lt 10; i add be 1
+    console.log[i]
+  -- → for (let i = 0; i < 10; i += 1) { console.log(i); }
+
+  for let x be 1; x lt 100; x mul be 2
+    console.log[x]
+  -- → for (let x = 1; x < 100; x *= 2) { console.log(x); }
+  ```
+
+- **後置・前置インクリメント/デクリメント**: `\add` と `\sub` でインクリメント/デクリメント。後置: `x\add` → `x++`, `x\sub` → `x--`。前置: `add\x` → `++x`, `sub\x` → `--x`。
+  ```purus
+  x\add             -- x++
+  x\sub             -- x--
+  add\x             -- ++x
+  sub\x             -- --x
+  for let i be 0; i lt 10; i\add
+    console.log[i]  -- for (let i = 0; i < 10; i++) { ... }
+  ```
+
+- **切り捨て除算 (`fdiv`)**: 整数の切り捨て除算（`Math.floor` を使用）。`fdiv be` で複合代入:
+  ```purus
+  let q be 7 fdiv 2       -- Math.floor(7 / 2) → 3
+  x fdiv be 10             -- x = Math.floor(x / 10)
+  ```
+
+- **ビット演算複合代入**: `band be`, `bor be`, `bxor be`, `shl be`, `shr be`, `ushr be`:
+  ```purus
+  x band be 255            -- x &= 255
+  x bor be 1               -- x |= 1
+  x bxor be mask           -- x ^= mask
+  x shl be 2               -- x <<= 2
+  x shr be 1               -- x >>= 1
+  x ushr be 1              -- x >>>= 1
   ```
 
 ### キーワード変更
@@ -111,16 +188,36 @@ Purus の構文・仕様・予約語に関する変更履歴です。
 | `from...use` | stdlib では削除（ES import は引き続き利用可: `from "mod" import ...`） |
 | `band` `bor` `bxor` `bnot` `shl` `shr` `ushr` | 追加 — ビット演算子 |
 | `infinity` | 追加 — `Infinity` リテラル（`neg infinity` / `-infinity` で負の値） |
+| `do` | 追加 — do-whileループ（非推奨、`while`/`until` を推奨） |
+| `yield` | 追加 — ジェネレータ関数用のyield式 |
+| `function` | 追加 — `fn` の非推奨エイリアス |
+| `protected` | 追加 — `private` の非推奨エイリアス |
+| `add be` `sub be` `mul be` `div be` `mod be` `pow be` | 追加 — 複合代入演算子 |
+| `fdiv` | 追加 — 切り捨て除算（`Math.floor(a / b)`） |
+| `fdiv be` | 追加 — 切り捨て除算の複合代入 |
+| `band be` `bor be` `bxor be` `shl be` `shr be` `ushr be` | 追加 — ビット演算複合代入 |
+| `\add` `\sub`（後置）、`add\` `sub\`（前置） | 追加 — インクリメント/デクリメント演算子 |
 
 ### Deprecations
 
 - **裸の変数代入の非推奨化**: `const`/`let`/`var` なしの変数代入（例: `x be 10`）は非推奨です。暗黙のグローバル変数を避けるため、`const x be 10` または `let x be 10` を使用してください。プロパティアクセスへの代入（例: `obj.field be 10`）は引き続き有効です。
 
+- **`for ... in range` ループの非推奨化**: `for x in range a; b` 構文は非推奨です。代わりに新しい JS スタイルの `for` ループを使用してください:
+  ```purus
+  -- 非推奨:
+  for i in range 0; 10
+    console.log[i]
+
+  -- 代わりに:
+  for let i be 0; i lt 10; i add be 1
+    console.log[i]
+  ```
+
 ### Tooling
 
-- Linter: `0.7.1` → `0.8.0` — `is` キーワード削除、`bare-assignment` ルール追加
-- Prettier Plugin: `0.7.1` → `0.8.0` — `is` キーワード削除
-- VS Code Extension: `0.6.1` → `0.7.0` — `is` シンタックスハイライト削除、`use` 標準ライブラリ構文追加、リアルタイム診断機能追加（エラー、警告、非推奨通知）、ソースを `src/` に再編成
+- Linter (`@puruslang/linter`): `0.7.1` → `0.8.0` — `is` キーワード削除、キーワード同期（`do`, `yield`, `function`, `protected`, `infinity`）、2進数/16進数サポート追加、ルール拡張 8→17（`bare-assignment`, `no-function`, `no-protected`, `no-else-if`, `no-js-chars`, `no-js-operators`, `bracket-match`, `const-reassign`, `duplicate-use`, `no-for-range`）、`JS_OPERATOR_MAP` に複合代入を追加
+- Prettier Plugin (`@puruslang/prettier-plugin-purus`): `0.7.1` → `0.8.0` — `is` キーワード削除、キーワード同期（`do`, `yield`, `function`, `protected`, `infinity`）、`BLOCK_STARTERS` 追加（`do`, `try`, `catch`, `finally`, `class`）、2進数/16進数サポート追加
+- VS Code Extension (`purus`): `0.6.1` → `0.7.0` — `is` シンタックスハイライト削除、`use` 標準ライブラリ構文追加、リアルタイム診断機能追加（エラー、警告、非推奨通知）、ソースを `src/` に再編成、スニペット追加（`dowhile`, `yield`, `genfn`, `class`）、`use` スニペットに全13モジュール追加、言語設定更新（`do`, `class` インデント）
 
 ---
 

@@ -99,11 +99,88 @@ Change history for Purus syntax, specifications, and reserved keywords.
 
 - **New stdlib modules**: `p-object` (Object utility), `p-number` (Number utility + constants), `p-array` (Array utility), `p-error` (Error creation/inspection).
 
+- **Additional stdlib modules**: `p-regexp` (RegExp utility), `p-promise` (Promise utility), `p-set` (Set utility), `p-map` (Map utility).
+
 - **`infinity` / `-infinity` literals**: Added `infinity` as a reserved keyword. `neg infinity` and `-infinity` both compile to `-Infinity`.
   ```purus
   const x be infinity           -- Infinity
   const y be neg infinity       -- -Infinity
   const z be -infinity          -- -Infinity (special case)
+  ```
+
+- **`do...while` loop**: Execute a block at least once, then repeat while condition is true:
+  ```purus
+  do
+    process-item[]
+  while has-more[]
+  ```
+
+- **`yield` / Generator functions**: Functions containing `yield` are automatically compiled as generators (`function*`):
+  ```purus
+  fn count-up limit
+    let i be 0
+    while i lt limit
+      yield i
+      i be i add 1
+  ```
+
+- **Binary / Hexadecimal number literals**: `0b` and `0x` prefixed numbers are now supported:
+  ```purus
+  const mask be 0b1010
+  const color be 0xFF00FF
+  ```
+
+- **`function` keyword (deprecated alias)**: `function` is accepted but emits a deprecation warning. Use `fn` instead.
+
+- **`protected` keyword (deprecated alias)**: `protected` is accepted in class bodies but emits a deprecation warning. Use `private` instead.
+
+- **Compound assignment operators**: New `add be`, `sub be`, `mul be`, `div be`, `mod be`, `pow be` compound assignment syntax:
+  ```purus
+  x add be 1        -- x += 1
+  x sub be 1        -- x -= 1
+  x mul be 2        -- x *= 2
+  x div be 2        -- x /= 2
+  x mod be 3        -- x %= 3
+  x pow be 2        -- x **= 2
+  obj.count add be 1   -- obj.count += 1
+  arr[\i] mul be 2     -- arr[i] *= 2
+  ```
+
+- **JS-style `for` loop**: New C-style for loop syntax with init, condition, and update clauses. Works with compound assignment operators:
+  ```purus
+  for let i be 0; i lt 10; i add be 1
+    console.log[i]
+  -- → for (let i = 0; i < 10; i += 1) { console.log(i); }
+
+  for let x be 1; x lt 100; x mul be 2
+    console.log[x]
+  -- → for (let x = 1; x < 100; x *= 2) { console.log(x); }
+  ```
+
+- **Postfix / prefix increment & decrement**: `\add` and `\sub` for increment and decrement. Postfix: `x\add` → `x++`, `x\sub` → `x--`. Prefix: `add\x` → `++x`, `sub\x` → `--x`.
+  ```purus
+  x\add             -- x++
+  x\sub             -- x--
+  add\x             -- ++x
+  sub\x             -- --x
+  for let i be 0; i lt 10; i\add
+    console.log[i]  -- for (let i = 0; i < 10; i++) { ... }
+  ```
+
+- **Floor division (`fdiv`)**: Integer floor division using `Math.floor`. `fdiv be` for compound assignment:
+  ```purus
+  let q be 7 fdiv 2       -- Math.floor(7 / 2) → 3
+  x fdiv be 10             -- x = Math.floor(x / 10)
+  ```
+
+- **Bitwise compound assignments**: `band be`, `bor be`, `bxor be`, `shl be`, `shr be`, `ushr be`:
+  ```purus
+  x band be 255            -- x &= 255
+  x bor be 1               -- x |= 1
+  x bxor be mask           -- x ^= mask
+  x shl be 2               -- x <<= 2
+  x shr be 1               -- x >>= 1
+  x ushr be 1              -- x >>>= 1
   ```
 
 ### Keywords Changed
@@ -115,6 +192,15 @@ Change history for Purus syntax, specifications, and reserved keywords.
 | `from...use` | Removed for stdlib (still works for ES imports: `from "mod" import ...`) |
 | `band` `bor` `bxor` `bnot` `shl` `shr` `ushr` | Added — bitwise operators |
 | `infinity` | Added — `Infinity` literal (`neg infinity` / `-infinity` for negative) |
+| `do` | Added — do-while loop (deprecated, prefer `while`/`until`) |
+| `yield` | Added — yield expression for generator functions |
+| `function` | Added — deprecated alias for `fn` |
+| `protected` | Added — deprecated alias for `private` |
+| `add be` `sub be` `mul be` `div be` `mod be` `pow be` | Added — compound assignment operators |
+| `fdiv` | Added — floor division (`Math.floor(a / b)`) |
+| `fdiv be` | Added — floor division compound assignment |
+| `band be` `bor be` `bxor be` `shl be` `shr be` `ushr be` | Added — bitwise compound assignment operators |
+| `\add` `\sub` (postfix), `add\` `sub\` (prefix) | Added — increment/decrement operators |
 
 ### Deprecations
 
@@ -128,11 +214,22 @@ Change history for Purus syntax, specifications, and reserved keywords.
   let x be 42
   ```
 
+- **`for ... in range` loop (deprecated)**: The `for x in range a; b` syntax is deprecated. Use the new JS-style `for` loop instead:
+  ```purus
+  -- Deprecated:
+  for i in range 0; 10
+    console.log[i]
+
+  -- Use instead:
+  for let i be 0; i lt 10; i add be 1
+    console.log[i]
+  ```
+
 ### Tooling
 
-- Linter: `0.7.1` → `0.8.0` — removed `is` keyword, added `bare-assignment` rule
-- Prettier Plugin: `0.7.1` → `0.8.0` — removed `is` keyword
-- VS Code Extension: `0.6.1` → `0.7.0` — removed `is` from syntax highlighting, added `use` stdlib syntax, added real-time diagnostics (errors, warnings, deprecation notices), reorganized source into `src/` folder
+- Linter (`@puruslang/linter`): `0.7.1` → `0.8.0` — removed `is` keyword, synced keywords (`do`, `yield`, `function`, `protected`, `infinity`), added binary/hex number support, expanded rules from 8 to 17 (`bare-assignment`, `no-function`, `no-protected`, `no-else-if`, `no-js-chars`, `no-js-operators`, `bracket-match`, `const-reassign`, `duplicate-use`, `no-for-range`), updated `JS_OPERATOR_MAP` with compound assignment suggestions
+- Prettier Plugin (`@puruslang/prettier-plugin-purus`): `0.7.1` → `0.8.0` — removed `is` keyword, synced keywords (`do`, `yield`, `function`, `protected`, `infinity`), added `BLOCK_STARTERS` (`do`, `try`, `catch`, `finally`, `class`), added binary/hex number support
+- VS Code Extension (`purus`): `0.6.1` → `0.7.0` — removed `is` from syntax highlighting, added `use` stdlib syntax, added real-time diagnostics (errors, warnings, deprecation notices), reorganized source into `src/`, added snippets (`dowhile`, `yield`, `genfn`, `class`), updated `use` snippet with all 13 stdlib modules, updated language configuration (`do`, `class` indent patterns)
 
 ---
 

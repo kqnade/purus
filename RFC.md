@@ -850,6 +850,38 @@ fn add a of Number; b of Number gives Number to a add b
 - `of Type` — parameter type annotation
 - `gives Type` — return type annotation
 
+### 7.12 Generator Functions
+
+A function that contains `yield` is automatically compiled as a generator (`function*`):
+
+```
+fn count-up limit
+  let i be 0
+  while i lt limit
+    yield i
+    i be i add 1
+```
+
+```js
+function* countUp(limit) {
+  let i = 0;
+  while (i < limit) {
+    yield i;
+    i = i + 1;
+  }
+}
+```
+
+`yield` can also be used with no value or in expressions:
+
+```
+fn infinite-ids
+  let id be 1
+  while true
+    yield id
+    id be id add 1
+```
+
 ---
 
 ## 8. Control Flow
@@ -920,7 +952,25 @@ until finished
 
 `until COND` compiles to `while (!(COND))`.
 
-### 8.6 For-in
+### 8.6 Do-While
+
+`do...while` executes the body at least once before checking the condition:
+
+```
+do
+  process-item[]
+while has-more[]
+```
+
+```js
+do {
+  processItem();
+} while (hasMore());
+```
+
+> **Note:** `do` is a deprecated keyword. Prefer `while` or `until` with appropriate initialization.
+
+### 8.7 For-in
 
 **Basic iteration:**
 
@@ -948,7 +998,7 @@ for (let [i, item] of items.entries()) {
 }
 ```
 
-### 8.7 For-range
+### 8.8 For-range
 
 ```
 for i in range 0; 10
@@ -961,7 +1011,7 @@ for (let i = 0; i < 10; i++) {
 }
 ```
 
-### 8.8 Switch / Case / Default
+### 8.9 Switch / Case / Default
 
 **Statement form:**
 
@@ -998,7 +1048,7 @@ Switch arms support:
 - **Guards:** `case n if n gt 0` (additional condition)
 - **Body:** `then EXPR` (expression) or indented block
 
-### 8.9 Match / When (deprecated)
+### 8.10 Match / When (deprecated)
 
 > **Deprecated:** Use `switch` / `case` / `default` instead.
 > `match` / `when` is kept for backward compatibility.
@@ -1038,7 +1088,7 @@ Match arms support:
 - **Guards:** `when n if n gt 0` (additional condition)
 - **Body:** `then EXPR` (expression) or indented block
 
-### 8.10 Break / Continue / Return
+### 8.11 Break / Continue / Return
 
 ```
 break
@@ -1168,6 +1218,10 @@ The `p-math` module is a direct alias for JS `Math` — all standard `Math` meth
 | `p-number` | `isfinite`, `isinteger`, `isnan`, `issafe`, `parsefloat`, `parseint`, `tofixed`, `toprecision`, `toexponential`, `tostring`, `clamp` + constants: `maxsafe`, `minsafe`, `epsilon`, `maxvalue`, `minvalue`, `posinf`, `neginf` |
 | `p-array` | `isarray`, `from`, `of`, `len`, `first`, `last`, `range`, `flatten`, `unique`, `zip`, `unzip`, `chunk`, `sum`, `product`, `min`, `max`, `sortasc`, `sortdesc`, `compact`, `count`, `groupby` |
 | `p-error` | `create`, `type`, `range`, `reference`, `syntax`, `uri`, `iserror`, `message`, `name`, `stack`, `cause`, `wrap` |
+| `p-regexp` | `create`, `test`, `exec`, `match`, `matchall`, `search`, `replace`, `replaceall`, `split`, `flags`, `source`, `escape` |
+| `p-promise` | `create`, `resolve`, `reject`, `all`, `allsettled`, `any`, `race`, `delay`, `timeout`, `retry`, `map`, `each`, `filter`, `reduce`, `props` |
+| `p-set` | `create`, `from`, `add`, `delete`, `has`, `clear`, `size`, `values`, `union`, `intersection`, `difference`, `symmetric`, `issubset`, `issuperset`, `isdisjoint`, `toarray`, `map`, `filter` |
+| `p-map` | `create`, `from`, `entries`, `get`, `set`, `delete`, `has`, `clear`, `size`, `keys`, `values`, `toentries`, `toobject`, `merge`, `map`, `filter`, `find`, `groupby` |
 
 **`p-random` module API:**
 
@@ -1950,6 +2004,8 @@ class Secret {
 | `gives` | _(erased)_ | Return type annotation |
 | `async` | `async` | Async function modifier |
 | `await` | `await` | Await expression |
+| `yield` | `yield` | Yield expression (generator) |
+| `function` | _(deprecated)_ | Deprecated alias for `fn` |
 
 ### Conditional
 
@@ -1972,6 +2028,7 @@ class Secret {
 | `range` | _(numeric range)_ | Range-based loop |
 | `break` | `break` | Break out of loop |
 | `continue` | `continue` | Continue to next iteration |
+| `do` | `do` | Do-while loop (deprecated) |
 
 ### Pattern Matching
 
@@ -2057,7 +2114,6 @@ class Secret {
 
 | Keyword | JS Output | Description |
 |---------|-----------|-------------|
-| `is` | `===` | Equality check (alias of `eq`) |
 | `as` | _(erased)_ | Type cast |
 | `of` | _(erased)_ | Type annotation |
 | `typeof` | `typeof` | Typeof operator |
@@ -2114,7 +2170,7 @@ class Secret {
 Program       = { Statement } ;
 
 Statement     = VarDecl | FnDecl | ClassDecl | IfStmt | UnlessStmt
-              | WhileStmt | UntilStmt | ForStmt | SwitchStmt | MatchStmt
+              | WhileStmt | UntilStmt | DoWhileStmt | ForStmt | SwitchStmt | MatchStmt
               | TryCatch | Throw | Return | Break | Continue
               | ImportDecl | FromImportDecl | UseDecl | ModDecl | ExportDecl | PublicDecl
               | TypeDecl | DeleteStmt
@@ -2145,6 +2201,8 @@ UnlessStmt    = "unless" Expr INDENT Block DEDENT ;
 WhileStmt     = "while" Expr INDENT Block DEDENT ;
 
 UntilStmt     = "until" Expr INDENT Block DEDENT ;
+
+DoWhileStmt   = "do" INDENT Block DEDENT "while" Expr ;
 
 ForStmt       = "for" Ident [";" Ident] "in"
                 ( "range" Primary ";" Primary
@@ -2188,6 +2246,7 @@ ClassDecl     = "class" Ident ["extends" Ident]
                 INDENT { ClassMember } DEDENT ;
 
 ClassMember   = "private" Ident ["be" Expr]                          (* private field *)
+              | "protected" Ident ["be" Expr]                        (* deprecated alias for private *)
               | "fn" "new" ["[" ParamList "]"]
                 ( "to" Expr | INDENT Block DEDENT )                  (* constructor *)
               | ["static"] ["async"] "fn" Ident ParamList ["gives" Type]
@@ -2211,7 +2270,7 @@ Comparison    = Addition { ("lt" ["eq"] | "gt" ["eq"] | "le" | "ge") Addition } 
 Addition      = Multiplication { ("add" | "sub") Multiplication } ;
 Multiplication = Power { ("mul" | "div" | "mod") Power } ;
 Power         = Unary [ "pow" Power ] ;     (* right-associative *)
-Unary         = ("not" | "neg" | "typeof" | "await" | "new") Unary | Postfix ;
+Unary         = ("not" | "neg" | "typeof" | "await" | "yield" | "new") Unary | Postfix ;
 Postfix       = Primary { "." Ident ["[" ArgList "]"]
               | "\." Ident ["[" ArgList "]"]
               | "[" ArgList "]"
