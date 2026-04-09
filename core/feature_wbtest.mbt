@@ -98,7 +98,7 @@ test "parser: exclusive range [0...5]" {
   let stmts = parse_f("const r be [0...5]")
   match stmts[0] {
     VarDecl(Const_, _, RangeArray(IntLit(0), IntLit(5), inclusive)) =>
-      assert_true(!(inclusive))
+      assert_true(!inclusive)
     _ => fail("expected RangeArray exclusive")
   }
 }
@@ -123,7 +123,7 @@ test "parser: exclusive slice" {
   match stmts[0] {
     ExprStmt(Slice(Ident(name), IntLit(2), IntLit(4), inclusive)) => {
       assert_eq(name, "numbers")
-      assert_true(!(inclusive))
+      assert_true(!inclusive)
     }
     _ => fail("expected Slice exclusive")
   }
@@ -412,11 +412,8 @@ test "parser: bitwise precedence band before bor" {
 test "parser: shift lower than addition" {
   let stmts = parse_f("const r be a add b shl c")
   match stmts[0] {
-    VarDecl(
-      Const_,
-      _,
-      BinOp(Shl, BinOp(Add, Ident(_), Ident(_)), Ident(_)),
-    ) => ()
+    VarDecl(Const_, _, BinOp(Shl, BinOp(Add, Ident(_), Ident(_)), Ident(_))) =>
+      ()
     _ => fail("expected shl(add(a, b), c)")
   }
 }

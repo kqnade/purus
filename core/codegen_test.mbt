@@ -392,7 +392,7 @@ test "codegen: inclusive range" {
 test "codegen: exclusive range" {
   let js = compile("const r be [0...5]")
   assert_true(js.contains("Array.from"))
-  assert_true(!(js.contains("+ 1")))
+  assert_true(!js.contains("+ 1"))
 }
 
 // ===== Namespace =====
@@ -747,10 +747,7 @@ test "do while basic" {
 ///|
 test "do while multi-line body" {
   let js = compile("do\n  x be x add 1\n  console.log[x]\nwhile x lt 100")
-  assert_eq(
-    js,
-    "do {\n  x = x + 1;\n  console.log(x);\n} while (x < 100);\n",
-  )
+  assert_eq(js, "do {\n  x = x + 1;\n  console.log(x);\n} while (x < 100);\n")
 }
 
 ///|
@@ -768,10 +765,7 @@ test "yield without value" {
 ///|
 test "yield in async generator" {
   let js = compile("async fn gen\n  yield await fetch[url]")
-  assert_eq(
-    js,
-    "async function* gen() {\n  yield await fetch(url);\n}\n",
-  )
+  assert_eq(js, "async function* gen() {\n  yield await fetch(url);\n}\n")
 }
 
 ///|
@@ -888,7 +882,9 @@ test "codegen: function keyword anonymous" {
 
 ///|
 test "codegen: async function keyword" {
-  let js = compile("async function fetch-data url\n  const res be await fetch[url]\n  return res")
+  let js = compile(
+    "async function fetch-data url\n  const res be await fetch[url]\n  return res",
+  )
   assert_true(js.contains("async function fetch_data(url)"))
   assert_true(js.contains("await fetch(url)"))
 }
@@ -903,4 +899,199 @@ test "codegen: protected keyword as private alias" {
   let js = compile(src)
   assert_true(js.contains("#bar = 0"))
   assert_true(js.contains("this.#bar = 1"))
+}
+
+// ===== Compound assignment operators =====
+
+///|
+test "codegen: add be" {
+  let js = compile("x add be 1")
+  assert_eq(js, "x += 1;\n")
+}
+
+///|
+test "codegen: sub be" {
+  let js = compile("x sub be 1")
+  assert_eq(js, "x -= 1;\n")
+}
+
+///|
+test "codegen: mul be" {
+  let js = compile("x mul be 2")
+  assert_eq(js, "x *= 2;\n")
+}
+
+///|
+test "codegen: div be" {
+  let js = compile("x div be 2")
+  assert_eq(js, "x /= 2;\n")
+}
+
+///|
+test "codegen: mod be" {
+  let js = compile("x mod be 3")
+  assert_eq(js, "x %= 3;\n")
+}
+
+///|
+test "codegen: pow be" {
+  let js = compile("x pow be 2")
+  assert_eq(js, "x **= 2;\n")
+}
+
+///|
+test "codegen: compound assign dot access" {
+  let js = compile("obj.count add be 1")
+  assert_eq(js, "obj.count += 1;\n")
+}
+
+///|
+test "codegen: compound assign computed" {
+  let js = compile("arr[\\i] add be 1")
+  assert_eq(js, "arr[i] += 1;\n")
+}
+
+// ===== JS-style for loop =====
+
+///|
+test "codegen: for classic" {
+  let src =
+    #|for let i be 0; i lt 10; i add be 1
+    #|  console.log[i]
+  let js = compile(src)
+  assert_eq(js, "for (let i = 0; i < 10; i += 1) {\n  console.log(i);\n}\n")
+}
+
+///|
+test "codegen: for classic with mul be" {
+  let src =
+    #|for let x be 1; x lt 100; x mul be 2
+    #|  console.log[x]
+  let js = compile(src)
+  assert_eq(js, "for (let x = 1; x < 100; x *= 2) {\n  console.log(x);\n}\n")
+}
+
+///|
+test "codegen: for classic with plain assign" {
+  let src =
+    #|for let i be 0; i lt 5; i be i add 1
+    #|  console.log[i]
+  let js = compile(src)
+  assert_eq(js, "for (let i = 0; i < 5; i = i + 1) {\n  console.log(i);\n}\n")
+}
+
+// ===== Postfix / prefix increment & decrement =====
+
+///|
+test "codegen: postfix increment" {
+  let js = compile("x\\add")
+  assert_eq(js, "x++;\n")
+}
+
+///|
+test "codegen: postfix decrement" {
+  let js = compile("x\\sub")
+  assert_eq(js, "x--;\n")
+}
+
+///|
+test "codegen: prefix increment" {
+  let js = compile("add\\x")
+  assert_eq(js, "++x;\n")
+}
+
+///|
+test "codegen: prefix decrement" {
+  let js = compile("sub\\x")
+  assert_eq(js, "--x;\n")
+}
+
+///|
+test "codegen: postfix inc in for classic" {
+  let src =
+    #|for let i be 0; i lt 10; i\add
+    #|  console.log[i]
+  let js = compile(src)
+  assert_eq(js, "for (let i = 0; i < 10; i++) {\n  console.log(i);\n}\n")
+}
+
+///|
+test "codegen: prefix inc in expression" {
+  let js = compile("let y be add\\x")
+  assert_eq(js, "let y = ++x;\n")
+}
+
+// ===== Floor division =====
+
+///|
+test "codegen: fdiv" {
+  let js = compile("let r be a fdiv b")
+  assert_eq(js, "let r = Math.floor(a / b);\n")
+}
+
+///|
+test "codegen: fdiv be" {
+  let js = compile("x fdiv be 3")
+  assert_eq(js, "x = Math.floor(x / 3);\n")
+}
+
+///|
+test "codegen: fdiv expression" {
+  let js = compile("let q be 7 fdiv 2")
+  assert_eq(js, "let q = Math.floor(7 / 2);\n")
+}
+
+// ===== Bitwise compound assignments =====
+
+///|
+test "codegen: band be" {
+  let js = compile("x band be 0xFF")
+  assert_eq(js, "x &= 255;\n")
+}
+
+///|
+test "codegen: bor be" {
+  let js = compile("x bor be 1")
+  assert_eq(js, "x |= 1;\n")
+}
+
+///|
+test "codegen: bxor be" {
+  let js = compile("x bxor be mask")
+  assert_eq(js, "x ^= mask;\n")
+}
+
+///|
+test "codegen: shl be" {
+  let js = compile("x shl be 2")
+  assert_eq(js, "x <<= 2;\n")
+}
+
+///|
+test "codegen: shr be" {
+  let js = compile("x shr be 1")
+  assert_eq(js, "x >>= 1;\n")
+}
+
+///|
+test "codegen: ushr be" {
+  let js = compile("x ushr be 1")
+  assert_eq(js, "x >>>= 1;\n")
+}
+
+///|
+test "codegen: bitwise compound after binary" {
+  let js = compile("let y be a band b\ny bor be 1")
+  assert_eq(js, "let y = a & b;\ny |= 1;\n")
+}
+
+///|
+test "codegen: fdiv be in for classic" {
+  let src =
+    #|for let n be 1000; n gt 0; n fdiv be 10
+    #|  console.log[n]
+  let js = compile(src)
+  assert_eq(
+    js, "for (let n = 1000; n > 0; n = Math.floor(n / 10)) {\n  console.log(n);\n}\n",
+  )
 }
