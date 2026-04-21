@@ -179,6 +179,27 @@ Purus の構文・仕様・予約語に関する変更履歴です。
   x ushr be 1              -- x >>>= 1
   ```
 
+- **論理演算複合代入**: `and be`, `or be`, `coal be` — 論理演算子・ null 合体演算子の複合代入:
+  ```purus
+  x and be true            -- x &&= true
+  x or be false            -- x ||= false
+  x coal be 0              -- x ??= 0
+  ```
+
+- **BigInt リテラル**: 整数リテラルに `n` サフィックスを付けて BigInt を作成できます（2進数・16進数にも対応）:
+  ```purus
+  const big be 9007199254740993n     -- 9007199254740993n
+  const hex be 0xFFFFFFFFFFFFFFFFn   -- 18446744073709551615n
+  const bin be 0b11111111n           -- 255n
+  big add 1n                         -- 9007199254740994n
+  ```
+
+- **`void` 式**: `void` キーワードはオペランドを評価して `undefined` を返します。副作用のみの呼び出しに便利:
+  ```purus
+  void f[]                 -- void f()
+  const u be void 0        -- const u = void 0
+  ```
+
 ### キーワード変更
 
 | キーワード | 変更 |
@@ -196,7 +217,10 @@ Purus の構文・仕様・予約語に関する変更履歴です。
 | `fdiv` | 追加 — 切り捨て除算（`Math.floor(a / b)`） |
 | `fdiv be` | 追加 — 切り捨て除算の複合代入 |
 | `band be` `bor be` `bxor be` `shl be` `shr be` `ushr be` | 追加 — ビット演算複合代入 |
+| `and be` `or be` `coal be` | 追加 — 論理/null合体複合代入（`&&=`, `\|\|=`, `??=`） |
 | `\add` `\sub`（後置）、`add\` `sub\`（前置） | 追加 — インクリメント/デクリメント演算子 |
+| `100n` / `0xFFn` / `0b1n` | 追加 — BigInt リテラルサフィックス `n` |
+| `void` | 追加 — void 式（`void x` → `void x`） |
 
 ### Deprecations
 
@@ -215,9 +239,9 @@ Purus の構文・仕様・予約語に関する変更履歴です。
 
 ### Tooling
 
-- Linter (`@puruslang/linter`): `0.7.1` → `0.8.0` — `is` キーワード削除、キーワード同期（`do`, `yield`, `function`, `protected`, `infinity`）、2進数/16進数サポート追加、ルール拡張 8→17（`bare-assignment`, `no-function`, `no-protected`, `no-else-if`, `no-js-chars`, `no-js-operators`, `bracket-match`, `const-reassign`, `duplicate-use`, `no-for-range`）、`JS_OPERATOR_MAP` に複合代入を追加
-- Prettier Plugin (`@puruslang/prettier-plugin-purus`): `0.7.1` → `0.8.0` — `is` キーワード削除、キーワード同期（`do`, `yield`, `function`, `protected`, `infinity`）、`BLOCK_STARTERS` 追加（`do`, `try`, `catch`, `finally`, `class`）、2進数/16進数サポート追加
-- VS Code Extension (`purus`): `0.6.1` → `0.7.0` — `is` シンタックスハイライト削除、`use` 標準ライブラリ構文追加、リアルタイム診断機能追加（エラー、警告、非推奨通知）、ソースを `src/` に再編成、スニペット追加（`dowhile`, `yield`, `genfn`, `class`）、`use` スニペットに全13モジュール追加、言語設定更新（`do`, `class` インデント）
+- Linter (`@puruslang/linter`): `0.7.1` → `0.8.0` — `is` キーワード削除、キーワード同期（`do`, `yield`, `function`, `protected`, `infinity`, `void`）、2進数/16進数/BigIntサポート追加、ルール拡張 8→8 17（`bare-assignment`, `no-function`, `no-protected`, `no-else-if`, `no-js-chars`, `no-js-operators`, `bracket-match`, `const-reassign`, `duplicate-use`, `no-for-range`）、`JS_OPERATOR_MAP` に `&&=` → `and be`、`||=` → `or be`、`??=` → `coal be` を含む複合代入を追加
+- Prettier Plugin (`@puruslang/prettier-plugin-purus`): `0.7.1` → `0.8.0` — `is` キーワード削除、キーワード同期（`do`, `yield`, `function`, `protected`, `infinity`, `void`）、`BLOCK_STARTERS` 追加（`do`, `try`, `catch`, `finally`, `class`）、2進数/16進数/BigIntサポート追加
+- VS Code Extension (`purus`): `0.6.1` → `0.7.0` — `is` シンタックスハイライト削除、`use` 標準ライブラリ構文追加、リアルタイム診断機能追加（エラー、警告、非推奨通知）、ソースを `src/` に再編成、スニペット追加（`dowhile`, `yield`, `genfn`, `class`）、`use` スニペットに全 13 モジュール追加、言語設定更新（`do`, `class` インデント）、BigInt 数値ハイライト追加、`void` キーワードハイライト追加
 
 ---
 

@@ -183,6 +183,27 @@ Change history for Purus syntax, specifications, and reserved keywords.
   x ushr be 1              -- x >>>= 1
   ```
 
+- **Logical compound assignments**: `and be`, `or be`, `coal be` — new compound assignment for logical and nullish operators:
+  ```purus
+  x and be true            -- x &&= true
+  x or be false            -- x ||= false
+  x coal be 0              -- x ??= 0
+  ```
+
+- **BigInt literals**: Append `n` to any integer literal (decimal, binary, or hex) to create a BigInt:
+  ```purus
+  const big be 9007199254740993n     -- 9007199254740993n
+  const hex be 0xFFFFFFFFFFFFFFFFn   -- 18446744073709551615n
+  const bin be 0b11111111n           -- 255n
+  big add 1n                         -- 9007199254740994n
+  ```
+
+- **`void` expression**: The `void` keyword evaluates its operand and returns `undefined`. Useful for side-effect-only calls:
+  ```purus
+  void f[]                 -- void f()
+  const u be void 0        -- const u = void 0
+  ```
+
 ### Keywords Changed
 
 | Keyword | Change |
@@ -200,7 +221,10 @@ Change history for Purus syntax, specifications, and reserved keywords.
 | `fdiv` | Added — floor division (`Math.floor(a / b)`) |
 | `fdiv be` | Added — floor division compound assignment |
 | `band be` `bor be` `bxor be` `shl be` `shr be` `ushr be` | Added — bitwise compound assignment operators |
+| `and be` `or be` `coal be` | Added — logical/nullish compound assignment operators (`&&=`, `\|\|=`, `??=`) |
 | `\add` `\sub` (postfix), `add\` `sub\` (prefix) | Added — increment/decrement operators |
+| `100n` / `0xFFn` / `0b1n` | Added — BigInt literal suffix `n` |
+| `void` | Added — void expression (`void x` → `void x`) |
 
 ### Deprecations
 
@@ -227,9 +251,9 @@ Change history for Purus syntax, specifications, and reserved keywords.
 
 ### Tooling
 
-- Linter (`@puruslang/linter`): `0.7.1` → `0.8.0` — removed `is` keyword, synced keywords (`do`, `yield`, `function`, `protected`, `infinity`), added binary/hex number support, expanded rules from 8 to 17 (`bare-assignment`, `no-function`, `no-protected`, `no-else-if`, `no-js-chars`, `no-js-operators`, `bracket-match`, `const-reassign`, `duplicate-use`, `no-for-range`), updated `JS_OPERATOR_MAP` with compound assignment suggestions
-- Prettier Plugin (`@puruslang/prettier-plugin-purus`): `0.7.1` → `0.8.0` — removed `is` keyword, synced keywords (`do`, `yield`, `function`, `protected`, `infinity`), added `BLOCK_STARTERS` (`do`, `try`, `catch`, `finally`, `class`), added binary/hex number support
-- VS Code Extension (`purus`): `0.6.1` → `0.7.0` — removed `is` from syntax highlighting, added `use` stdlib syntax, added real-time diagnostics (errors, warnings, deprecation notices), reorganized source into `src/`, added snippets (`dowhile`, `yield`, `genfn`, `class`), updated `use` snippet with all 13 stdlib modules, updated language configuration (`do`, `class` indent patterns)
+- Linter (`@puruslang/linter`): `0.7.1` → `0.8.0` — removed `is` keyword, synced keywords (`do`, `yield`, `function`, `protected`, `infinity`, `void`), added binary/hex/BigInt number support, expanded rules from 8 to 17 (`bare-assignment`, `no-function`, `no-protected`, `no-else-if`, `no-js-chars`, `no-js-operators`, `bracket-match`, `const-reassign`, `duplicate-use`, `no-for-range`), updated `JS_OPERATOR_MAP` with compound assignment suggestions including `&&=` → `and be`, `||=` → `or be`, `??=` → `coal be`
+- Prettier Plugin (`@puruslang/prettier-plugin-purus`): `0.7.1` → `0.8.0` — removed `is` keyword, synced keywords (`do`, `yield`, `function`, `protected`, `infinity`, `void`), added `BLOCK_STARTERS` (`do`, `try`, `catch`, `finally`, `class`), added binary/hex/BigInt number support
+- VS Code Extension (`purus`): `0.6.1` → `0.7.0` — removed `is` from syntax highlighting, added `use` stdlib syntax, added real-time diagnostics (errors, warnings, deprecation notices), reorganized source into `src/`, added snippets (`dowhile`, `yield`, `genfn`, `class`), updated `use` snippet with all 13 stdlib modules, updated language configuration (`do`, `class` indent patterns), added BigInt numeric highlighting, added `void` keyword highlight
 
 ---
 

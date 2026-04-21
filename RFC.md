@@ -241,6 +241,24 @@ const f be 3.14    -- float
 const n be -7      -- negative integer
 ```
 
+Binary and hexadecimal literals:
+
+```
+const mask be 0b1010      -- 10
+const color be 0xFF00FF   -- 16711935
+```
+
+BigInt literals — append `n` suffix to any integer (decimal, binary, or hex):
+
+```
+const big be 9007199254740993n
+const hex be 0xFFFFFFFFFFFFFFFFn
+const bin be 0b11111111n
+big add 1n                         -- 9007199254740994n
+```
+
+BigInt compiles directly to JavaScript BigInt literals. Arithmetic on BigInt requires both operands to be BigInt.
+
 ### 4.2 Strings
 
 Strings are delimited by triple slashes `///`:
@@ -407,7 +425,7 @@ From lowest to highest:
 | 11 | `add` / `sub` | Addition / Subtraction |
 | 12 | `mul` / `div` / `mod` | Multiplication / Division / Modulo |
 | 13 | `pow` | Exponentiation (right-associative) |
-| 14 | `not` / `neg` / `bnot` / `typeof` / `await` / `delete` / `new` | Unary |
+| 14 | `not` / `neg` / `bnot` / `typeof` / `void` / `await` / `delete` / `new` | Unary |
 | 15 | `.` access / `\.` optional / `[args]` call / `[\expr]` access / `as` cast | Postfix |
 | 16 | Literals, identifiers, brackets | Primary |
 
@@ -602,6 +620,26 @@ Compiles to:
 x = 42;
 obj.field = "new value";
 ```
+
+**Compound assignment** combines an operation with assignment. Supported operators:
+
+| Purus | JS | Category |
+|-------|-----|----------|
+| `x add be n` | `x += n` | Arithmetic |
+| `x sub be n` | `x -= n` | Arithmetic |
+| `x mul be n` | `x *= n` | Arithmetic |
+| `x div be n` | `x /= n` | Arithmetic |
+| `x mod be n` | `x %= n` | Arithmetic |
+| `x pow be n` | `x **= n` | Arithmetic |
+| `x band be n` | `x &= n` | Bitwise |
+| `x bor be n` | `x \|= n` | Bitwise |
+| `x bxor be n` | `x ^= n` | Bitwise |
+| `x shl be n` | `x <<= n` | Bitwise |
+| `x shr be n` | `x >>= n` | Bitwise |
+| `x ushr be n` | `x >>>= n` | Bitwise |
+| `x and be v` | `x &&= v` | Logical |
+| `x or be v` | `x \|\|= v` | Logical |
+| `x coal be v` | `x ??= v` | Nullish |
 
 > **Deprecation Warning:** Bare variable assignment (`x be 42`) without a declaration keyword (`const`/`let`) is discouraged. Property assignments (`obj.field be value`, `arr[\i] be value`) are still valid without a declaration keyword. Use `const` for immutable bindings and `let` for mutable variables.
 
@@ -2085,6 +2123,9 @@ class Secret {
 | `and` | `&&` |
 | `or` | `\|\|` |
 | `not` | `!` |
+| `and be` | `&&=` |
+| `or be` | `\|\|=` |
+| `coal be` | `??=` |
 
 ### Bitwise Operators
 
@@ -2119,6 +2160,7 @@ class Secret {
 | `typeof` | `typeof` | Typeof operator |
 | `instanceof` | `instanceof` | Instance check |
 | `type` | _(erased)_ | Type alias |
+| `void` | `void` | Void expression |
 
 ### Class
 
@@ -2143,6 +2185,7 @@ class Secret {
 | `try` | `try` | Try block |
 | `catch` | `catch` | Catch block |
 | `finally` | `finally` | Finally block |
+| `void` | `void` | Void expression (evaluates operand, returns `undefined`) |
 | `list` | `[…]` | Array literal |
 | `object` | `{…}` | Object literal |
 | `null` | `null` | Null value |
@@ -2151,6 +2194,7 @@ class Secret {
 | `nan` | `NaN` | NaN value |
 | `infinity` | `Infinity` | Infinity value |
 | `-infinity` | `-Infinity` | Negative infinity (special case) |
+| `100n` / `0xFFn` / `0b1n` | `100n` / `255n` / `1n` | BigInt literal (integer with `n` suffix) |
 
 ### Punctuation
 
@@ -2175,6 +2219,7 @@ Statement     = VarDecl | FnDecl | ClassDecl | IfStmt | UnlessStmt
               | ImportDecl | FromImportDecl | UseDecl | ModDecl | ExportDecl | PublicDecl
               | TypeDecl | DeleteStmt
               | Expr "be" Expr              (* assignment *)
+              | Expr ("add"|"sub"|"mul"|"div"|"mod"|"pow"|"band"|"bor"|"bxor"|"shl"|"shr"|"ushr"|"and"|"or"|"coal") "be" Expr  (* compound assignment *)
               | Expr                         (* expression statement *)
               ;
 
@@ -2223,7 +2268,7 @@ MatchArm      = "when" Pattern ["if" Expr]
               | "else" ( Expr | INDENT Block DEDENT )
               ;
 
-Pattern       = IntLit | FloatLit | StrLit | BoolLit | "null" | "nil" | Ident ;
+Pattern       = IntLit | FloatLit | BigIntLit | StrLit | BoolLit | "null" | "nil" | Ident ;
 
 TryCatch      = "try" INDENT Block DEDENT
                 "catch" [Ident] INDENT Block DEDENT
@@ -2270,13 +2315,13 @@ Comparison    = Addition { ("lt" ["eq"] | "gt" ["eq"] | "le" | "ge") Addition } 
 Addition      = Multiplication { ("add" | "sub") Multiplication } ;
 Multiplication = Power { ("mul" | "div" | "mod") Power } ;
 Power         = Unary [ "pow" Power ] ;     (* right-associative *)
-Unary         = ("not" | "neg" | "typeof" | "await" | "yield" | "new") Unary | Postfix ;
+Unary         = ("not" | "neg" | "typeof" | "void" | "await" | "yield" | "new") Unary | Postfix ;
 Postfix       = Primary { "." Ident ["[" ArgList "]"]
               | "\." Ident ["[" ArgList "]"]
               | "[" ArgList "]"
               | "[\\" Expr "]"
               | "as" Ident } ;
-Primary       = IntLit | FloatLit | StrLit | InterpStr | Regex
+Primary       = IntLit | FloatLit | BigIntLit | StrLit | InterpStr | Regex
               | "true" | "false" | "null" | "nil" | "undefined" | "this" | "super"
               | Ident
               | "list" "[" ExprList "]"
