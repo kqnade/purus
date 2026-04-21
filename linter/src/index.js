@@ -13,7 +13,7 @@ const KEYWORDS = new Set([
   "and", "or", "not", "pipe", "coal",
   "band", "bor", "bxor", "bnot", "shl", "shr", "ushr",
   "as", "of", "typeof", "instanceof", "type",
-  "new", "delete", "this", "await", "yield",
+  "new", "delete", "this", "await", "yield", "void",
   "class", "extends", "super", "static", "private", "protected", "get", "set",
   "true", "false", "null", "nil", "undefined", "nan", "infinity",
   "break", "continue",
@@ -120,7 +120,7 @@ function tokenize(source) {
       continue;
     }
 
-    // Number (decimal, 0b binary, 0x hex)
+    // Number (decimal, 0b binary, 0x hex, BigInt n-suffix)
     if (/[0-9]/.test(source[i])) {
       let start = i;
       if (source[i] === "0" && i + 1 < len && (source[i + 1] === "b" || source[i + 1] === "B")) {
@@ -135,6 +135,10 @@ function tokenize(source) {
           i++; col++;
           while (i < len && /[0-9]/.test(source[i])) { i++; col++; }
         }
+      }
+      // BigInt suffix: n
+      if (i < len && source[i] === "n" && (i + 1 >= len || !/[a-zA-Z0-9_]/.test(source[i + 1]))) {
+        i++; col++;
       }
       tokens.push({ type: "number", value: source.slice(start, i), line: startLine, col: startCol });
       continue;
@@ -187,6 +191,7 @@ const JS_OPERATOR_MAP = {
   "%=": "mod be", "**=": "pow be",
   "&=": "band be", "|=": "bor be", "^=": "bxor be",
   "<<=": "shl be", ">>=": "shr be", ">>>=": "ushr be",
+  "&&=": "and be", "||=": "or be", "??=": "coal be",
 };
 
 function lint(source, ruleOverrides = {}) {
