@@ -337,7 +337,7 @@ fn Parser::parse_unary(self : Parser) -> Expr {
       UnaryBnot(self.parse_unary())
     }
     Add =>
-      // add\x → ++x (prefix increment)
+      // add\ x → ++x (prefix increment)
       if self.pos + 1 < self.tokens.length() &&
         self.tokens[self.pos + 1].kind == Backslash {
         self.pos += 2
@@ -346,7 +346,7 @@ fn Parser::parse_unary(self : Parser) -> Expr {
         self.parse_postfix()
       }
     Sub =>
-      // sub\x → --x (prefix decrement)
+      // sub\ x → --x (prefix decrement)
       if self.pos + 1 < self.tokens.length() &&
         self.tokens[self.pos + 1].kind == Backslash {
         self.pos += 2
@@ -506,7 +506,7 @@ fn Parser::parse_postfix(self : Parser) -> Expr {
         expr = AsCast(expr, type_name)
       }
       Backslash =>
-        // x\add → x++ (postfix increment), x\sub → x-- (postfix decrement)
+        // x \add → x++ (postfix increment), x \sub → x-- (postfix decrement)
         if self.pos + 1 < self.tokens.length() {
           match self.tokens[self.pos + 1].kind {
             Add => {

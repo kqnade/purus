@@ -238,6 +238,32 @@ for (let i = 0; i < 5; i = i + 1) {
 }
 ```
 
+Using postfix/prefix increment with `\add` and `add\`:
+
+```purus
+for let i be 0; i lt 10; i \add
+  console.log[i]
+```
+
+```js
+for (let i = 0; i < 10; i++) {
+  console.log(i);
+}
+```
+
+Counting down with `\sub`:
+
+```purus
+for let i be 9; i ge 0; i \sub
+  console.log[i]
+```
+
+```js
+for (let i = 9; i >= 0; i--) {
+  console.log(i);
+}
+```
+
 ## Switch / Case / Default
 
 ```purus
