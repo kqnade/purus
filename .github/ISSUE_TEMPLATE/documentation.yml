@@ -1,0 +1,51 @@
+name: Documentation Issue
+description: Report missing, incorrect, or unclear documentation
+title: "[Docs]: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve Purus documentation!
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Issue Type
+      options:
+        - Incorrect information
+        - Missing documentation
+        - Unclear or confusing explanation
+        - Typo or formatting issue
+        - Outdated content
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Page / Section
+      description: URL or file path of the affected documentation.
+      placeholder: "e.g. https://purus.js.org/reference/operators/ or pages/src/content/docs/reference/operators.mdx"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What is wrong or missing in the documentation?
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested Fix
+      description: How should the documentation be corrected or improved?
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
