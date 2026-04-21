@@ -58,7 +58,7 @@ r.getrandbits[16]  -- 0..65535
 ```
 
 ### `randbytes[n]`
-Returns an array of `n` random bytes (0窶・55).
+Returns an array of `n` random bytes (0–255).
 
 ```purus
 use p-random as r
@@ -183,7 +183,7 @@ r.clamp[5; 0; 10]    -- 5
 ```
 
 ### `lerp[a; b; t]`
-Linear interpolation between `a` and `b` by factor `t` (0窶・).
+Linear interpolation between `a` and `b` by factor `t` (0–1).
 
 ```purus
 use p-random as r
