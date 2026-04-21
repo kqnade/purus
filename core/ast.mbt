@@ -29,7 +29,7 @@ pub(all) enum Expr {
   UnaryNot(Expr) // not x
   UnaryBnot(Expr) // bnot x (bitwise NOT)
   UnaryTypeof(Expr) // typeof x
-  UnaryVoid(Expr)    // void x
+  UnaryVoid(Expr) // void x
 
   // Comparison / type
   AsCast(Expr, String) // x as number
