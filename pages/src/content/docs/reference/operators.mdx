@@ -281,17 +281,17 @@ Purus supports postfix and prefix increment/decrement using `\` combined with `a
 
 | Purus | JS | Description |
 |-------|----|-------------|
-| `x \add` | `x++` | Postfix increment |
-| `x \sub` | `x--` | Postfix decrement |
-| `add\ x` | `++x` | Prefix increment |
-| `sub\ x` | `--x` | Prefix decrement |
+| `x\add` | `x++` | Postfix increment |
+| `x\sub` | `x--` | Postfix decrement |
+| `add\x` | `++x` | Prefix increment |
+| `sub\x` | `--x` | Prefix decrement |
 
 ```purus
 let i be 0
-i \add        -- i++  (returns 0, then i becomes 1)
-add\ i        -- ++i  (i becomes 2, returns 2)
-i \sub        -- i--  (returns 2, then i becomes 1)
-sub\ i        -- --i  (i becomes 0, returns 0)
+i\add         -- i++  (returns 0, then i becomes 1)
+add\i         -- ++i  (i becomes 2, returns 2)
+i\sub         -- i--  (returns 2, then i becomes 1)
+sub\i         -- --i  (i becomes 0, returns 0)
 ```
 
 Compiles to:
@@ -305,5 +305,5 @@ i--;   // returns 2, i becomes 1
 ```
 
 :::tip
-For simple loop counters, `i \add` (postfix) and `add\ i` (prefix) are more concise alternatives to `i add be 1`. See [For (JS-style)](/reference/control-flow/#for-js-style).
+For simple loop counters, `i\add` (postfix) and `add\i` (prefix) are more concise alternatives to `i add be 1`. See [For (JS-style)](/reference/control-flow/#for-js-style).
 :::
