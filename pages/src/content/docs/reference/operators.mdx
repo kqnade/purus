@@ -20,8 +20,8 @@ sidebar:
 11. `add` / `sub` — Addition / Subtraction
 12. `mul` / `div` / `mod` — Multiplication / Division / Modulo
 13. `pow` — Exponentiation
-14. Unary: `not` / `neg` / `bnot` / `typeof` / `void` / `await` / `delete` / `new`
-15. Postfix: `.` access / `\.` optional chaining / `[args]` call / `[\expr]` computed access / `as` cast
+14. Unary: `not` / `neg` / `bnot` / `typeof` / `void` / `await` / `delete` / `new` / `add\` (prefix `++`) / `sub\` (prefix `--`)
+15. Postfix: `.` access / `\.` optional chaining / `[args]` call / `[\expr]` computed access / `as` cast / `\add` (postfix `++`) / `\sub` (postfix `--`)
 16. Primary: literals, identifiers, brackets
 
 ## Pipeline
@@ -274,3 +274,36 @@ x instanceof Y       -- x instanceof Y
 typeof x             -- typeof x
 void x               -- void x
 ```
+
+## Increment / Decrement
+
+Purus supports postfix and prefix increment/decrement using `\` combined with `add` or `sub`:
+
+| Purus | JS | Description |
+|-------|----|-------------|
+| `x \add` | `x++` | Postfix increment |
+| `x \sub` | `x--` | Postfix decrement |
+| `add\ x` | `++x` | Prefix increment |
+| `sub\ x` | `--x` | Prefix decrement |
+
+```purus
+let i be 0
+i \add        -- i++  (returns 0, then i becomes 1)
+add\ i        -- ++i  (i becomes 2, returns 2)
+i \sub        -- i--  (returns 2, then i becomes 1)
+sub\ i        -- --i  (i becomes 0, returns 0)
+```
+
+Compiles to:
+
+```js
+let i = 0;
+i++;   // returns 0, i becomes 1
+++i;   // i becomes 2, returns 2
+i--;   // returns 2, i becomes 1
+--i;   // i becomes 0, returns 0
+```
+
+:::tip
+For simple loop counters, `i \add` (postfix) and `add\ i` (prefix) are more concise alternatives to `i add be 1`. See [For (JS-style)](/reference/control-flow/#for-js-style).
+:::
