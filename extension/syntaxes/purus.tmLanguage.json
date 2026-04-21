@@ -70,6 +70,18 @@
     "number": {
       "patterns": [
         {
+          "match": "(?<![a-zA-Z0-9_])0[bB][01]+n(?![a-zA-Z0-9_])",
+          "name": "constant.numeric.bigint.purus"
+        },
+        {
+          "match": "(?<![a-zA-Z0-9_])0[xX][0-9a-fA-F]+n(?![a-zA-Z0-9_])",
+          "name": "constant.numeric.bigint.purus"
+        },
+        {
+          "match": "\\b(?!0[xXbB])\\d+n\\b",
+          "name": "constant.numeric.bigint.purus"
+        },
+        {
           "match": "(?<![a-zA-Z0-9_])0[bB][01]+(?![a-zA-Z0-9_])",
           "name": "constant.numeric.binary.purus"
         },
@@ -270,7 +282,7 @@
       ]
     },
     "other-keyword": {
-      "match": "(?<![a-zA-Z0-9_-])(new|delete|this|await|super)(?![a-zA-Z0-9_-])",
+      "match": "(?<![a-zA-Z0-9_-])(new|delete|this|await|super|void)(?![a-zA-Z0-9_-])",
       "name": "keyword.other.purus"
     },
     "support": {
