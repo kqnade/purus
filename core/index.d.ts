@@ -34,7 +34,10 @@ export interface CompileOptions {
  * const js = compile('const x be 42');
  * ```
  */
-export declare function compile(source: string, options?: CompileOptions): string;
+export declare function compile(
+  source: string,
+  options?: CompileOptions,
+): string;
 
 /**
  * Check Purus source code for syntax errors.

@@ -3,6 +3,7 @@
 pub(all) enum TokenKind {
   // Literals
   Int(Int)
+  BigInt(String) // BigInt literal e.g. 100n
   Float(Double)
   Str(String) // already-parsed string content (no ///)
   Regex(String, String) // pattern, flags
@@ -22,6 +23,7 @@ pub(all) enum TokenKind {
   Sub
   Mul
   Div
+  Fdiv
   Mod
   Neg
   Pow
@@ -42,6 +44,15 @@ pub(all) enum TokenKind {
   // Nullish coalescing
   Coal
 
+  // Bitwise
+  Band
+  Bor
+  Bxor
+  Bnot
+  Shl
+  Shr
+  Ushr
+
   // Special keywords
   Fn
   Return_
@@ -53,6 +64,8 @@ pub(all) enum TokenKind {
   Then_
   While_
   Until
+  Do_
+  Yield_
   For_
   In_
   Range_
@@ -63,11 +76,11 @@ pub(all) enum TokenKind {
   Switch_
   Case_
   Pipe_
-  Is
   As
   Of
   Gives
   Typeof_
+  Void_
   Instanceof_
   New_
   Delete_
@@ -104,6 +117,7 @@ pub(all) enum TokenKind {
   Nil_
   Undefined_
   Nan_
+  Infinity_
 
   // Explicit constructors (reserved keywords)
   List_

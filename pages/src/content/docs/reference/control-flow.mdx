@@ -134,6 +134,26 @@ while (!(finished)) {
 }
 ```
 
+## Do-While
+
+:::caution[Deprecated]
+`do...while` is deprecated. Prefer `while` or `until` with explicit initialization.
+:::
+
+Execute a block at least once, then repeat while the condition is true:
+
+```purus
+do
+  process-item[]
+while has-more[]
+```
+
+```js
+do {
+  processItem();
+} while (hasMore());
+```
+
 ## For-in
 
 ```purus
@@ -162,6 +182,10 @@ for (let [i, item] of items.entries()) {
 
 ## For-range
 
+:::caution[Deprecated]
+`for ... in range` is deprecated. Use the JS-style `for` loop instead.
+:::
+
 ```purus
 for i in range 0; 10
   console.log[i]
@@ -169,6 +193,47 @@ for i in range 0; 10
 
 ```js
 for (let i = 0; i < 10; i++) {
+  console.log(i);
+}
+```
+
+## For (JS-style)
+
+A C-style for loop with init, condition, and update clauses:
+
+```purus
+for let i be 0; i lt 10; i add be 1
+  console.log[i]
+```
+
+```js
+for (let i = 0; i < 10; i += 1) {
+  console.log(i);
+}
+```
+
+Works with any compound assignment operator:
+
+```purus
+for let x be 1; x lt 100; x mul be 2
+  console.log[x]
+```
+
+```js
+for (let x = 1; x < 100; x *= 2) {
+  console.log(x);
+}
+```
+
+Plain assignment in the update clause:
+
+```purus
+for let i be 0; i lt 5; i be i add 1
+  console.log[i]
+```
+
+```js
+for (let i = 0; i < 5; i = i + 1) {
   console.log(i);
 }
 ```

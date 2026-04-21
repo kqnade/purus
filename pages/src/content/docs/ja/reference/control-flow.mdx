@@ -134,6 +134,26 @@ while (!(finished)) {
 }
 ```
 
+## Do-While
+
+:::caution[非推奨]
+`do...while` は非推奨です。`while` または `until` と明示的な初期化を使用してください。
+:::
+
+ブロックを少なくとも1回実行し、条件が真の間繰り返します:
+
+```purus
+do
+  process-item[]
+while has-more[]
+```
+
+```js
+do {
+  processItem();
+} while (hasMore());
+```
+
 ## For-in
 
 ```purus
@@ -162,6 +182,10 @@ for (let [i, item] of items.entries()) {
 
 ## For-range
 
+:::caution[非推奨]
+`for ... in range` は非推奨です。代わりに JS スタイルの `for` ループを使用してください。
+:::
+
 ```purus
 for i in range 0; 10
   console.log[i]
@@ -169,6 +193,47 @@ for i in range 0; 10
 
 ```js
 for (let i = 0; i < 10; i++) {
+  console.log(i);
+}
+```
+
+## For（JS スタイル）
+
+初期化・条件・更新を備えた C スタイルの for ループ:
+
+```purus
+for let i be 0; i lt 10; i add be 1
+  console.log[i]
+```
+
+```js
+for (let i = 0; i < 10; i += 1) {
+  console.log(i);
+}
+```
+
+任意の複合代入演算子を使用可能:
+
+```purus
+for let x be 1; x lt 100; x mul be 2
+  console.log[x]
+```
+
+```js
+for (let x = 1; x < 100; x *= 2) {
+  console.log(x);
+}
+```
+
+更新句で通常の代入も使用可能:
+
+```purus
+for let i be 0; i lt 5; i be i add 1
+  console.log[i]
+```
+
+```js
+for (let i = 0; i < 5; i = i + 1) {
   console.log(i);
 }
 ```

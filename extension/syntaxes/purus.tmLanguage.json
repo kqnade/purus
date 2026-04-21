@@ -70,11 +70,31 @@
     "number": {
       "patterns": [
         {
+          "match": "(?<![a-zA-Z0-9_])0[bB][01]+n(?![a-zA-Z0-9_])",
+          "name": "constant.numeric.bigint.purus"
+        },
+        {
+          "match": "(?<![a-zA-Z0-9_])0[xX][0-9a-fA-F]+n(?![a-zA-Z0-9_])",
+          "name": "constant.numeric.bigint.purus"
+        },
+        {
+          "match": "\\b(?!0[xXbB])\\d+n\\b",
+          "name": "constant.numeric.bigint.purus"
+        },
+        {
+          "match": "(?<![a-zA-Z0-9_])0[bB][01]+(?![a-zA-Z0-9_])",
+          "name": "constant.numeric.binary.purus"
+        },
+        {
+          "match": "(?<![a-zA-Z0-9_])0[xX][0-9a-fA-F]+(?![a-zA-Z0-9_])",
+          "name": "constant.numeric.hex.purus"
+        },
+        {
           "match": "\\b\\d+\\.\\d+\\b",
           "name": "constant.numeric.float.purus"
         },
         {
-          "match": "\\b\\d+\\b",
+          "match": "\\b(?!0[xXbB])\\d+\\b",
           "name": "constant.numeric.integer.purus"
         }
       ]
@@ -109,11 +129,11 @@
           }
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(static|private)(?![a-zA-Z0-9_-])",
+          "match": "(?<![a-zA-Z0-9_-])(static|private|protected)(?![a-zA-Z0-9_-])",
           "name": "storage.modifier.purus"
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(get|set)\\s+(fn)\\s+([a-zA-Z_][a-zA-Z0-9_-]*)",
+          "match": "(?<![a-zA-Z0-9_-])(get|set)\\s+(fn|function)\\s+([a-zA-Z_][a-zA-Z0-9_-]*)",
           "captures": {
             "1": { "name": "storage.modifier.accessor.purus" },
             "2": { "name": "storage.type.function.purus" },
@@ -129,7 +149,7 @@
     "function": {
       "patterns": [
         {
-          "match": "(?<![a-zA-Z0-9_-])(static)\\s+(async)\\s+(fn)\\s+([a-zA-Z_][a-zA-Z0-9_-]*)",
+          "match": "(?<![a-zA-Z0-9_-])(static)\\s+(async)\\s+(fn|function)\\s+([a-zA-Z_][a-zA-Z0-9_-]*)",
           "captures": {
             "1": { "name": "storage.modifier.purus" },
             "2": { "name": "storage.modifier.async.purus" },
@@ -138,7 +158,7 @@
           }
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(static)\\s+(fn)\\s+([a-zA-Z_][a-zA-Z0-9_-]*)",
+          "match": "(?<![a-zA-Z0-9_-])(static)\\s+(fn|function)\\s+([a-zA-Z_][a-zA-Z0-9_-]*)",
           "captures": {
             "1": { "name": "storage.modifier.purus" },
             "2": { "name": "storage.type.function.purus" },
@@ -146,7 +166,7 @@
           }
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(async)\\s+(fn)\\s+([a-zA-Z_][a-zA-Z0-9_-]*)",
+          "match": "(?<![a-zA-Z0-9_-])(async)\\s+(fn|function)\\s+([a-zA-Z_][a-zA-Z0-9_-]*)",
           "captures": {
             "1": { "name": "storage.modifier.async.purus" },
             "2": { "name": "storage.type.function.purus" },
@@ -154,14 +174,21 @@
           }
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(fn)\\s+([a-zA-Z_][a-zA-Z0-9_-]*)(?=\\s+[a-zA-Z_]|\\s*$|\\s+to(?![a-zA-Z0-9_-]))",
+          "match": "(?<![a-zA-Z0-9_-])(fn|function)\\s+(new)(?![a-zA-Z0-9_-])",
+          "captures": {
+            "1": { "name": "storage.type.function.purus" },
+            "2": { "name": "keyword.other.purus" }
+          }
+        },
+        {
+          "match": "(?<![a-zA-Z0-9_-])(fn|function)\\s+([a-zA-Z_][a-zA-Z0-9_-]*)(?=\\s+[a-zA-Z_]|\\s*$|\\s+to(?![a-zA-Z0-9_-]))",
           "captures": {
             "1": { "name": "storage.type.function.purus" },
             "2": { "name": "entity.name.function.purus" }
           }
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(fn)(?![a-zA-Z0-9_-])",
+          "match": "(?<![a-zA-Z0-9_-])(fn|function)(?![a-zA-Z0-9_-])",
           "name": "storage.type.function.purus"
         }
       ]
@@ -173,7 +200,7 @@
           "name": "keyword.control.conditional.purus"
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(while|until|for|in|range)(?![a-zA-Z0-9_-])",
+          "match": "(?<![a-zA-Z0-9_-])(while|until|do|for|in|range)(?![a-zA-Z0-9_-])",
           "name": "keyword.control.loop.purus"
         },
         {
@@ -185,7 +212,7 @@
           "name": "keyword.control.trycatch.purus"
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(return|break|continue|throw)(?![a-zA-Z0-9_-])",
+          "match": "(?<![a-zA-Z0-9_-])(return|break|continue|throw|yield)(?![a-zA-Z0-9_-])",
           "name": "keyword.control.flow.purus"
         }
       ]
@@ -205,28 +232,36 @@
     "operator": {
       "patterns": [
         {
-          "match": "(?<![a-zA-Z0-9_-])(eq|is|be)(?![a-zA-Z0-9_-])",
-          "name": "keyword.other.equality.purus"
+          "match": "(?<![a-zA-Z0-9_-])(be|eq|to)(?![a-zA-Z0-9_-])",
+          "name": "keyword.operator.assignment.purus"
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(add|sub|mul|div|mod|neg|pow)(?![a-zA-Z0-9_-])",
-          "name": "keyword.control.arithmetic.purus"
-        },
-        {
-          "match": "(?<![a-zA-Z0-9_-])(neq|lt|gt|le|ge)(?![a-zA-Z0-9_-])",
-          "name": "keyword.operator.comparison.purus"
-        },
-        {
-          "match": "(?<![a-zA-Z0-9_-])(and|or|not)(?![a-zA-Z0-9_-])",
+          "match": "(?<![a-zA-Z0-9_-])(not|neq)(?![a-zA-Z0-9_-])",
           "name": "keyword.operator.logical.purus"
         },
         {
+          "match": "(?<![a-zA-Z0-9_-])(add|sub|mul|div|fdiv|mod|neg|pow)(?![a-zA-Z0-9_-])",
+          "name": "keyword.control.arithmetic.purus"
+        },
+        {
+          "match": "(?<![a-zA-Z0-9_-])(lt|gt|le|ge)(?![a-zA-Z0-9_-])",
+          "name": "keyword.control.arithmetic.purus"
+        },
+        {
+          "match": "(?<![a-zA-Z0-9_-])(and|or)(?![a-zA-Z0-9_-])",
+          "name": "keyword.control.arithmetic.purus"
+        },
+        {
+          "match": "(?<![a-zA-Z0-9_-])(band|bor|bxor|bnot|shl|shr|ushr)(?![a-zA-Z0-9_-])",
+          "name": "keyword.control.arithmetic.purus"
+        },
+        {
           "match": "(?<![a-zA-Z0-9_-])(coal)(?![a-zA-Z0-9_-])",
-          "name": "keyword.operator.nullish.purus"
+          "name": "keyword.control.arithmetic.purus"
         },
         {
           "match": "(?<![a-zA-Z0-9_-])(pipe)(?![a-zA-Z0-9_-])",
-          "name": "keyword.operator.pipe.purus"
+          "name": "keyword.control.arithmetic.purus"
         }
       ]
     },
@@ -241,13 +276,13 @@
           "name": "constant.language.boolean.purus"
         },
         {
-          "match": "(?<![a-zA-Z0-9_-])(null|nil|undefined|nan)(?![a-zA-Z0-9_-])",
+          "match": "(?<![a-zA-Z0-9_-])(null|nil|undefined|nan|infinity)(?![a-zA-Z0-9_-])",
           "name": "constant.language.purus"
         }
       ]
     },
     "other-keyword": {
-      "match": "(?<![a-zA-Z0-9_-])(new|delete|this|await|super)(?![a-zA-Z0-9_-])",
+      "match": "(?<![a-zA-Z0-9_-])(new|delete|this|await|super|void)(?![a-zA-Z0-9_-])",
       "name": "keyword.other.purus"
     },
     "support": {

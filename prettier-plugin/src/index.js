@@ -4,25 +4,28 @@ const KEYWORDS = new Set([
   "const", "let", "var", "be",
   "fn", "async", "return", "to", "gives",
   "if", "elif", "else", "unless", "then",
-  "while", "until", "for", "in", "range",
-  "match", "when", "witch", "case",
+  "while", "until", "do", "for", "in", "range",
+  "match", "when", "switch", "case",
   "try", "catch", "finally", "throw",
   "import", "from", "export", "default", "require", "use", "namespace", "public", "all", "with",
-  "add", "sub", "mul", "div", "mod", "neg", "pow",
+  "add", "sub", "mul", "div", "fdiv", "mod", "neg", "pow",
   "eq", "neq", "lt", "gt", "le", "ge",
   "and", "or", "not", "pipe", "coal",
-  "is", "as", "of", "typeof", "instanceof", "type",
-  "new", "delete", "this", "await",
-  "class", "extends", "super", "static", "private", "get", "set",
-  "true", "false", "null", "nil", "undefined", "nan",
+  "band", "bor", "bxor", "bnot", "shl", "shr", "ushr",
+  "as", "of", "typeof", "instanceof", "type",
+  "new", "delete", "this", "await", "yield", "void",
+  "class", "extends", "super", "static", "private", "protected", "get", "set",
+  "true", "false", "null", "nil", "undefined", "nan", "infinity",
   "break", "continue",
   "list", "object",
+  "function",
 ]);
 
 const BLOCK_STARTERS = new Set([
   "fn", "if", "elif", "else", "unless",
-  "while", "until", "for",
-  "match", "when", "witch", "case",
+  "while", "until", "do", "for",
+  "match", "when", "switch", "case",
+  "try", "catch", "finally", "class",
 ]);
 
 function tokenize(source) {
@@ -136,13 +139,25 @@ function tokenize(source) {
       continue;
     }
 
-    // Number
+    // Number (decimal, 0b binary, 0x hex, BigInt n-suffix)
     if (/[0-9]/.test(source[i])) {
       let start = i;
-      while (i < len && /[0-9]/.test(source[i])) i++;
-      if (i < len && source[i] === "." && i + 1 < len && /[0-9]/.test(source[i + 1])) {
-        i++;
+      if (source[i] === "0" && i + 1 < len && (source[i + 1] === "b" || source[i + 1] === "B")) {
+        i += 2;
+        while (i < len && /[01]/.test(source[i])) i++;
+      } else if (source[i] === "0" && i + 1 < len && (source[i + 1] === "x" || source[i + 1] === "X")) {
+        i += 2;
+        while (i < len && /[0-9a-fA-F]/.test(source[i])) i++;
+      } else {
         while (i < len && /[0-9]/.test(source[i])) i++;
+        if (i < len && source[i] === "." && i + 1 < len && /[0-9]/.test(source[i + 1])) {
+          i++;
+          while (i < len && /[0-9]/.test(source[i])) i++;
+        }
+      }
+      // BigInt suffix: n
+      if (i < len && source[i] === "n" && (i + 1 >= len || !/[a-zA-Z0-9_]/.test(source[i + 1]))) {
+        i++;
       }
       tokens.push({ type: "number", value: source.slice(start, i) });
       continue;

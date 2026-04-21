@@ -1,0 +1,36 @@
+---
+title: p-promise
+description: Promise utility functions.
+sidebar:
+  order: 11
+---
+
+The `promise` module provides functions for creating and composing Promises.
+
+```purus
+use p-promise as p
+```
+
+## Create
+
+| Function | Description |
+|----------|-------------|
+| `p.resolve[value]` | Create a resolved Promise |
+| `p.reject[reason]` | Create a rejected Promise |
+| `p.create[executor]` | Create a new Promise with an executor function |
+| `p.delay[ms]` | Create a Promise that resolves after `ms` milliseconds |
+
+## Compose
+
+| Function | Description |
+|----------|-------------|
+| `p.all[promises]` | Wait for all promises to resolve |
+| `p.allsettled[promises]` | Wait for all promises to settle (resolve or reject) |
+| `p.race[promises]` | Return the first promise to settle |
+| `p.any[promises]` | Return the first promise to resolve |
+
+## Utility
+
+| Function | Description |
+|----------|-------------|
+| `p.timeout[promise; ms]` | Reject if a promise doesn't settle within `ms` milliseconds |

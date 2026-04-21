@@ -1,0 +1,46 @@
+---
+title: p-map
+description: Map creation and operations.
+sidebar:
+  order: 13
+---
+
+The `map` module provides functions for creating and manipulating `Map` objects.
+
+```purus
+use p-map as m
+```
+
+## Create
+
+| Function | Description |
+|----------|-------------|
+| `m.create[pairs...]` | Create a Map from key-value pairs |
+| `m.from[iterable]` | Create a Map from an array of `[key; value]` pairs |
+| `m.fromobject[obj]` | Create a Map from a plain object |
+
+## Access
+
+| Function | Description |
+|----------|-------------|
+| `m.get[map; key]` | Get the value for a key |
+| `m.has[map; key]` | Check if a key exists |
+| `m.size[map]` | Get the number of entries |
+
+## Modify
+
+| Function | Description |
+|----------|-------------|
+| `m.set[map; key; value]` | Return a new map with the key-value pair added/updated |
+| `m.delete[map; key]` | Return a new map with the key removed |
+| `m.clear[map]` | Return an empty map |
+| `m.merge[a; b]` | Merge two maps (entries in `b` override `a`) |
+
+## Convert
+
+| Function | Description |
+|----------|-------------|
+| `m.keys[map]` | Get all keys as an array |
+| `m.values[map]` | Get all values as an array |
+| `m.entries[map]` | Get all entries as an array of `[key, value]` pairs |
+| `m.toobject[map]` | Convert to a plain object |

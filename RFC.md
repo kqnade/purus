@@ -1,6 +1,6 @@
 # Purus Language Specification
 
-**RFC — v0.8.1**
+**RFC — v0.9.0**
 
 > Purus — _/ˈpuː.rus/_ — means _pure_ in Latin.
 > A beautiful, simple, and easy-to-use language that compiles to JavaScript.
@@ -172,13 +172,13 @@ The following words are reserved and cannot be used as identifiers:
 
 **Control:** `if`, `elif`, `else`, `unless`, `then`, `while`, `until`, `for`, `in`, `range`, `break`, `continue`, `switch`, `case`, `match`, `when`
 
-**Operator:** `add`, `sub`, `mul`, `div`, `mod`, `pow`, `neg`, `eq`, `neq`, `lt`, `gt`, `le`, `ge`, `and`, `or`, `not`, `coal`, `pipe`
+**Operator:** `add`, `sub`, `mul`, `div`, `mod`, `pow`, `neg`, `eq`, `neq`, `lt`, `gt`, `le`, `ge`, `and`, `or`, `not`, `coal`, `pipe`, `band`, `bor`, `bxor`, `bnot`, `shl`, `shr`, `ushr`
 
-**Type:** `is`, `as`, `of`, `typeof`, `instanceof`, `type`
+**Type:** `as`, `of`, `typeof`, `instanceof`, `type`
 
-**Module:** `import`, `from`, `export`, `default`, `require`, `use` _(deprecated)_, `namespace`, `public`, `all`
+**Module:** `import`, `from`, `export`, `default`, `require`, `use`, `namespace`, `public`, `all`
 
-**Value:** `true`, `false`, `null`, `nil`, `undefined`, `nan`
+**Value:** `true`, `false`, `null`, `nil`, `undefined`, `nan`, `infinity`
 
 **Constructor:** `list`, `object`
 
@@ -201,6 +201,8 @@ The following words are reserved and cannot be used as identifiers:
 | Null | `null` / `nil` | `null` |
 | Undefined | `undefined` | `undefined` |
 | NaN | `nan` | `NaN` |
+| Infinity | `infinity` | `Infinity` |
+| -Infinity | `neg infinity` / `-infinity` | `-Infinity` |
 
 **Negative number literals** are recognized after these tokens: `[`, `,`, `;`, `be`, `\`, newline, indent, `return`, `to`, `then`, `coal`.
 
@@ -238,6 +240,24 @@ const i be 42      -- integer
 const f be 3.14    -- float
 const n be -7      -- negative integer
 ```
+
+Binary and hexadecimal literals:
+
+```
+const mask be 0b1010      -- 10
+const color be 0xFF00FF   -- 16711935
+```
+
+BigInt literals — append `n` suffix to any integer (decimal, binary, or hex):
+
+```
+const big be 9007199254740993n
+const hex be 0xFFFFFFFFFFFFFFFFn
+const bin be 0b11111111n
+big add 1n                         -- 9007199254740994n
+```
+
+BigInt compiles directly to JavaScript BigInt literals. Arithmetic on BigInt requires both operands to be BigInt.
 
 ### 4.2 Strings
 
@@ -312,10 +332,14 @@ const a be null
 const b be nil         -- alias for null
 const c be undefined
 const d be nan         -- NaN
+const e be infinity    -- Infinity
+const f be neg infinity -- -Infinity
+const g be -infinity   -- -Infinity (special case)
 ```
 
 Both `null` and `nil` compile to JavaScript `null`.
 `nan` compiles to JavaScript `NaN`.
+`infinity` compiles to JavaScript `Infinity`. `neg infinity` and `-infinity` both compile to `-Infinity`.
 
 ### 4.6 Regular Expressions
 
@@ -392,14 +416,18 @@ From lowest to highest:
 | 2 | `coal` | Nullish coalescing |
 | 3 | `or` | Logical OR |
 | 4 | `and` | Logical AND |
-| 5 | `eq` / `neq` / `not eq` / `is` / `instanceof` | Equality |
-| 6 | `lt` / `gt` / `le` (`lt eq`) / `ge` (`gt eq`) | Comparison |
-| 7 | `add` / `sub` | Addition / Subtraction |
-| 8 | `mul` / `div` / `mod` | Multiplication / Division / Modulo |
-| 9 | `pow` | Exponentiation (right-associative) |
-| 10 | `not` / `neg` / `typeof` / `await` / `delete` / `new` | Unary |
-| 11 | `.` access / `\.` optional / `[args]` call / `[\expr]` access / `as` cast | Postfix |
-| 12 | Literals, identifiers, brackets | Primary |
+| 5 | `bor` | Bitwise OR |
+| 6 | `bxor` | Bitwise XOR |
+| 7 | `band` | Bitwise AND |
+| 8 | `eq` / `neq` / `not eq` / `instanceof` | Equality |
+| 9 | `lt` / `gt` / `le` (`lt eq`) / `ge` (`gt eq`) | Comparison |
+| 10 | `shl` / `shr` / `ushr` | Bitwise shift |
+| 11 | `add` / `sub` | Addition / Subtraction |
+| 12 | `mul` / `div` / `mod` | Multiplication / Division / Modulo |
+| 13 | `pow` | Exponentiation (right-associative) |
+| 14 | `not` / `neg` / `bnot` / `typeof` / `void` / `await` / `delete` / `new` | Unary |
+| 15 | `.` access / `\.` optional / `[args]` call / `[\expr]` access / `as` cast | Postfix |
+| 16 | Literals, identifiers, brackets | Primary |
 
 ### 5.2 Arithmetic
 
@@ -429,8 +457,6 @@ From lowest to highest:
 | `a ge b` | `a >= b` | Greater than or equal |
 | `a gt eq b` | `a >= b` | Alternative GE |
 
-**Note:** `eq` and `is` are interchangeable. Both compile to `===`.
-
 **Note:** `not eq` is an alias for `neq`, `lt eq` is an alias for `le`, and `gt eq` is an alias for `ge`. Both forms compile to the same JavaScript output.
 
 ### 5.4 Logical
@@ -441,7 +467,19 @@ From lowest to highest:
 | `a or b` | `a \|\| b` | Logical OR |
 | `not x` | `!x` | Logical NOT |
 
-### 5.5 Nullish Coalescing
+### 5.5 Bitwise
+
+| Purus | JS | Description |
+|-------|----|-------------|
+| `a band b` | `a & b` | Bitwise AND |
+| `a bor b` | `a \| b` | Bitwise OR |
+| `a bxor b` | `a ^ b` | Bitwise XOR |
+| `bnot x` | `~x` | Bitwise NOT (unary) |
+| `a shl b` | `a << b` | Left shift |
+| `a shr b` | `a >> b` | Right shift (sign-preserving) |
+| `a ushr b` | `a >>> b` | Unsigned right shift |
+
+### 5.6 Nullish Coalescing
 
 The `coal` operator returns the right-hand side when the left-hand side is `null` or `undefined`:
 
@@ -457,7 +495,7 @@ const port be config.port coal 3000
 -- uses 3000 only if port is null/undefined; 0 would be preserved
 ```
 
-### 5.6 Pipeline
+### 5.7 Pipeline
 
 The `pipe` operator passes the left operand as the first argument to the right operand:
 
@@ -473,7 +511,7 @@ Compilation rules:
 - `a pipe f[x; y]` → `f(a, x, y)` (prepends `a` as first argument)
 - `a pipe .method[x]` → `a.method(x)` (method call on `a`)
 
-### 5.7 Optional Chaining
+### 5.8 Optional Chaining
 
 The `\.` operator provides safe property access on potentially null/undefined values. It compiles to JavaScript's optional chaining operator `?.`:
 
@@ -497,24 +535,15 @@ Combine with `coal` for default values:
 const display be user\.name coal ///anonymous///
 ```
 
-### 5.8 Type Check and Cast
+### 5.9 Type Check and Cast
 
-**Type check with `is` / `eq`:**
-
-When `is` or `eq` is followed by a type name, it becomes a type check:
+**Type check with `typeof`:**
 
 | Purus | JS |
 |-------|----|
-| `x is string` | `typeof x === "string"` |
-| `x is number` | `typeof x === "number"` |
-| `x is null` | `x === null` |
-| `x is MyClass` | `x instanceof MyClass` |
-| `x instanceof Y` | `x instanceof Y` |
 | `typeof x` | `typeof x` |
-
-Primitive type names: `string`, `number`, `boolean`, `undefined`, `function`, `symbol`, `bigint`, `null`, `object`.
-
-Capitalized names are treated as class constructors and use `instanceof`.
+| `typeof x eq ///string///` | `typeof x === "string"` |
+| `x instanceof Y` | `x instanceof Y` |
 
 **Type cast with `as`:**
 
@@ -591,6 +620,28 @@ Compiles to:
 x = 42;
 obj.field = "new value";
 ```
+
+**Compound assignment** combines an operation with assignment. Supported operators:
+
+| Purus | JS | Category |
+|-------|-----|----------|
+| `x add be n` | `x += n` | Arithmetic |
+| `x sub be n` | `x -= n` | Arithmetic |
+| `x mul be n` | `x *= n` | Arithmetic |
+| `x div be n` | `x /= n` | Arithmetic |
+| `x mod be n` | `x %= n` | Arithmetic |
+| `x pow be n` | `x **= n` | Arithmetic |
+| `x band be n` | `x &= n` | Bitwise |
+| `x bor be n` | `x \|= n` | Bitwise |
+| `x bxor be n` | `x ^= n` | Bitwise |
+| `x shl be n` | `x <<= n` | Bitwise |
+| `x shr be n` | `x >>= n` | Bitwise |
+| `x ushr be n` | `x >>>= n` | Bitwise |
+| `x and be v` | `x &&= v` | Logical |
+| `x or be v` | `x \|\|= v` | Logical |
+| `x coal be v` | `x ??= v` | Nullish |
+
+> **Deprecation Warning:** Bare variable assignment (`x be 42`) without a declaration keyword (`const`/`let`) is discouraged. Property assignments (`obj.field be value`, `arr[\i] be value`) are still valid without a declaration keyword. Use `const` for immutable bindings and `let` for mutable variables.
 
 ### 6.5 Type Alias
 
@@ -837,6 +888,38 @@ fn add a of Number; b of Number gives Number to a add b
 - `of Type` — parameter type annotation
 - `gives Type` — return type annotation
 
+### 7.12 Generator Functions
+
+A function that contains `yield` is automatically compiled as a generator (`function*`):
+
+```
+fn count-up limit
+  let i be 0
+  while i lt limit
+    yield i
+    i be i add 1
+```
+
+```js
+function* countUp(limit) {
+  let i = 0;
+  while (i < limit) {
+    yield i;
+    i = i + 1;
+  }
+}
+```
+
+`yield` can also be used with no value or in expressions:
+
+```
+fn infinite-ids
+  let id be 1
+  while true
+    yield id
+    id be id add 1
+```
+
 ---
 
 ## 8. Control Flow
@@ -907,7 +990,25 @@ until finished
 
 `until COND` compiles to `while (!(COND))`.
 
-### 8.6 For-in
+### 8.6 Do-While
+
+`do...while` executes the body at least once before checking the condition:
+
+```
+do
+  process-item[]
+while has-more[]
+```
+
+```js
+do {
+  processItem();
+} while (hasMore());
+```
+
+> **Note:** `do` is a deprecated keyword. Prefer `while` or `until` with appropriate initialization.
+
+### 8.7 For-in
 
 **Basic iteration:**
 
@@ -935,7 +1036,7 @@ for (let [i, item] of items.entries()) {
 }
 ```
 
-### 8.7 For-range
+### 8.8 For-range
 
 ```
 for i in range 0; 10
@@ -948,7 +1049,7 @@ for (let i = 0; i < 10; i++) {
 }
 ```
 
-### 8.8 Switch / Case / Default
+### 8.9 Switch / Case / Default
 
 **Statement form:**
 
@@ -985,7 +1086,7 @@ Switch arms support:
 - **Guards:** `case n if n gt 0` (additional condition)
 - **Body:** `then EXPR` (expression) or indented block
 
-### 8.9 Match / When (deprecated)
+### 8.10 Match / When (deprecated)
 
 > **Deprecated:** Use `switch` / `case` / `default` instead.
 > `match` / `when` is kept for backward compatibility.
@@ -1025,7 +1126,7 @@ Match arms support:
 - **Guards:** `when n if n gt 0` (additional condition)
 - **Body:** `then EXPR` (expression) or indented block
 
-### 8.10 Break / Continue / Return
+### 8.11 Break / Continue / Return
 
 ```
 break
@@ -1111,21 +1212,256 @@ import axios, { AxiosError } from "axios";
 
 This is equivalent to the `import...from` syntax in §10.1 with reversed order.
 
-### 10.3 Use (Dot-path Import, deprecated)
+### 10.3 Use (Standard Library Import)
 
-> **Deprecated:** The `use` / `from...use` syntax is deprecated. Use `import...from` or `from...import` with string paths instead.
+The `use` keyword imports Purus built-in standard library modules. All module names are prefixed with `p-` to avoid keyword conflicts. The `as` keyword is optional — when omitted, the module name is used as the binding name (with `-` converted to `_` in the JS output).
+
+Tree-shaking ensures only the functions you actually reference are included in the compiled output.
+
+**Syntax:**
 
 ```
-use std.math
-from std.math use sin, cos
+use p-random as r
+use p-math as m
+use p-math                 -- equivalent to: use p-math as p-math (binding: p_math)
+use p-string as s
+use p-datetime as dt
+use p-json as j
+use p-json                 -- equivalent to: use p-json as p-json (binding: p_json)
+use p-object as o
+use p-number as n
+use p-array as a
+use p-error as e
 ```
 
 ```js
-import * as math from "std/math";
-import { sin, cos } from "std/math";
+// Only used functions are emitted (tree-shaking)
+const r = { randint(a, b) { ... }, choice(arr) { ... } };
+const m = { floor: Math.floor, pi: Math.PI };
+const s = { upper(str) { ... }, reverse(str) { ... } };
 ```
 
-Dots in the path are converted to `/` in the import.
+The `p-math` module is a direct alias for JS `Math` — all standard `Math` methods (e.g. `abs`, `floor`, `sin`, `sqrt`) are available, plus lowercase constant aliases (`pi`, `e`, `ln2`, etc.).
+
+**Available standard library modules:**
+
+| Module | Contents |
+|--------|----------|
+| `p-random` | `random`, `randint`, `randrange`, `randbool`, `uniform`, `triangular`, `gauss`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
+| `p-math` | JS `Math` alias + lowercase constant aliases (`pi`, `e`, `ln2`, `ln10`, `log2e`, `log10e`, `sqrt2`, `sqrt1_2`) |
+| `p-string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
+| `p-datetime` | `now`, `today`, `timestamp`, `create`, `utccreate`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `utcyear`, `utcmonth`, `utcday`, `utcweekday`, `utchour`, `utcminute`, `utcsecond`, `utcms`, `tzyear`, `tzmonth`, `tzday`, `tzweekday`, `tzhour`, `tzminute`, `tzsecond`, `toiso`, `tolocale`, `todate`, `totime`, `format`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds`, `offset`, `localtz` |
+| `p-json` | `parse`, `stringify`, `prettify` |
+| `p-object` | `keys`, `values`, `entries`, `fromentries`, `assign`, `freeze`, `seal`, `isfrozen`, `issealed`, `hasown`, `create`, `is`, `len`, `merge`, `clone`, `pick`, `omit` |
+| `p-number` | `isfinite`, `isinteger`, `isnan`, `issafe`, `parsefloat`, `parseint`, `tofixed`, `toprecision`, `toexponential`, `tostring`, `clamp` + constants: `maxsafe`, `minsafe`, `epsilon`, `maxvalue`, `minvalue`, `posinf`, `neginf` |
+| `p-array` | `isarray`, `from`, `of`, `len`, `first`, `last`, `range`, `flatten`, `unique`, `zip`, `unzip`, `chunk`, `sum`, `product`, `min`, `max`, `sortasc`, `sortdesc`, `compact`, `count`, `groupby` |
+| `p-error` | `create`, `type`, `range`, `reference`, `syntax`, `uri`, `iserror`, `message`, `name`, `stack`, `cause`, `wrap` |
+| `p-regexp` | `create`, `test`, `exec`, `match`, `matchall`, `search`, `replace`, `replaceall`, `split`, `flags`, `source`, `escape` |
+| `p-promise` | `create`, `resolve`, `reject`, `all`, `allsettled`, `any`, `race`, `delay`, `timeout`, `retry`, `map`, `each`, `filter`, `reduce`, `props` |
+| `p-set` | `create`, `from`, `add`, `delete`, `has`, `clear`, `size`, `values`, `union`, `intersection`, `difference`, `symmetric`, `issubset`, `issuperset`, `isdisjoint`, `toarray`, `map`, `filter` |
+| `p-map` | `create`, `from`, `entries`, `get`, `set`, `delete`, `has`, `clear`, `size`, `keys`, `values`, `toentries`, `toobject`, `merge`, `map`, `filter`, `find`, `groupby` |
+
+**`p-random` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `random[]` | Random float 0–1 | `r.random[]` → `0.7234...` |
+| `randint[a; b]` | Random integer (inclusive) | `r.randint[1; 10]` → `7` |
+| `randrange[stop]` | Random int in range | `r.randrange[10]` → `7` |
+| `randrange[start; stop; step]` | Random int with step | `r.randrange[0; 100; 5]` → `45` |
+| `randbool[]` | Random boolean | `r.randbool[]` → `true` |
+| `uniform[a; b]` | Random float in range | `r.uniform[0.0; 1.0]` → `0.583...` |
+| `triangular[lo; hi; mode]` | Triangular distribution | `r.triangular[0; 10; 3]` → `4.2...` |
+| `gauss[mu; sigma]` | Gaussian (normal) distribution | `r.gauss[0; 1]` → `-0.42...` |
+| `expovariate[lambd]` | Exponential distribution | `r.expovariate[1.5]` → `0.73...` |
+| `gammavariate[alpha; beta]` | Gamma distribution | `r.gammavariate[2; 1]` → `1.58...` |
+| `betavariate[alpha; beta]` | Beta distribution | `r.betavariate[2; 5]` → `0.27...` |
+| `lognormvariate[mu; sigma]` | Log-normal distribution | `r.lognormvariate[0; 1]` → `1.42...` |
+| `vonmisesvariate[mu; kappa]` | Von Mises distribution | `r.vonmisesvariate[0; 4]` → `0.31...` |
+| `paretovariate[alpha]` | Pareto distribution | `r.paretovariate[1]` → `1.82...` |
+| `weibullvariate[alpha; beta]` | Weibull distribution | `r.weibullvariate[1; 1.5]` → `0.63...` |
+| `choice[arr]` | Random element from array | `r.choice[list[1; 2; 3]]` → `2` |
+| `choices[arr; k]` | Pick k with replacement | `r.choices[list[1; 2; 3]; 5]` → `[2, 3, 1, 3, 2]` |
+| `wchoices[arr; weights; k]` | Weighted pick k with replacement | `r.wchoices[list[1; 2; 3]; list[1; 2; 7]; 3]` → `[3, 3, 2]` |
+| `shuffle[arr]` | Shuffled copy of array | `r.shuffle[list[1; 2; 3]]` → `[3, 1, 2]` |
+| `sample[arr; k]` | Pick k without replacement | `r.sample[list[1; 2; 3]; 2]` → `[3, 1]` |
+| `binomial[n; p]` | Binomial distribution | `r.binomial[10; 0.5]` → `6` |
+| `poisson[lambda]` | Poisson distribution | `r.poisson[4]` → `3` |
+| `geometric[p]` | Geometric distribution | `r.geometric[0.5]` → `2` |
+| `clamp[val; lo; hi]` | Clamp value to range | `r.clamp[15; 0; 10]` → `10` |
+| `lerp[a; b; t]` | Linear interpolation | `r.lerp[0; 100; 0.5]` → `50` |
+
+**`p-string` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `len[str]` | String length | `s.len[///hello///]` → `5` |
+| `contains[str; sub]` | Check if contains substring | `s.contains[///hello///; ///ell///]` → `true` |
+| `startswith[str; prefix]` | Check prefix | `s.startswith[///hello///; ///he///]` → `true` |
+| `endswith[str; suffix]` | Check suffix | `s.endswith[///hello///; ///lo///]` → `true` |
+| `indexof[str; sub]` | First index of substring | `s.indexof[///hello///; ///ll///]` → `2` |
+| `count[str; sub]` | Count occurrences | `s.count[///banana///; ///an///]` → `2` |
+| `upper[str]` | Uppercase | `s.upper[///hello///]` → `///HELLO///` |
+| `lower[str]` | Lowercase | `s.lower[///HELLO///]` → `///hello///` |
+| `capitalize[str]` | Capitalize first char | `s.capitalize[///hello///]` → `///Hello///` |
+| `title[str]` | Title case | `s.title[///hello world///]` → `///Hello World///` |
+| `trim[str]` | Trim whitespace | `s.trim[/// hello ///]` → `///hello///` |
+| `reverse[str]` | Reverse string | `s.reverse[///abc///]` → `///cba///` |
+| `repeat[str; n]` | Repeat n times | `s.repeat[///ab///; 3]` → `///ababab///` |
+| `replace[str; old; new]` | Replace all occurrences | `s.replace[///aabb///; ///a///; ///x///]` → `///xxbb///` |
+| `padstart[str; len; fill]` | Pad start | `s.padstart[///5///; 3; ///0///]` → `///005///` |
+| `padend[str; len; fill]` | Pad end | `s.padend[///5///; 3; ///0///]` → `///500///` |
+| `split[str; sep]` | Split string | `s.split[///a,b,c///; ///,///]` → `[///a///; ///b///; ///c///]` |
+| `lines[str]` | Split by newlines | `s.lines[///a\nb///]` → `[///a///; ///b///]` |
+| `words[str]` | Split by whitespace | `s.words[///foo bar///]` → `[///foo///; ///bar///]` |
+| `join[arr; sep]` | Join array | `s.join[list[///a///; ///b///]; ///,///]` → `///a,b///` |
+| `chars[str]` | Split into chars | `s.chars[///abc///]` → `[///a///; ///b///; ///c///]` |
+| `slice[str; start; end]` | Slice substring | `s.slice[///hello///; 1; 3]` → `///el///` |
+| `charat[str; i]` | Char at index | `s.charat[///hello///; 0]` → `///h///` |
+| `codeat[str; i]` | Code point at index | `s.codeat[///A///; 0]` → `65` |
+| `fromcode[code]` | String from code point | `s.fromcode[65]` → `///A///` |
+
+**`p-datetime` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `now[]` | Current timestamp (ms) | `dt.now[]` → `1712000000000` |
+| `today[]` | Start of today (ms) | `dt.today[]` → `1711929600000` |
+| `timestamp[]` | Unix timestamp (seconds) | `dt.timestamp[]` → `1712000000` |
+| `create[y; m; d; h; min; s; ms]` | Create local timestamp | `dt.create[2026; 4; 2]` → `...` |
+| `utccreate[y; m; d; h; min; s; ms]` | Create UTC timestamp | `dt.utccreate[2026; 4; 2]` → `...` |
+| `fromiso[str]` | Parse ISO 8601 | `dt.fromiso[///2026-04-02T00:00:00Z///]` → `...` |
+| `year[t]` | Extract year (local) | `dt.year[dt.now[]]` → `2026` |
+| `month[t]` | Extract month 1–12 (local) | `dt.month[dt.now[]]` → `4` |
+| `day[t]` | Extract day 1–31 (local) | `dt.day[dt.now[]]` → `2` |
+| `weekday[t]` | Day of week 0=Sun (local) | `dt.weekday[dt.now[]]` → `4` |
+| `hour[t]` / `minute[t]` / `second[t]` / `ms[t]` | Extract time parts (local) | `dt.hour[dt.now[]]` → `14` |
+| `utcyear[t]` | Extract year (UTC) | `dt.utcyear[dt.now[]]` → `2026` |
+| `utcmonth[t]` / `utcday[t]` / `utcweekday[t]` | Extract date parts (UTC) | `dt.utcmonth[dt.now[]]` → `4` |
+| `utchour[t]` / `utcminute[t]` / `utcsecond[t]` / `utcms[t]` | Extract time parts (UTC) | `dt.utchour[dt.now[]]` → `5` |
+| `tzyear[t; tz]` | Extract year in timezone | `dt.tzyear[dt.now[]; ///America/New_York///]` → `2026` |
+| `tzmonth[t; tz]` / `tzday[t; tz]` / `tzweekday[t; tz]` | Extract date parts in timezone | `dt.tzday[dt.now[]; ///Asia/Tokyo///]` → `2` |
+| `tzhour[t; tz]` / `tzminute[t; tz]` / `tzsecond[t; tz]` | Extract time parts in timezone | `dt.tzhour[dt.now[]; ///America/New_York///]` → `10` |
+| `toiso[t]` | Format as ISO 8601 | `dt.toiso[dt.now[]]` → `///2026-04-02T...Z///` |
+| `tolocale[t; locale; options]` | Locale string | `dt.tolocale[dt.now[]; ///ja-JP///]` → `...` |
+| `todate[t; locale; options]` | Date string | `dt.todate[dt.now[]; ///en-US///]` → `///4/2/2026///` |
+| `totime[t; locale; options]` | Time string | `dt.totime[dt.now[]; ///en-US///]` → `///2:30:00 PM///` |
+| `format[t; tz; locale; options]` | Format in timezone | `dt.format[dt.now[]; ///America/New_York///]` → `...` |
+| `adddays[t; n]` | Add days | `dt.adddays[dt.now[]; 7]` → `...` |
+| `addhours[t; n]` | Add hours | `dt.addhours[dt.now[]; 2]` → `...` |
+| `addminutes[t; n]` / `addseconds[t; n]` / `addms[t; n]` | Add time | ... |
+| `diff[a; b]` | Difference in ms | `dt.diff[t1; t2]` → `86400000` |
+| `diffdays[a; b]` / `diffhours[a; b]` / `diffminutes[a; b]` / `diffseconds[a; b]` | Difference in units | ... |
+| `offset[t]` | Local UTC offset (minutes) | `dt.offset[dt.now[]]` → `-540` |
+| `localtz[]` | Local timezone name | `dt.localtz[]` → `///Asia/Tokyo///` |
+
+**`p-json` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `parse[str]` | Parse JSON string | `j.parse[///{"a":1}///]` → `{ a: 1 }` |
+| `stringify[val]` | Convert to JSON string | `j.stringify[obj]` → `///{"a":1}///` |
+| `prettify[val; indent]` | Pretty-print JSON | `j.prettify[obj; 2]` → formatted string |
+
+**`p-math` module — lowercase constant aliases:**
+
+| Alias | Original | Value |
+|-------|----------|-------|
+| `pi` | `Math.PI` | `3.14159...` |
+| `e` | `Math.E` | `2.71828...` |
+| `ln2` | `Math.LN2` | `0.69314...` |
+| `ln10` | `Math.LN10` | `2.30258...` |
+| `sqrt2` | `Math.SQRT2` | `1.41421...` |
+
+**`p-object` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `keys[obj]` | Object keys | `o.keys[obj]` → `[///a///; ///b///]` |
+| `values[obj]` | Object values | `o.values[obj]` → `[1; 2]` |
+| `entries[obj]` | Key-value pairs | `o.entries[obj]` → `[[///a///; 1]; [///b///; 2]]` |
+| `fromentries[arr]` | Object from entries | `o.fromentries[list[list[///a///; 1]]]` → `{ a: 1 }` |
+| `assign[target; ...sources]` | Merge objects | `o.assign[a; b]` → merged object |
+| `freeze[obj]` | Freeze object | `o.freeze[obj]` |
+| `seal[obj]` | Seal object | `o.seal[obj]` |
+| `isfrozen[obj]` | Check if frozen | `o.isfrozen[obj]` → `true` |
+| `issealed[obj]` | Check if sealed | `o.issealed[obj]` → `true` |
+| `hasown[obj; key]` | Check own property | `o.hasown[obj; ///a///]` → `true` |
+| `is[a; b]` | Object.is comparison | `o.is[nan; nan]` → `true` |
+| `len[obj]` | Number of keys | `o.len[obj]` → `2` |
+| `merge[...objs]` | Merge into new object | `o.merge[a; b]` → new merged object |
+| `clone[obj]` | Deep clone | `o.clone[obj]` → deep copy |
+| `pick[obj; keys]` | Pick keys | `o.pick[obj; list[///a///]]` → `{ a: 1 }` |
+| `omit[obj; keys]` | Omit keys | `o.omit[obj; list[///a///]]` → `{ b: 2 }` |
+
+**`p-number` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `isfinite[val]` | Check finite | `n.isfinite[42]` → `true` |
+| `isinteger[val]` | Check integer | `n.isinteger[3.5]` → `false` |
+| `isnan[val]` | Check NaN | `n.isnan[nan]` → `true` |
+| `issafe[val]` | Safe integer check | `n.issafe[42]` → `true` |
+| `parsefloat[str]` | Parse float | `n.parsefloat[///3.14///]` → `3.14` |
+| `parseint[str; radix]` | Parse integer | `n.parseint[///ff///; 16]` → `255` |
+| `tofixed[num; digits]` | Fixed decimals | `n.tofixed[3.14159; 2]` → `///3.14///` |
+| `toprecision[num; digits]` | Precision string | `n.toprecision[123.456; 4]` → `///123.5///` |
+| `toexponential[num; digits]` | Exponential notation | `n.toexponential[12345; 2]` → `///1.23e+4///` |
+| `tostring[num; radix]` | Number to string | `n.tostring[255; 16]` → `///ff///` |
+| `clamp[num; min; max]` | Clamp to range | `n.clamp[15; 0; 10]` → `10` |
+
+**`p-number` module — constants:**
+
+| Constant | Original | Value |
+|----------|----------|-------|
+| `maxsafe` | `Number.MAX_SAFE_INTEGER` | `9007199254740991` |
+| `minsafe` | `Number.MIN_SAFE_INTEGER` | `-9007199254740991` |
+| `epsilon` | `Number.EPSILON` | `2.220446049250313e-16` |
+| `maxvalue` | `Number.MAX_VALUE` | `1.7976931348623157e+308` |
+| `minvalue` | `Number.MIN_VALUE` | `5e-324` |
+| `posinf` | `Number.POSITIVE_INFINITY` | `Infinity` |
+| `neginf` | `Number.NEGATIVE_INFINITY` | `-Infinity` |
+
+**`p-array` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `isarray[val]` | Check if array | `a.isarray[list[1; 2]]` → `true` |
+| `from[val]` | Array from iterable | `a.from[///abc///]` → `[///a///; ///b///; ///c///]` |
+| `of[...args]` | Create array | `a.of[1; 2; 3]` → `[1; 2; 3]` |
+| `len[arr]` | Array length | `a.len[list[1; 2; 3]]` → `3` |
+| `first[arr]` | First element | `a.first[list[1; 2; 3]]` → `1` |
+| `last[arr]` | Last element | `a.last[list[1; 2; 3]]` → `3` |
+| `range[start; end; step]` | Number range | `a.range[0; 5]` → `[0; 1; 2; 3; 4]` |
+| `flatten[arr; depth]` | Flatten nested | `a.flatten[list[list[1; 2]; list[3]]]` → `[1; 2; 3]` |
+| `unique[arr]` | Remove duplicates | `a.unique[list[1; 2; 2; 3]]` → `[1; 2; 3]` |
+| `zip[...arrs]` | Zip arrays | `a.zip[list[1; 2]; list[///a///; ///b///]]` → `[[1; ///a///]; [2; ///b///]]` |
+| `chunk[arr; size]` | Split into chunks | `a.chunk[list[1; 2; 3; 4]; 2]` → `[[1; 2]; [3; 4]]` |
+| `sum[arr]` | Sum numbers | `a.sum[list[1; 2; 3]]` → `6` |
+| `product[arr]` | Product of numbers | `a.product[list[2; 3; 4]]` → `24` |
+| `min[arr]` | Minimum value | `a.min[list[3; 1; 2]]` → `1` |
+| `max[arr]` | Maximum value | `a.max[list[3; 1; 2]]` → `3` |
+| `sortasc[arr]` | Sort ascending | `a.sortasc[list[3; 1; 2]]` → `[1; 2; 3]` |
+| `sortdesc[arr]` | Sort descending | `a.sortdesc[list[3; 1; 2]]` → `[3; 2; 1]` |
+| `compact[arr]` | Remove falsy | `a.compact[list[0; 1; null; 2]]` → `[1; 2]` |
+| `groupby[arr; fn]` | Group by function | `a.groupby[list[1; 2; 3]; fn x to x mod 2]` |
+
+**`p-error` module API:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `create[msg]` | Create Error | `e.create[///oops///]` |
+| `type[msg]` | Create TypeError | `e.type[///bad type///]` |
+| `range[msg]` | Create RangeError | `e.range[///out of range///]` |
+| `reference[msg]` | Create ReferenceError | `e.reference[///not defined///]` |
+| `syntax[msg]` | Create SyntaxError | `e.syntax[///bad syntax///]` |
+| `uri[msg]` | Create URIError | `e.uri[///bad uri///]` |
+| `iserror[val]` | Check if Error | `e.iserror[err]` → `true` |
+| `message[err]` | Get message | `e.message[err]` → `///oops///` |
+| `name[err]` | Get name | `e.name[err]` → `///Error///` |
+| `stack[err]` | Get stack trace | `e.stack[err]` → stack string |
+| `cause[err]` | Get cause | `e.cause[err]` → underlying error |
+| `wrap[msg; cause]` | Wrap with cause | `e.wrap[///failed///; original-err]` |
 
 ### 10.4 Export / Public
 
@@ -1706,6 +2042,8 @@ class Secret {
 | `gives` | _(erased)_ | Return type annotation |
 | `async` | `async` | Async function modifier |
 | `await` | `await` | Await expression |
+| `yield` | `yield` | Yield expression (generator) |
+| `function` | _(deprecated)_ | Deprecated alias for `fn` |
 
 ### Conditional
 
@@ -1728,6 +2066,7 @@ class Secret {
 | `range` | _(numeric range)_ | Range-based loop |
 | `break` | `break` | Break out of loop |
 | `continue` | `continue` | Continue to next iteration |
+| `do` | `do` | Do-while loop (deprecated) |
 
 ### Pattern Matching
 
@@ -1749,7 +2088,7 @@ class Secret {
 | `export` | `export` | ESM export |
 | `default` | `default` | Default export |
 | `require` | `require()` | CommonJS require |
-| `use` | `import` | Dot-path import _(deprecated)_ |
+| `use` | _(inline JS)_ | Standard library import |
 | `namespace` | IIFE | Module namespace |
 | `public` | `export` | Public export |
 | `all` | `* as` | Namespace import |
@@ -1784,6 +2123,21 @@ class Secret {
 | `and` | `&&` |
 | `or` | `\|\|` |
 | `not` | `!` |
+| `and be` | `&&=` |
+| `or be` | `\|\|=` |
+| `coal be` | `??=` |
+
+### Bitwise Operators
+
+| Keyword | JS Output |
+|---------|-----------|
+| `band` | `&` |
+| `bor` | `\|` |
+| `bxor` | `^` |
+| `bnot` | `~` (unary) |
+| `shl` | `<<` |
+| `shr` | `>>` |
+| `ushr` | `>>>` |
 
 ### Nullish Coalescing
 
@@ -1801,12 +2155,12 @@ class Secret {
 
 | Keyword | JS Output | Description |
 |---------|-----------|-------------|
-| `is` | `===` | Equality check (alias of `eq`) |
 | `as` | _(erased)_ | Type cast |
 | `of` | _(erased)_ | Type annotation |
 | `typeof` | `typeof` | Typeof operator |
 | `instanceof` | `instanceof` | Instance check |
 | `type` | _(erased)_ | Type alias |
+| `void` | `void` | Void expression |
 
 ### Class
 
@@ -1831,12 +2185,16 @@ class Secret {
 | `try` | `try` | Try block |
 | `catch` | `catch` | Catch block |
 | `finally` | `finally` | Finally block |
+| `void` | `void` | Void expression (evaluates operand, returns `undefined`) |
 | `list` | `[…]` | Array literal |
 | `object` | `{…}` | Object literal |
 | `null` | `null` | Null value |
 | `nil` | `null` | Null alias |
 | `undefined` | `undefined` | Undefined value |
 | `nan` | `NaN` | NaN value |
+| `infinity` | `Infinity` | Infinity value |
+| `-infinity` | `-Infinity` | Negative infinity (special case) |
+| `100n` / `0xFFn` / `0b1n` | `100n` / `255n` / `1n` | BigInt literal (integer with `n` suffix) |
 
 ### Punctuation
 
@@ -1856,11 +2214,12 @@ class Secret {
 Program       = { Statement } ;
 
 Statement     = VarDecl | FnDecl | ClassDecl | IfStmt | UnlessStmt
-              | WhileStmt | UntilStmt | ForStmt | SwitchStmt | MatchStmt
+              | WhileStmt | UntilStmt | DoWhileStmt | ForStmt | SwitchStmt | MatchStmt
               | TryCatch | Throw | Return | Break | Continue
               | ImportDecl | FromImportDecl | UseDecl | ModDecl | ExportDecl | PublicDecl
               | TypeDecl | DeleteStmt
               | Expr "be" Expr              (* assignment *)
+              | Expr ("add"|"sub"|"mul"|"div"|"mod"|"pow"|"band"|"bor"|"bxor"|"shl"|"shr"|"ushr"|"and"|"or"|"coal") "be" Expr  (* compound assignment *)
               | Expr                         (* expression statement *)
               ;
 
@@ -1888,6 +2247,8 @@ WhileStmt     = "while" Expr INDENT Block DEDENT ;
 
 UntilStmt     = "until" Expr INDENT Block DEDENT ;
 
+DoWhileStmt   = "do" INDENT Block DEDENT "while" Expr ;
+
 ForStmt       = "for" Ident [";" Ident] "in"
                 ( "range" Primary ";" Primary
                 | Expr
@@ -1907,7 +2268,7 @@ MatchArm      = "when" Pattern ["if" Expr]
               | "else" ( Expr | INDENT Block DEDENT )
               ;
 
-Pattern       = IntLit | FloatLit | StrLit | BoolLit | "null" | "nil" | Ident ;
+Pattern       = IntLit | FloatLit | BigIntLit | StrLit | BoolLit | "null" | "nil" | Ident ;
 
 TryCatch      = "try" INDENT Block DEDENT
                 "catch" [Ident] INDENT Block DEDENT
@@ -1921,8 +2282,7 @@ FromImportDecl = "from" String "import"
               ("all" "as" Ident | "[" IdentList "]" | Ident ["," "[" IdentList "]"])
               ;
 
-UseDecl       = "use" DottedName                                    (* deprecated *)
-              | "from" DottedName "use" Ident { "," Ident }         (* deprecated *)
+UseDecl       = "use" Ident ["as" Ident]                              (* stdlib import *)
               ;
 
 ModDecl       = "namespace" Ident INDENT Block DEDENT ;
@@ -1931,6 +2291,7 @@ ClassDecl     = "class" Ident ["extends" Ident]
                 INDENT { ClassMember } DEDENT ;
 
 ClassMember   = "private" Ident ["be" Expr]                          (* private field *)
+              | "protected" Ident ["be" Expr]                        (* deprecated alias for private *)
               | "fn" "new" ["[" ParamList "]"]
                 ( "to" Expr | INDENT Block DEDENT )                  (* constructor *)
               | ["static"] ["async"] "fn" Ident ParamList ["gives" Type]
@@ -1949,18 +2310,18 @@ Pipe          = Coal { "pipe" Coal } ;
 Coal          = Or { "coal" Or } ;
 Or            = And { "or" And } ;
 And           = Equality { "and" Equality } ;
-Equality      = Comparison { ("eq" | "neq" | "not" "eq" | "is" | "instanceof") Comparison } ;
+Equality      = Comparison { ("eq" | "neq" | "not" "eq" | "instanceof") Comparison } ;
 Comparison    = Addition { ("lt" ["eq"] | "gt" ["eq"] | "le" | "ge") Addition } ;
 Addition      = Multiplication { ("add" | "sub") Multiplication } ;
 Multiplication = Power { ("mul" | "div" | "mod") Power } ;
 Power         = Unary [ "pow" Power ] ;     (* right-associative *)
-Unary         = ("not" | "neg" | "typeof" | "await" | "new") Unary | Postfix ;
+Unary         = ("not" | "neg" | "typeof" | "void" | "await" | "yield" | "new") Unary | Postfix ;
 Postfix       = Primary { "." Ident ["[" ArgList "]"]
               | "\." Ident ["[" ArgList "]"]
               | "[" ArgList "]"
               | "[\\" Expr "]"
               | "as" Ident } ;
-Primary       = IntLit | FloatLit | StrLit | InterpStr | Regex
+Primary       = IntLit | FloatLit | BigIntLit | StrLit | InterpStr | Regex
               | "true" | "false" | "null" | "nil" | "undefined" | "this" | "super"
               | Ident
               | "list" "[" ExprList "]"

@@ -1,0 +1,52 @@
+---
+title: p-json
+description: JSON parse and stringify utilities.
+sidebar:
+  order: 2
+---
+
+The `json` module provides JSON parsing and serialization functions.
+
+```purus
+use p-json as j
+```
+
+## Functions
+
+### `parse[str]`
+Parses a JSON string and returns the corresponding value.
+
+```purus
+use p-json as j
+const data be j.parse[///{"name": "Purus", "version": 1}///]
+console.log[data.name]  -- "Purus"
+```
+
+### `stringify[val]`
+Converts a value to a JSON string.
+
+```purus
+use p-json as j
+const obj be [name be ///Purus///, version be 1]
+const text be j.stringify[obj]
+console.log[text]  -- {"name":"Purus","version":1}
+```
+
+### `prettify[val; indent]`
+Converts a value to a pretty-printed JSON string. The `indent` parameter specifies the number of spaces (default: 2).
+
+```purus
+use p-json as j
+const obj be [name be ///Purus///, version be 1]
+console.log[j.prettify[obj]]
+-- {
+--   "name": "Purus",
+--   "version": 1
+-- }
+
+console.log[j.prettify[obj; 4]]
+-- {
+--     "name": "Purus",
+--     "version": 1
+-- }
+```

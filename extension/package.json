@@ -2,9 +2,13 @@
   "name": "purus",
   "displayName": "Purus",
   "description": "Purus language support — syntax highlighting, snippets, and file icons",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "publisher": "otoneko1102",
   "license": "Apache-2.0",
+  "main": "./src/extension.js",
+  "activationEvents": [
+    "onLanguage:purus"
+  ],
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -56,6 +60,13 @@
         "id": "purus-icons",
         "label": "Purus File Icons (supplement)",
         "path": "./icons/purus-icon-theme.json"
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "/",
+        "command": "purus.surroundSlash",
+        "when": "editorTextFocus && editorHasSelection && editorLangId == 'purus'"
       }
     ]
   }

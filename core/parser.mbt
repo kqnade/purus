@@ -132,6 +132,7 @@ fn Parser::parse_stmt(self : Parser) -> Stmt? {
     Unless => Some(self.parse_unless_stmt())
     While_ => Some(self.parse_while_stmt())
     Until => Some(self.parse_until_stmt())
+    Do_ => Some(self.parse_do_while_stmt())
     For_ => Some(self.parse_for_stmt())
     Match_ | Switch_ => Some(self.parse_match_stmt())
     Return_ => {
@@ -175,13 +176,53 @@ fn Parser::parse_stmt(self : Parser) -> Stmt? {
     Class_ => Some(self.parse_class_decl())
     _ => {
       let expr = self.parse_expr()
-      // Check for assignment: EXPR be EXPR
-      if self.peek() == Be {
-        self.pos += 1
-        let value = self.parse_expr()
-        Some(self.maybe_postfix(Assign(expr, value)))
-      } else {
-        Some(self.maybe_postfix(ExprStmt(expr)))
+      // Check for compound assignment: EXPR add be EXPR, etc.
+      match self.peek() {
+        Add
+        | Sub
+        | Mul
+        | Div
+        | Mod
+        | Pow
+        | Fdiv
+        | Band
+        | Bor
+        | Bxor
+        | Shl
+        | Shr
+        | Ushr
+        | And
+        | Or
+        | Coal => {
+          let op = match self.peek() {
+            Add => BinOp::Add
+            Sub => BinOp::Sub
+            Mul => BinOp::Mul
+            Div => BinOp::Div
+            Mod => BinOp::Mod
+            Pow => BinOp::Pow
+            Fdiv => BinOp::Fdiv
+            Band => BinOp::Band
+            Bor => BinOp::Bor
+            Bxor => BinOp::Bxor
+            Shl => BinOp::Shl
+            Shr => BinOp::Shr
+            Ushr => BinOp::Ushr
+            And => BinOp::And
+            Or => BinOp::Or
+            _ => BinOp::Coal // Coal
+          }
+          self.pos += 1
+          self.expect(Be)
+          let value = self.parse_expr()
+          Some(self.maybe_postfix(CompoundAssign(op, expr, value)))
+        }
+        Be => {
+          self.pos += 1
+          let value = self.parse_expr()
+          Some(self.maybe_postfix(Assign(expr, value)))
+        }
+        _ => Some(self.maybe_postfix(ExprStmt(expr)))
       }
     }
   }
@@ -216,6 +257,30 @@ fn Parser::maybe_postfix(self : Parser, stmt : Stmt) -> Stmt {
 fn Parser::parse_ident_name(self : Parser) -> String {
   match self.advance() {
     Ident(s) => s
+    // Allow keywords as property names (e.g. obj.from, obj.default, obj.delete)
+    From_ => "from"
+    Default_ => "default"
+    Delete_ => "delete"
+    Get_ => "get"
+    Set_ => "set"
+    New_ => "new"
+    In_ => "in"
+    Of => "of"
+    As => "as"
+    Type_ => "type"
+    All_ => "all"
+    List_ => "list"
+    Object_ => "object"
+    Return_ => "return"
+    Export_ => "export"
+    Import_ => "import"
+    Static_ => "static"
+    Private_ => "private"
+    Public_ => "public"
+    Class_ => "class"
+    Super_ => "super"
+    Extends_ => "extends"
+    This_ => "this"
     _ => "unknown"
   }
 }
@@ -318,7 +383,7 @@ fn Parser::parse_fn_decl(self : Parser, is_async : Bool) -> Stmt? {
     self.skip_type_annotation()
   }
   let body : FnBody = self.parse_to_body()
-  let decl : FnDecl = { name, params, body, is_async }
+  let decl : FnDecl = { name, params, body, is_async, is_generator: false }
   Some(FnDecl(decl))
 }
 
@@ -445,8 +510,27 @@ fn Parser::parse_until_stmt(self : Parser) -> Stmt {
 }
 
 ///|
+fn Parser::parse_do_while_stmt(self : Parser) -> Stmt {
+  self.pos += 1 // skip do
+  let saved = self.pos
+  let indent = self.skip_newlines_and_indent()
+  let _ = saved
+  let body = self.parse_block(indent)
+  // After body, skip whitespace and expect `while`
+  self.skip_newlines_and_indent() |> ignore
+  self.expect(While_)
+  let cond = self.parse_expr()
+  DoWhile(cond, body)
+}
+
+///|
 fn Parser::parse_for_stmt(self : Parser) -> Stmt {
   self.pos += 1 // skip for
+  // Check for JS-style for: for let/const/var i be 0; cond; update
+  match self.peek() {
+    Const_ | Let_ | Var_ => return self.parse_for_classic()
+    _ => ()
+  }
   let first = self.parse_ident_name()
   // Check for index; element pattern
   if self.peek() == Semicolon {
@@ -490,6 +574,68 @@ fn Parser::parse_for_stmt(self : Parser) -> Stmt {
 }
 
 ///|
+fn Parser::parse_for_classic(self : Parser) -> Stmt {
+  // Parse init: let/const/var name be expr
+  let init = match self.peek() {
+    Const_ => self.parse_var_decl(DeclKind::Const_)
+    Let_ => self.parse_var_decl(DeclKind::Let_)
+    _ => self.parse_var_decl(DeclKind::Var_)
+  }
+  self.expect(Semicolon)
+  // Parse condition
+  let cond = self.parse_expr()
+  self.expect(Semicolon)
+  // Parse update: expr (add be / sub be / be / etc.)
+  let update_expr = self.parse_expr()
+  let update : Stmt = match self.peek() {
+    Add
+    | Sub
+    | Mul
+    | Div
+    | Mod
+    | Pow
+    | Fdiv
+    | Band
+    | Bor
+    | Bxor
+    | Shl
+    | Shr
+    | Ushr => {
+      let op = match self.peek() {
+        Add => BinOp::Add
+        Sub => BinOp::Sub
+        Mul => BinOp::Mul
+        Div => BinOp::Div
+        Mod => BinOp::Mod
+        Pow => BinOp::Pow
+        Fdiv => BinOp::Fdiv
+        Band => BinOp::Band
+        Bor => BinOp::Bor
+        Bxor => BinOp::Bxor
+        Shl => BinOp::Shl
+        Shr => BinOp::Shr
+        _ => BinOp::Ushr
+      }
+      self.pos += 1
+      self.expect(Be)
+      let value = self.parse_expr()
+      CompoundAssign(op, update_expr, value)
+    }
+    Be => {
+      self.pos += 1
+      let value = self.parse_expr()
+      Assign(update_expr, value)
+    }
+    _ => ExprStmt(update_expr)
+  }
+  let saved = self.pos
+  let indent = self.skip_newlines_and_indent()
+  let _ = saved
+  let body = self.parse_block(indent)
+  ForClassic(init, cond, update, body)
+}
+
+///|
 fn Parser::parse_match_stmt(self : Parser) -> Stmt {
   self.pos += 1 // skip match
   let subject = self.parse_expr()
@@ -513,7 +659,7 @@ fn Parser::parse_match_arms(self : Parser, min_indent : Int) -> Array[MatchArm] 
       self.pos = saved
       break
     }
-    if not(self.parse_one_match_arm(arms)) {
+    if !self.parse_one_match_arm(arms) {
       self.pos = saved
       break
     }
@@ -754,14 +900,21 @@ fn Parser::parse_string_value(self : Parser) -> String {
 ///|
 fn Parser::parse_use_stmt(self : Parser) -> Stmt {
   self.pos += 1 // skip use
-  let path = self.parse_dotted_name()
-  UseDecl(path, None)
+  let module_name = self.parse_ident_name()
+  // `as` is optional: `use p-math` is equivalent to `use p-math as p-math`
+  if self.peek() == As {
+    self.pos += 1 // skip as
+    let binding = self.parse_ident_name()
+    UseStdlib(module_name, binding)
+  } else {
+    UseStdlib(module_name, module_name)
+  }
 }
 
 ///|
 fn Parser::parse_from_use_stmt(self : Parser) -> Stmt {
   self.pos += 1 // skip from
-  // from ///module/// import ... — ES import with reversed syntax
+  // from ///module/// import ...  EES import with reversed syntax
   match self.peek() {
     Str(module_name) => {
       self.pos += 1
@@ -797,50 +950,17 @@ fn Parser::parse_from_use_stmt(self : Parser) -> Stmt {
     }
     _ => ()
   }
-  // from X.Y use ... — dot-path import (deprecated)
-  let path = self.parse_dotted_name()
-  self.expect(Use_)
-  let names : Array[String] = []
-  let mut keep = true
-  while keep {
-    match self.peek() {
-      Ident(s) => {
-        self.pos += 1
-        names.push(s)
-        if self.peek() == Comma {
-          self.pos += 1
-        } else {
-          keep = false
-        }
-      }
-      _ => keep = false
-    }
-  }
-  UseDecl(path, Some(names))
-}
-
-///|
-fn Parser::parse_dotted_name(self : Parser) -> String {
-  let buf = StringBuilder::new()
-  match self.peek() {
-    Ident(s) => {
-      self.pos += 1
-      buf.write_string(s)
-    }
-    _ => ()
-  }
-  while self.peek() == Dot {
+  // from <ident> is no longer valid for stdlib  Eonly from "mod" import ... is allowed
+  let name = self.parse_ident_name()
+  // skip remaining tokens: use, names, commas
+  while self.peek() != Newline && self.peek() != Eof {
     self.pos += 1
-    buf.write_char('.')
-    match self.peek() {
-      Ident(s) => {
-        self.pos += 1
-        buf.write_string(s)
-      }
-      _ => ()
-    }
   }
-  buf.to_string()
+  ExprStmt(
+    StrLit(
+      "from " + name + " use ... is removed. Use: use " + name + " as <alias>",
+    ),
+  )
 }
 
 ///|

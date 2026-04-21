@@ -1,0 +1,202 @@
+---
+title: p-datetime
+description: Date and time utility functions.
+sidebar:
+  order: 5
+---
+
+The `datetime` module provides date/time creation, extraction, formatting, and arithmetic functions. All timestamps are millisecond-precision Unix epoch values.
+
+```purus
+use p-datetime as dt
+```
+
+## Current Time
+
+### `now[]`
+Returns the current timestamp in milliseconds.
+
+### `today[]`
+Returns the timestamp for the start of today (midnight, local time).
+
+### `timestamp[]`
+Returns the current Unix timestamp in **seconds** (integer).
+
+```purus
+use p-datetime as dt
+const t be dt.now[]        -- e.g. 1712534400000
+const s be dt.timestamp[]  -- e.g. 1712534400
+```
+
+## Create
+
+### `create[year; month; day; hour; minute; second; ms]`
+Creates a timestamp from local date/time components. Only `year` is required; others default to sensible values (month=1, day=1, hour/minute/second/ms=0).
+
+```purus
+use p-datetime as dt
+const t be dt.create[2026; 4; 8]
+const t2 be dt.create[2026; 4; 8; 14; 30; 0; 0]
+```
+
+### `utccreate[year; month; day; hour; minute; second; ms]`
+Same as `create` but interprets components as UTC.
+
+```purus
+use p-datetime as dt
+const t be dt.utccreate[2026; 4; 8; 0; 0; 0; 0]
+```
+
+### `fromiso[str]`
+Parses an ISO 8601 date string and returns a timestamp.
+
+```purus
+use p-datetime as dt
+const t be dt.fromiso[///2026-04-08T00:00:00Z///]
+```
+
+## Extract Components (Local)
+
+These functions extract date/time components in the local timezone.
+
+### `year[t]`
+Returns the full year (e.g. 2026).
+
+### `month[t]`
+Returns the month (1窶・2).
+
+### `day[t]`
+Returns the day of the month (1窶・1).
+
+### `weekday[t]`
+Returns the day of the week (0=Sunday, 6=Saturday).
+
+### `hour[t]` / `minute[t]` / `second[t]` / `ms[t]`
+Returns the respective time component.
+
+```purus
+use p-datetime as dt
+const t be dt.now[]
+console.log[dt.year[t]]     -- e.g. 2026
+console.log[dt.month[t]]    -- e.g. 4
+console.log[dt.weekday[t]]  -- e.g. 3 (Wednesday)
+```
+
+## Extract Components (UTC)
+
+Same as local extraction but in UTC.
+
+### `utcyear[t]` / `utcmonth[t]` / `utcday[t]` / `utcweekday[t]`
+### `utchour[t]` / `utcminute[t]` / `utcsecond[t]` / `utcms[t]`
+
+```purus
+use p-datetime as dt
+const t be dt.now[]
+console.log[dt.utchour[t]]  -- UTC hour
+```
+
+## Extract Components (Timezone)
+
+Extract components for a specific IANA timezone.
+
+### `tzyear[t; tz]` / `tzmonth[t; tz]` / `tzday[t; tz]` / `tzweekday[t; tz]`
+### `tzhour[t; tz]` / `tzminute[t; tz]` / `tzsecond[t; tz]`
+
+```purus
+use p-datetime as dt
+const t be dt.now[]
+console.log[dt.tzhour[t; ///America/New_York///]]
+console.log[dt.tzhour[t; ///Asia/Tokyo///]]
+```
+
+## Format
+
+### `toiso[t]`
+Returns the ISO 8601 string representation.
+
+```purus
+use p-datetime as dt
+dt.toiso[dt.now[]]  -- e.g. "2026-04-08T05:00:00.000Z"
+```
+
+### `tolocale[t; locale; options]`
+Returns a locale-formatted date/time string.
+
+### `todate[t; locale; options]`
+Returns a locale-formatted date string (date only).
+
+### `totime[t; locale; options]`
+Returns a locale-formatted time string (time only).
+
+### `format[t; tz; locale; options]`
+Returns a formatted string for a specific timezone and locale.
+
+```purus
+use p-datetime as dt
+const t be dt.now[]
+dt.tolocale[t; ///en-US///]
+dt.todate[t; ///ja-JP///]
+dt.format[t; ///Asia/Tokyo///; ///ja-JP///]
+```
+
+## Arithmetic
+
+### `addms[t; n]`
+Adds `n` milliseconds.
+
+### `addseconds[t; n]`
+Adds `n` seconds.
+
+### `addminutes[t; n]`
+Adds `n` minutes.
+
+### `addhours[t; n]`
+Adds `n` hours.
+
+### `adddays[t; n]`
+Adds `n` days.
+
+```purus
+use p-datetime as dt
+const t be dt.now[]
+const tomorrow be dt.adddays[t; 1]
+const later be dt.addhours[t; 3]
+```
+
+## Comparison
+
+### `diff[a; b]`
+Returns the difference in milliseconds (`a - b`).
+
+### `diffdays[a; b]`
+Returns the difference in days.
+
+### `diffhours[a; b]`
+Returns the difference in hours.
+
+### `diffminutes[a; b]`
+Returns the difference in minutes.
+
+### `diffseconds[a; b]`
+Returns the difference in seconds.
+
+```purus
+use p-datetime as dt
+const a be dt.create[2026; 4; 10]
+const b be dt.create[2026; 4; 8]
+console.log[dt.diffdays[a; b]]  -- 2
+```
+
+## Timezone Info
+
+### `offset[t]`
+Returns the timezone offset in minutes for the given timestamp (or now if omitted).
+
+### `localtz[]`
+Returns the local IANA timezone name (e.g. `"Asia/Tokyo"`).
+
+```purus
+use p-datetime as dt
+console.log[dt.localtz[]]   -- e.g. "Asia/Tokyo"
+console.log[dt.offset[]]    -- e.g. -540
+```

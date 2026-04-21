@@ -17,7 +17,10 @@ for (let i = 0; i < args.length; i++) {
   if (args[i] === "--no-header") {
     noHeader = true;
   } else if (args[i] === "--strict") {
-    if (i + 1 < args.length && (args[i + 1] === "true" || args[i + 1] === "false")) {
+    if (
+      i + 1 < args.length &&
+      (args[i + 1] === "true" || args[i + 1] === "false")
+    ) {
       strict = args[++i] === "true";
     } else {
       strict = true;
@@ -60,7 +63,11 @@ if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile()) {
   const source = fs.readFileSync(entry, "utf8");
   const useStrict = strict !== null ? strict : true;
   const resolvedModule = resolveModuleType(entry, moduleType);
-  const js = compile(source, { header: false, strict: useStrict, module: resolvedModule });
+  const js = compile(source, {
+    header: false,
+    strict: useStrict,
+    module: resolvedModule,
+  });
   const m = new (require("module"))();
   m._compile(js, entry);
 } else {
@@ -110,11 +117,15 @@ if (entry && fs.existsSync(entry) && fs.statSync(entry).isFile()) {
     const source = fs.readFileSync(f, "utf8");
     const useStrict2 = strict !== null ? strict : true;
     const resolvedModule = resolveModuleType(f, moduleType);
-    const js = compile(source, { header: false, strict: useStrict2, module: resolvedModule });
+    const js = compile(source, {
+      header: false,
+      strict: useStrict2,
+      module: resolvedModule,
+    });
 
     const tmpFile = path.join(
       require("os").tmpdir(),
-      `purus_run_${Date.now()}_${Math.random().toString(36).slice(2)}.js`
+      `purus_run_${Date.now()}_${Math.random().toString(36).slice(2)}.js`,
     );
     try {
       fs.writeFileSync(tmpFile, js, "utf8");

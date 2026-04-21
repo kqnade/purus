@@ -146,7 +146,7 @@ fn cmd_check(file : String) -> Unit {
 
 ///|
 fn cmd_init() -> Unit {
-  if not(@fs.path_exists("src")) {
+  if !@fs.path_exists("src") {
     @fs.create_dir("src") catch {
       @fs.IOError(msg) => {
         println("Error: cannot create src directory: " + msg)
@@ -154,7 +154,7 @@ fn cmd_init() -> Unit {
       }
     }
   }
-  if not(@fs.path_exists("src/main.purus")) {
+  if !@fs.path_exists("src/main.purus") {
     let main_purus =
       #|-- main.purus
       #|

@@ -3,6 +3,7 @@
 pub(all) enum Expr {
   // Literals
   IntLit(Int)
+  BigIntLit(String) // BigInt literal e.g. 100n → 100n
   FloatLit(Double)
   StrLit(String) // raw string content
   StrInterp(Array[StrPart]) // interpolated string
@@ -11,6 +12,7 @@ pub(all) enum Expr {
   NullLit // null / nil
   UndefinedLit
   NanLit // nan → NaN
+  InfinityLit(Bool) // true = Infinity, false = -Infinity
   ArrayLit(Array[Expr])
   RangeArray(Expr, Expr, Bool) // [start..end] (inclusive=true) or [start...end] (inclusive=false)
   Slice(Expr, Expr, Expr, Bool) // obj[start..end] (inclusive) or obj[start...end] (exclusive)
@@ -25,7 +27,9 @@ pub(all) enum Expr {
   BinOp(BinOp, Expr, Expr)
   UnaryNeg(Expr) // neg x
   UnaryNot(Expr) // not x
+  UnaryBnot(Expr) // bnot x (bitwise NOT)
   UnaryTypeof(Expr) // typeof x
+  UnaryVoid(Expr) // void x
 
   // Comparison / type
   AsCast(Expr, String) // x as number
@@ -70,6 +74,15 @@ pub(all) enum Expr {
   // Async function expressions
   AsyncFnExpr(Array[String], Array[Stmt]) // async fn (block)
   AsyncFnExprTo(Array[String], Expr) // async fn to EXPR
+
+  // Generator
+  YieldExpr(Expr?) // yield / yield expr
+
+  // Increment / Decrement
+  PostInc(Expr) // x\add → x++
+  PostDec(Expr) // x\sub → x--
+  PreInc(Expr) // add\x → ++x
+  PreDec(Expr) // sub\x → --x
 }
 
 ///|
@@ -95,6 +108,13 @@ pub(all) enum BinOp {
   And
   Or
   Coal
+  Band
+  Bor
+  Bxor
+  Shl
+  Shr
+  Ushr
+  Fdiv
 } derive(Show)
 
 ///|
@@ -125,6 +145,7 @@ pub(all) enum Stmt {
 
   // Assignment
   Assign(Expr, Expr)
+  CompoundAssign(BinOp, Expr, Expr) // x add be 1 → x += 1
 
   // Function declaration
   FnDecl(FnDecl)
@@ -134,8 +155,10 @@ pub(all) enum Stmt {
   Unless(Expr, Array[Stmt])
   While(Expr, Array[Stmt])
   Until(Expr, Array[Stmt])
+  DoWhile(Expr, Array[Stmt])
   ForIn(String, String?, Expr, Array[Stmt]) // for x in coll / for i; x in coll
   ForRange(String, Expr, Expr, Array[Stmt]) // for i in range a; b
+  ForClassic(Stmt, Expr, Stmt, Array[Stmt]) // for let i be 0; i lt 10; i add be 1
 
   // Match statement
   MatchStmt(Expr, Array[MatchArm])
@@ -159,7 +182,7 @@ pub(all) enum Stmt {
 
   // Module / Import
   ImportDecl(ImportDecl)
-  UseDecl(String, Array[String]?) // use std.math / from std.math use sin, cos
+  UseStdlib(String, String) // use <module> as <binding>
   ModDecl(String, Array[Stmt])
   ExportDefault(Stmt)
   PublicDecl(Stmt)
@@ -185,6 +208,7 @@ pub(all) struct FnDecl {
   params : Array[String]
   body : FnBody
   is_async : Bool
+  is_generator : Bool
 }
 
 ///|

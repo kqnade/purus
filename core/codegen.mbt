@@ -14,6 +14,120 @@ pub fn JsCodegen::new(cjs? : Bool = false) -> JsCodegen {
 }
 
 ///|
+fn body_has_yield(body : FnBody) -> Bool {
+  match body {
+    Block(stmts) => stmts_have_yield(stmts)
+    ToExpr(expr) | ToReturnExpr(expr) => expr_has_yield(expr)
+  }
+}
+
+///|
+fn stmts_have_yield(stmts : Array[Stmt]) -> Bool {
+  for s in stmts {
+    if stmt_has_yield(s) {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn stmt_has_yield(stmt : Stmt) -> Bool {
+  match stmt {
+    ExprStmt(e) | Return(Some(e)) | Throw(e) | DeleteStmt(e) =>
+      expr_has_yield(e)
+    VarDecl(_, _, e) | Assign(_, e) => expr_has_yield(e)
+    If(cond, body, elifs, else_body) => {
+      if expr_has_yield(cond) || stmts_have_yield(body) {
+        return true
+      }
+      for b in elifs {
+        if expr_has_yield(b.cond) || stmts_have_yield(b.body) {
+          return true
+        }
+      }
+      match else_body {
+        Some(eb) => stmts_have_yield(eb)
+        None => false
+      }
+    }
+    While(cond, body) | Until(cond, body) | DoWhile(cond, body) =>
+      expr_has_yield(cond) || stmts_have_yield(body)
+    ForIn(_, _, iter, body) => expr_has_yield(iter) || stmts_have_yield(body)
+    ForRange(_, start, end, body) =>
+      expr_has_yield(start) || expr_has_yield(end) || stmts_have_yield(body)
+    TryCatch(try_body, _, catch_body, finally_body) => {
+      if stmts_have_yield(try_body) || stmts_have_yield(catch_body) {
+        return true
+      }
+      match finally_body {
+        Some(fb) => stmts_have_yield(fb)
+        None => false
+      }
+    }
+    PostfixIf(s, cond) | PostfixUnless(s, cond) =>
+      stmt_has_yield(s) || expr_has_yield(cond)
+    PostfixFor(s, _, _) => stmt_has_yield(s)
+    ExportDefault(s) | PublicDecl(s) => stmt_has_yield(s)
+    // Don't recurse into nested FnDecl/ClassDecl - yield in nested functions is separate
+    _ => false
+  }
+}
+
+///|
+fn expr_has_yield(expr : Expr) -> Bool {
+  match expr {
+    YieldExpr(_) => true
+    BinOp(_, l, r) => expr_has_yield(l) || expr_has_yield(r)
+    UnaryNot(e) | UnaryNeg(e) | UnaryBnot(e) | UnaryTypeof(e) | AwaitExpr(e) =>
+      expr_has_yield(e)
+    Call(callee, args) => {
+      if expr_has_yield(callee) {
+        return true
+      }
+      for a in args {
+        if expr_has_yield(a) {
+          return true
+        }
+      }
+      false
+    }
+    MethodCall(obj, _, args) | OptMethodCall(obj, _, args) => {
+      if expr_has_yield(obj) {
+        return true
+      }
+      for a in args {
+        if expr_has_yield(a) {
+          return true
+        }
+      }
+      false
+    }
+    ArrayLit(elems) => {
+      for e in elems {
+        if expr_has_yield(e) {
+          return true
+        }
+      }
+      false
+    }
+    ObjectLit(pairs) => {
+      for p in pairs {
+        if expr_has_yield(p.1) {
+          return true
+        }
+      }
+      false
+    }
+    DotAccess(e, _) | ComputedAccess(e, _) | OptDotAccess(e, _) =>
+      expr_has_yield(e)
+    IfExpr(c, t, e) =>
+      expr_has_yield(c) || expr_has_yield(t) || expr_has_yield(e)
+    _ => false
+  }
+}
+
+///|
 fn JsCodegen::write(self : JsCodegen, s : String) -> Unit {
   self.buf.write_string(s)
 }
@@ -87,7 +201,7 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.write(" [")
       let mut first = true
       for n in names {
-        if not(first) {
+        if !first {
           self.write(", ")
         }
         self.write(js_ident(n))
@@ -108,7 +222,7 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.write(" { ")
       let mut first = true
       for n in names {
-        if not(first) {
+        if !first {
           self.write(", ")
         }
         self.write(js_ident(n))
@@ -121,7 +235,7 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
     Assign(target, value) =>
       match target {
         Slice(obj, start, end, inclusive) => {
-          // Splice: arr[start..end] be value → arr.splice(start, end - start + 1, ...value)
+          // Splice: arr[start..end] be value ↁEarr.splice(start, end - start + 1, ...value)
           self.write_indent()
           self.gen_expr(obj)
           self.write(".splice(")
@@ -154,6 +268,25 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
           self.write(";\n")
         }
       }
+    CompoundAssign(op, target, value) => {
+      self.write_indent()
+      match op {
+        Fdiv => {
+          self.gen_expr(target)
+          self.write(" = Math.floor(")
+          self.gen_expr(target)
+          self.write(" / ")
+          self.gen_expr(value)
+          self.write(");\n")
+        }
+        _ => {
+          self.gen_expr(target)
+          self.write(compound_op_str(op))
+          self.gen_expr(value)
+          self.write(";\n")
+        }
+      }
+    }
     FnDecl(decl) => self.gen_fn_decl(decl)
     If(cond, body, elifs, else_body) =>
       self.gen_if(cond, body, elifs, else_body)
@@ -192,6 +325,19 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       }
       self.indent_level -= 1
       self.writeln("}")
+    }
+    DoWhile(cond, body) => {
+      self.write_indent()
+      self.write("do {\n")
+      self.indent_level += 1
+      for s in body {
+        self.gen_stmt(s)
+      }
+      self.indent_level -= 1
+      self.write_indent()
+      self.write("} while (")
+      self.gen_expr(cond)
+      self.write(");\n")
     }
     ForIn(name, index, iter, body) => {
       match index {
@@ -234,6 +380,22 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.write("; ")
       self.write(js_ident(name))
       self.write("++) {\n")
+      self.indent_level += 1
+      for s in body {
+        self.gen_stmt(s)
+      }
+      self.indent_level -= 1
+      self.writeln("}")
+    }
+    ForClassic(init, cond, update, body) => {
+      self.write_indent()
+      self.write("for (")
+      self.gen_for_part(init)
+      self.write("; ")
+      self.gen_expr(cond)
+      self.write("; ")
+      self.gen_for_part(update)
+      self.write(") {\n")
       self.indent_level += 1
       for s in body {
         self.gen_stmt(s)
@@ -327,63 +489,13 @@ fn JsCodegen::gen_stmt(self : JsCodegen, stmt : Stmt) -> Unit {
       self.write(";\n")
     }
     ImportDecl(decl) => self.gen_import(decl)
-    UseDecl(path, names) => {
-      // use X.Y → import * from "X/Y" or import { a, b } from "X/Y"
-      let module_path = path.replace_all(old=".", new="/")
-      match names {
-        Some(ns) => {
-          self.write_indent()
-          if self.cjs {
-            self.write("const { ")
-            let mut first = true
-            for n in ns {
-              if not(first) {
-                self.write(", ")
-              }
-              self.write(n)
-              first = false
-            }
-            self.write(" } = require(\"")
-            self.write(module_path)
-            self.write("\");\n")
-          } else {
-            self.write("import { ")
-            let mut first = true
-            for n in ns {
-              if not(first) {
-                self.write(", ")
-              }
-              self.write(n)
-              first = false
-            }
-            self.write(" } from \"")
-            self.write(module_path)
-            self.write("\";\n")
-          }
-        }
-        None => {
-          self.write_indent()
-          // Use last segment as namespace
-          let mut last = path
-          let parts = path.split(".")
-          for p in parts {
-            last = p.to_string()
-          }
-          if self.cjs {
-            self.write("const ")
-            self.write(last)
-            self.write(" = require(\"")
-            self.write(module_path)
-            self.write("\");\n")
-          } else {
-            self.write("import * as ")
-            self.write(last)
-            self.write(" from \"")
-            self.write(module_path)
-            self.write("\";\n")
-          }
-        }
-      }
+    UseStdlib(module_name, binding) => {
+      self.write_indent()
+      self.write("// @purus-stdlib:whole:")
+      self.write(module_name)
+      self.write(":")
+      self.write(js_ident(binding))
+      self.write("\n")
     }
     ModDecl(name, body) => {
       self.write_indent()
@@ -524,6 +636,64 @@ fn JsCodegen::gen_stmt_inline(self : JsCodegen, stmt : Stmt) -> Unit {
           self.write(";")
         }
       }
+    CompoundAssign(op, target, value) =>
+      match op {
+        Fdiv => {
+          self.gen_expr(target)
+          self.write(" = Math.floor(")
+          self.gen_expr(target)
+          self.write(" / ")
+          self.gen_expr(value)
+          self.write(");")
+        }
+        _ => {
+          self.gen_expr(target)
+          self.write(compound_op_str(op))
+          self.gen_expr(value)
+          self.write(";")
+        }
+      }
+    _ => self.gen_stmt(stmt) // fallback
+  }
+}
+
+///|
+fn JsCodegen::gen_for_part(self : JsCodegen, stmt : Stmt) -> Unit {
+  match stmt {
+    VarDecl(kind, name, value) => {
+      let kw = match kind {
+        Const_ => "const"
+        Let_ => "let"
+        Var_ => "var"
+      }
+      self.write(kw)
+      self.write(" ")
+      self.write(js_ident(name))
+      self.write(" = ")
+      self.gen_expr(value)
+    }
+    Assign(target, value) => {
+      self.gen_expr(target)
+      self.write(" = ")
+      self.gen_expr(value)
+    }
+    CompoundAssign(op, target, value) =>
+      match op {
+        Fdiv => {
+          self.gen_expr(target)
+          self.write(" = Math.floor(")
+          self.gen_expr(target)
+          self.write(" / ")
+          self.gen_expr(value)
+          self.write(")")
+        }
+        _ => {
+          self.gen_expr(target)
+          self.write(compound_op_str(op))
+          self.gen_expr(value)
+        }
+      }
+    ExprStmt(expr) => self.gen_expr(expr)
     _ => self.gen_stmt(stmt) // fallback
   }
 }
@@ -534,7 +704,11 @@ fn JsCodegen::gen_fn_decl(self : JsCodegen, decl : FnDecl) -> Unit {
   if decl.is_async {
     self.write("async ")
   }
-  self.write("function")
+  if decl.is_generator || body_has_yield(decl.body) {
+    self.write("function*")
+  } else {
+    self.write("function")
+  }
   match decl.name {
     Some(n) => {
       self.write(" ")
@@ -545,7 +719,7 @@ fn JsCodegen::gen_fn_decl(self : JsCodegen, decl : FnDecl) -> Unit {
   self.write("(")
   let mut first = true
   for p in decl.params {
-    if not(first) {
+    if !first {
       self.write(", ")
     }
     self.write(js_ident(p))
@@ -620,7 +794,7 @@ fn JsCodegen::gen_class_decl(self : JsCodegen, decl : ClassDecl) -> Unit {
         self.write("constructor(")
         let mut first = true
         for p in params {
-          if not(first) {
+          if !first {
             self.write(", ")
           }
           self.write(js_ident(p))
@@ -641,7 +815,7 @@ fn JsCodegen::gen_class_decl(self : JsCodegen, decl : ClassDecl) -> Unit {
         self.write("(")
         let mut first = true
         for p in params {
-          if not(first) {
+          if !first {
             self.write(", ")
           }
           self.write(js_ident(p))
@@ -786,7 +960,7 @@ fn JsCodegen::gen_match(
   self.write_indent()
   let mut first = true
   for arm in arms {
-    if not(first) {
+    if !first {
       self.write(" else ")
     }
     match arm.pattern {
@@ -865,7 +1039,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
         // CJS mode: convert to require()
         match (default_name, named, ns_name) {
           (Some(n), None, None) => {
-            // import x from "mod" → const x = require("mod");
+            // import x from "mod" ↁEconst x = require("mod");
             self.write_indent()
             self.write("const ")
             self.write(n)
@@ -874,12 +1048,12 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
             self.write("\");\n")
           }
           (None, Some(names), None) => {
-            // import { a, b } from "mod" → const { a, b } = require("mod");
+            // import { a, b } from "mod" ↁEconst { a, b } = require("mod");
             self.write_indent()
             self.write("const { ")
             let mut first = true
             for n in names {
-              if not(first) {
+              if !first {
                 self.write(", ")
               }
               self.write(n)
@@ -890,7 +1064,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
             self.write("\");\n")
           }
           (Some(n), Some(names), None) => {
-            // import x, { a, b } from "mod" → const x = require("mod"); const { a, b } = x;
+            // import x, { a, b } from "mod" ↁEconst x = require("mod"); const { a, b } = x;
             self.write_indent()
             self.write("const ")
             self.write(n)
@@ -901,7 +1075,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
             self.write("const { ")
             let mut first = true
             for nm in names {
-              if not(first) {
+              if !first {
                 self.write(", ")
               }
               self.write(nm)
@@ -912,7 +1086,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
             self.write(";\n")
           }
           (None, None, Some(ns)) => {
-            // import * as fs from "fs" → const fs = require("fs");
+            // import * as fs from "fs" ↁEconst fs = require("fs");
             self.write_indent()
             self.write("const ")
             self.write(ns)
@@ -948,7 +1122,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
             self.write("{ ")
             let mut first = true
             for n in names {
-              if not(first) {
+              if !first {
                 self.write(", ")
               }
               self.write(n)
@@ -991,7 +1165,7 @@ fn JsCodegen::gen_import(self : JsCodegen, decl : ImportDecl) -> Unit {
     }
     SideEffectImport(module_name, attrs) =>
       if self.cjs {
-        // CJS mode: import "mod" → require("mod");
+        // CJS mode: import "mod" ↁErequire("mod");
         self.write_indent()
         self.write("require(\"")
         self.write(module_name)
@@ -1017,7 +1191,7 @@ fn JsCodegen::gen_import_attributes(
       self.write(" with { ")
       let mut first = true
       for pair in pairs {
-        if not(first) {
+        if !first {
           self.write(", ")
         }
         self.write(pair.0)

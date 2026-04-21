@@ -15,13 +15,13 @@ const src = path.join(
   "build",
   "cmd",
   "main",
-  "main.js"
+  "main.js",
 );
 const dest = path.join(root, "lib", "purus-compiler.js");
 
 if (!fs.existsSync(src)) {
   console.error(
-    "Error: MoonBit JS build not found. Run `moon build --target js` in core/ first."
+    "Error: MoonBit JS build not found. Run `moon build --target js` in core/ first.",
   );
   process.exit(1);
 }

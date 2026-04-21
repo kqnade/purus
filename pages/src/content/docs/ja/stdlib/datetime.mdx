@@ -1,0 +1,201 @@
+---
+title: p-datetime
+description: 日付と時刻のユーティリティ関数。
+sidebar:
+  order: 5
+---
+
+`datetime` モジュールは日付・時刻の作成、抽出、フォーマット、算術関数を提供します。すべてのタイムスタンプはミリ秒精度のUnixエポック値です。
+
+```purus
+use p-datetime as dt
+```
+
+## 現在時刻
+
+### `now[]`
+現在のタイムスタンプをミリ秒で返します。
+
+### `today[]`
+本日の開始時刻（ローカル時間の午前0時）のタイムスタンプを返します。
+
+### `timestamp[]`
+現在のUnixタイムスタンプを**秒**（整数）で返します。
+
+```purus
+use p-datetime as dt
+const t be dt.now[]        -- 例: 1712534400000
+const s be dt.timestamp[]  -- 例: 1712534400
+```
+
+## 作成
+
+### `create[year; month; day; hour; minute; second; ms]`
+ローカルの日付・時刻コンポーネントからタイムスタンプを作成します。`year` のみ必須で、他はデフォルト値（month=1, day=1, hour/minute/second/ms=0）が使われます。
+
+```purus
+use p-datetime as dt
+const t be dt.create[2026; 4; 8]
+const t2 be dt.create[2026; 4; 8; 14; 30; 0; 0]
+```
+
+### `utccreate[year; month; day; hour; minute; second; ms]`
+`create` と同じですが、コンポーネントをUTCとして解釈します。
+
+```purus
+use p-datetime as dt
+const t be dt.utccreate[2026; 4; 8; 0; 0; 0; 0]
+```
+
+### `fromiso[str]`
+ISO 8601形式の日付文字列をパースし、タイムスタンプを返します。
+
+```purus
+use p-datetime as dt
+const t be dt.fromiso[///2026-04-08T00:00:00Z///]
+```
+
+## コンポーネント抽出（ローカル）
+
+ローカルタイムゾーンで日付・時刻のコンポーネントを抽出します。
+
+### `year[t]`
+年（例: 2026）を返します。
+
+### `month[t]`
+月（1〜12）を返します。
+
+### `day[t]`
+日（1〜31）を返します。
+
+### `weekday[t]`
+曜日（0=日曜日、6=土曜日）を返します。
+
+### `hour[t]` / `minute[t]` / `second[t]` / `ms[t]`
+対応する時刻コンポーネントを返します。
+
+```purus
+use p-datetime as dt
+const t be dt.now[]
+console.log[dt.year[t]]     -- 例: 2026
+console.log[dt.month[t]]    -- 例: 4
+console.log[dt.weekday[t]]  -- 例: 3（水曜日）
+```
+
+## コンポーネント抽出（UTC）
+
+ローカル抽出と同じですが、UTCで取得します。
+
+### `utcyear[t]` / `utcmonth[t]` / `utcday[t]` / `utcweekday[t]`
+### `utchour[t]` / `utcminute[t]` / `utcsecond[t]` / `utcms[t]`
+
+```purus
+use p-datetime as dt
+const t be dt.now[]
+console.log[dt.utchour[t]]  -- UTC時間
+```
+
+## コンポーネント抽出（タイムゾーン）
+
+特定のIANAタイムゾーンのコンポーネントを抽出します。
+
+### `tzyear[t; tz]` / `tzmonth[t; tz]` / `tzday[t; tz]` / `tzweekday[t; tz]`
+### `tzhour[t; tz]` / `tzminute[t; tz]` / `tzsecond[t; tz]`
+
+```purus
+use p-datetime as dt
+const t be dt.now[]
+console.log[dt.tzhour[t; ///America/New_York///]]
+console.log[dt.tzhour[t; ///Asia/Tokyo///]]
+```
+
+## フォーマット
+
+### `toiso[t]`
+ISO 8601文字列表現を返します。
+
+```purus
+use p-datetime as dt
+dt.toiso[dt.now[]]  -- 例: "2026-04-08T05:00:00.000Z"
+```
+
+### `tolocale[t; locale; options]`
+ロケール形式の日付・時刻文字列を返します。
+
+### `todate[t; locale; options]`
+ロケール形式の日付文字列（日付のみ）を返します。
+
+### `totime[t; locale; options]`
+ロケール形式の時刻文字列（時刻のみ）を返します。
+
+### `format[t; tz; locale; options]`
+特定のタイムゾーンとロケールのフォーマット文字列を返します。
+
+```purus
+use p-datetime as dt
+const t be dt.now[]
+dt.tolocale[t; ///en-US///]
+dt.todate[t; ///ja-JP///]
+dt.format[t; ///Asia/Tokyo///; ///ja-JP///]
+```
+
+## 算術
+
+### `addms[t; n]`
+`n` ミリ秒を加算します。
+
+### `addseconds[t; n]`
+`n` 秒を加算します。
+
+### `addminutes[t; n]`
+`n` 分を加算します。
+
+### `addhours[t; n]`
+`n` 時間を加算します。
+
+### `adddays[t; n]`
+`n` 日を加算します。
+
+```purus
+use p-datetime as dt
+const t be dt.now[]
+const tomorrow be dt.adddays[t; 1]
+const later be dt.addhours[t; 3]
+```
+
+## 比較
+
+### `diff[a; b]`
+ミリ秒単位の差分（`a - b`）を返します。
+
+### `diffdays[a; b]`
+日数単位の差分を返します。
+
+### `diffhours[a; b]`
+時間単位の差分を返します。
+
+### `diffminutes[a; b]`
+分単位の差分を返します。
+
+### `diffseconds[a; b]`
+秒単位の差分を返します。
+
+```purus
+use p-datetime as dt
+const a be dt.create[2026; 4; 10]
+const b be dt.create[2026; 4; 8]
+console.log[dt.diffdays[a; b]]  -- 2
+```
+
+## タイムゾーン情報
+
+### `offset[t]`
+指定されたタイムスタンプ（省略時は現在）のタイムゾーンオフセットを分で返します。
+
+### `localtz[]`
+ローカルのIANAタイムゾーン名を返します（例: `"Asia/Tokyo"`）。
+
+```purus
+use p-datetime as dt
+console.log[dt.localtz[]]   -- 例: "Asia/Tokyo"
+```

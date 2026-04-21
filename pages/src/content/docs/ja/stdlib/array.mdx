@@ -1,0 +1,139 @@
+---
+title: p-array
+description: 配列ユーティリティ関数。
+sidebar:
+  order: 8
+---
+
+`array` モジュールは配列を操作するためのユーティリティ関数を提供します。
+
+```purus
+use p-array as a
+```
+
+## 型チェック
+
+### `isarray[val]`
+`val` が配列であれば `true` を返します。
+
+```purus
+use p-array as a
+a.isarray[list[1; 2; 3]]  -- true
+a.isarray[42]              -- false
+```
+
+## 作成
+
+### `from[val]`
+イテラブルまたは配列風の値から配列を作成します。
+
+### `of[...args]`
+与えられた引数から配列を作成します。
+
+### `range[start; end; step]`
+`start` から `end`（排他的）までの数値配列を作成します。`step` のデフォルトは 1。
+
+```purus
+use p-array as a
+a.from[///hello///]          -- ["h", "e", "l", "l", "o"]
+a.of[1; 2; 3]               -- [1, 2, 3]
+a.range[0; 5]               -- [0, 1, 2, 3, 4]
+a.range[0; 10; 2]           -- [0, 2, 4, 6, 8]
+```
+
+## クエリ
+
+### `len[arr]`
+要素数を返します。
+
+### `first[arr]`
+最初の要素を返します。
+
+### `last[arr]`
+最後の要素を返します。
+
+```purus
+use p-array as a
+const xs be list[10; 20; 30]
+a.len[xs]    -- 3
+a.first[xs]  -- 10
+a.last[xs]   -- 30
+```
+
+## 変換
+
+### `flatten[arr; depth]`
+ネストされた配列を指定された `depth` までフラット化します（デフォルト: 全階層）。
+
+### `unique[arr]`
+重複値を除去した新しい配列を返します。
+
+### `compact[arr]`
+すべてのfalsyな値を除去した新しい配列を返します。
+
+### `sortasc[arr]`
+数値昇順でソートした新しい配列を返します。
+
+### `sortdesc[arr]`
+数値降順でソートした新しい配列を返します。
+
+```purus
+use p-array as a
+a.flatten[[[1; 2]; [3; [4; 5]]]]   -- [1, 2, 3, 4, 5]
+a.unique[list[1; 2; 2; 3; 1]]      -- [1, 2, 3]
+a.compact[list[0; 1; null; 2; //////; 3]]  -- [1, 2, 3]
+a.sortasc[list[3; 1; 2]]           -- [1, 2, 3]
+a.sortdesc[list[3; 1; 2]]          -- [3, 2, 1]
+```
+
+## グループ化
+
+### `chunk[arr; size]`
+配列を指定されたサイズのチャンクに分割します。
+
+### `zip[...arrs]`
+複数の配列をタプルの配列にジップします。
+
+### `unzip[arr]`
+タプルの配列を個別の配列にアンジップします。
+
+### `groupby[arr; fn]`
+各要素に対して `fn` を呼び出した結果でグループ化します。
+
+```purus
+use p-array as a
+a.chunk[list[1; 2; 3; 4; 5]; 2]  -- [[1, 2], [3, 4], [5]]
+a.zip[list[1; 2]; list[///a///; ///b///]]  -- [[1, "a"], [2, "b"]]
+
+a.groupby[list[1; 2; 3; 4; 5]; fn x to
+  if x mod 2 eq 0 then ///even/// else ///odd///
+]
+-- { odd: [1, 3, 5], even: [2, 4] }
+```
+
+## 集約
+
+### `sum[arr]`
+全要素の合計を返します。
+
+### `product[arr]`
+全要素の積を返します。
+
+### `min[arr]`
+最小の要素を返します。
+
+### `max[arr]`
+最大の要素を返します。
+
+### `count[arr; fn]`
+`fn` が `true` を返す要素の数を返します。
+
+```purus
+use p-array as a
+const xs be list[1; 2; 3; 4; 5]
+a.sum[xs]       -- 15
+a.product[xs]   -- 120
+a.min[xs]       -- 1
+a.max[xs]       -- 5
+a.count[xs; fn x to x gt 2]  -- 3
+```

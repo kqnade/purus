@@ -1,0 +1,106 @@
+---
+title: p-object
+description: Object utility functions.
+sidebar:
+  order: 6
+---
+
+The `object` module provides utility functions for working with JavaScript objects.
+
+```purus
+use p-object as o
+```
+
+## Inspection
+
+### `keys[obj]`
+Returns an array of the object's own property names.
+
+### `values[obj]`
+Returns an array of the object's own property values.
+
+### `entries[obj]`
+Returns an array of `[key, value]` pairs.
+
+### `len[obj]`
+Returns the number of own properties.
+
+### `hasown[obj; key]`
+Returns `true` if the object has the specified own property.
+
+### `is[a; b]`
+Returns `true` if `a` and `b` are the same value (`Object.is` semantics).
+
+```purus
+use p-object as o
+const obj be [name be ///Purus///, version be 1]
+o.keys[obj]        -- ["name", "version"]
+o.values[obj]      -- ["Purus", 1]
+o.entries[obj]     -- [["name", "Purus"], ["version", 1]]
+o.len[obj]         -- 2
+o.hasown[obj; ///name///]  -- true
+```
+
+## Creation
+
+### `fromentries[arr]`
+Creates an object from an array of `[key, value]` pairs.
+
+### `create[proto; props]`
+Creates a new object with the specified prototype and optional property descriptors.
+
+### `assign[target; ...sources]`
+Copies own properties from source objects to the target object. Returns the target.
+
+### `merge[...objs]`
+Merges multiple objects into a new object (shallow merge).
+
+### `clone[obj]`
+Returns a deep clone of the object (using `structuredClone`).
+
+```purus
+use p-object as o
+const a be [x be 1]
+const b be [y be 2]
+o.merge[a; b]      -- { x: 1, y: 2 }
+o.clone[a]         -- { x: 1 } (deep copy)
+
+const pairs be [[///a///; 1]; [///b///; 2]]
+o.fromentries[pairs]  -- { a: 1, b: 2 }
+```
+
+## Freeze / Seal
+
+### `freeze[obj]`
+Freezes an object (prevents modification). Returns the frozen object.
+
+### `seal[obj]`
+Seals an object (prevents adding/removing properties but allows modifying existing). Returns the sealed object.
+
+### `isfrozen[obj]`
+Returns `true` if the object is frozen.
+
+### `issealed[obj]`
+Returns `true` if the object is sealed.
+
+```purus
+use p-object as o
+const obj be [x be 1]
+o.freeze[obj]
+o.isfrozen[obj]    -- true
+```
+
+## Selection
+
+### `pick[obj; keys]`
+Returns a new object containing only the specified keys.
+
+### `omit[obj; keys]`
+Returns a new object excluding the specified keys.
+
+```purus
+use p-object as o
+const obj be [a be 1; b be 2; c be 3]
+o.pick[obj; [///a///; ///c///]]  -- { a: 1, c: 3 }
+o.omit[obj; [///b///]]           -- { a: 1, c: 3 }
+```

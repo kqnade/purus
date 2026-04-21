@@ -213,8 +213,9 @@ a[b[c]; d]
 -- JS: a(b, c(d, e))
 a[b; c[d; e]]
 
--- JS: console.log(Math.max(1, 2))
-console.log[Math.max[1; 2]]
+-- JS: console.log(m.max(1, 2))
+use p-math as m
+console.log[m.max[1; 2]]
 
 -- JS: fn(a(1, 2), b(3, 4), c)
 fn[a[1; 2]; b[3; 4]; c]
@@ -226,7 +227,8 @@ outer[inner1[x]; inner2[y; z]]
 ```js
 a(b(c), d);
 a(b, c(d, e));
-console.log(Math.max(1, 2));
+const m = { max: Math.max };
+console.log(m.max(1, 2));
 fn(a(1, 2), b(3, 4), c);
 outer(inner1(x), inner2(y, z));
 ```
@@ -244,4 +246,58 @@ fn add a of Number; b of Number gives Number to a add b
 ```purus
 fn get-value
   return 42
+```
+
+## ジェネレータ関数
+
+`yield` を含む関数は自動的にジェネレータ（`function*`）としてコンパイルされます。特別な構文は不要で、関数本体内で `yield` を使用するだけです:
+
+```purus
+fn count-up limit
+  let i be 0
+  while i lt limit
+    yield i
+    i be i add 1
+```
+
+```js
+function* countUp(limit) {
+  let i = 0;
+  while (i < limit) {
+    yield i;
+    i = i + 1;
+  }
+}
+```
+
+### 値なしのyield
+
+```purus
+fn signals
+  yield
+  console.log[///resumed///]
+  yield
+```
+
+```js
+function* signals() {
+  yield;
+  console.log("resumed");
+  yield;
+}
+```
+
+### ジェネレータの使用
+
+```purus
+const gen be count-up[5]
+for val in gen
+  console.log[val]
+```
+
+```js
+const gen = countUp(5);
+for (const val of gen) {
+  console.log(val);
+}
 ```

@@ -4,6 +4,259 @@ Change history for Purus syntax, specifications, and reserved keywords.
 
 ---
 
+## v0.9.0 (2026-04-21)
+
+### Breaking Changes
+
+- **`is` keyword removed**: The `is` keyword (alias for `eq`) has been removed. Use `eq` instead. `is` is no longer a reserved word.
+  ```purus
+  -- Before (v0.8.x):
+  x is y           -- x === y
+  x is string      -- x === string
+
+  -- After (v0.9.0):
+  x eq y           -- x === y
+  typeof x eq ///string///  -- typeof x === "string"
+  ```
+
+### New Features
+
+- **`use ... [as ...]` for standard library**: The `use` keyword imports built-in Purus standard library modules. All modules are prefixed with `p-` to avoid keyword conflicts. The `as` keyword is optional — when omitted, the module name is used as the binding. Tree-shaking ensures only used functions are included in the output.
+  ```purus
+  use p-random as r
+  r.randint[1; 10]              -- random integer between 1 and 10
+  r.gauss[0; 1]                 -- gaussian distribution
+  r.choice[list[1; 2; 3]]      -- random element from array
+  r.shuffle[list[1; 2; 3]]     -- shuffled copy of array
+
+  use p-math as m
+  m.floor[3.7]                  -- 3
+  m.pi                          -- 3.14159...
+  m.abs[-5]                     -- 5
+
+  use p-string as s
+  s.upper[///hello///]           -- ///HELLO///
+  s.reverse[///abc///]           -- ///cba///
+  s.words[///foo bar baz///]     -- [///foo///; ///bar///; ///baz///]
+
+  use p-datetime as dt
+  dt.now[]                       -- current timestamp (ms)
+  dt.year[dt.now[]]              -- current year
+  dt.toiso[dt.now[]]             -- ISO 8601 string
+  dt.utchour[dt.now[]]           -- current hour (UTC)
+  dt.tzhour[dt.now[]; ///America/New_York///]  -- hour in New York
+  dt.format[dt.now[]; ///Asia/Tokyo///]        -- formatted in Tokyo tz
+  dt.localtz[]                   -- local timezone name
+
+  use p-json as j
+  j.parse[///{ "a": 1 }///]     -- { a: 1 }
+  j.stringify[obj]               -- JSON string
+
+  use p-object as o
+  o.keys[obj]                    -- object keys
+  o.merge[a; b]                  -- merge objects
+
+  use p-number as n
+  n.isinteger[42]                -- true
+  n.clamp[15; 0; 10]             -- 10
+
+  use p-array as a
+  a.unique[list[1; 2; 2; 3]]    -- [1; 2; 3]
+  a.chunk[list[1; 2; 3; 4]; 2]  -- [[1; 2]; [3; 4]]
+
+  use p-error as e
+  e.create[///something went wrong///]
+  e.iserror[err]                 -- true
+  ```
+
+  Available stdlib modules:
+  | Module | Description |
+  |--------|-------------|
+  | `p-random` | `random`, `randint`, `randrange`, `randbool`, `getrandbits`, `randbytes`, `uniform`, `triangular`, `gauss`, `normalvariate`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
+  | `p-math` | JS `Math` alias + lowercase constant aliases (`pi`, `e`, `ln2`, `ln10`, `sqrt2`, etc.) |
+  | `p-string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
+  | `p-datetime` | `now`, `today`, `timestamp`, `create`, `utccreate`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `utcyear`, `utcmonth`, `utcday`, `utcweekday`, `utchour`, `utcminute`, `utcsecond`, `utcms`, `tzyear`, `tzmonth`, `tzday`, `tzweekday`, `tzhour`, `tzminute`, `tzsecond`, `toiso`, `tolocale`, `todate`, `totime`, `format`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds`, `offset`, `localtz` |
+  | `p-json` | `parse`, `stringify`, `prettify` |
+  | `p-object` | `keys`, `values`, `entries`, `fromentries`, `assign`, `freeze`, `seal`, `isfrozen`, `issealed`, `hasown`, `create`, `is`, `len`, `merge`, `clone`, `pick`, `omit` |
+  | `p-number` | `isfinite`, `isinteger`, `isnan`, `issafe`, `parsefloat`, `parseint`, `tofixed`, `toprecision`, `toexponential`, `tostring`, `clamp` + constants |
+  | `p-array` | `isarray`, `from`, `of`, `len`, `first`, `last`, `range`, `flatten`, `unique`, `zip`, `unzip`, `chunk`, `sum`, `product`, `min`, `max`, `sortasc`, `sortdesc`, `compact`, `count`, `groupby` |
+  | `p-error` | `create`, `type`, `range`, `reference`, `syntax`, `uri`, `iserror`, `message`, `name`, `stack`, `cause`, `wrap` |
+
+- **Tree-shaking**: Only the stdlib functions actually referenced in your code are included in the compiled output, keeping bundle size minimal.
+
+- **Bitwise operators**: New keyword-based bitwise operators, matching JavaScript semantics:
+  ```purus
+  a band b    -- a & b   (bitwise AND)
+  a bor b     -- a | b   (bitwise OR)
+  a bxor b    -- a ^ b   (bitwise XOR)
+  bnot a      -- ~a      (bitwise NOT)
+  a shl b     -- a << b  (left shift)
+  a shr b     -- a >> b  (right shift)
+  a ushr b    -- a >>> b (unsigned right shift)
+  ```
+
+- **`random` stdlib additions**: `getrandbits`, `randbytes`, `normalvariate` added. `randbool` now accepts optional probability parameter.
+
+- **New stdlib modules**: `p-object` (Object utility), `p-number` (Number utility + constants), `p-array` (Array utility), `p-error` (Error creation/inspection).
+
+- **Additional stdlib modules**: `p-regexp` (RegExp utility), `p-promise` (Promise utility), `p-set` (Set utility), `p-map` (Map utility).
+
+- **`infinity` / `-infinity` literals**: Added `infinity` as a reserved keyword. `neg infinity` and `-infinity` both compile to `-Infinity`.
+  ```purus
+  const x be infinity           -- Infinity
+  const y be neg infinity       -- -Infinity
+  const z be -infinity          -- -Infinity (special case)
+  ```
+
+- **`do...while` loop**: Execute a block at least once, then repeat while condition is true:
+  ```purus
+  do
+    process-item[]
+  while has-more[]
+  ```
+
+- **`yield` / Generator functions**: Functions containing `yield` are automatically compiled as generators (`function*`):
+  ```purus
+  fn count-up limit
+    let i be 0
+    while i lt limit
+      yield i
+      i be i add 1
+  ```
+
+- **Binary / Hexadecimal number literals**: `0b` and `0x` prefixed numbers are now supported:
+  ```purus
+  const mask be 0b1010
+  const color be 0xFF00FF
+  ```
+
+- **`function` keyword (deprecated alias)**: `function` is accepted but emits a deprecation warning. Use `fn` instead.
+
+- **`protected` keyword (deprecated alias)**: `protected` is accepted in class bodies but emits a deprecation warning. Use `private` instead.
+
+- **Compound assignment operators**: New `add be`, `sub be`, `mul be`, `div be`, `mod be`, `pow be` compound assignment syntax:
+  ```purus
+  x add be 1        -- x += 1
+  x sub be 1        -- x -= 1
+  x mul be 2        -- x *= 2
+  x div be 2        -- x /= 2
+  x mod be 3        -- x %= 3
+  x pow be 2        -- x **= 2
+  obj.count add be 1   -- obj.count += 1
+  arr[\i] mul be 2     -- arr[i] *= 2
+  ```
+
+- **JS-style `for` loop**: New C-style for loop syntax with init, condition, and update clauses. Works with compound assignment operators:
+  ```purus
+  for let i be 0; i lt 10; i add be 1
+    console.log[i]
+  -- → for (let i = 0; i < 10; i += 1) { console.log(i); }
+
+  for let x be 1; x lt 100; x mul be 2
+    console.log[x]
+  -- → for (let x = 1; x < 100; x *= 2) { console.log(x); }
+  ```
+
+- **Postfix / prefix increment & decrement**: `\add` and `\sub` for increment and decrement. Postfix: `x\add` → `x++`, `x\sub` → `x--`. Prefix: `add\x` → `++x`, `sub\x` → `--x`.
+  ```purus
+  x\add             -- x++
+  x\sub             -- x--
+  add\x             -- ++x
+  sub\x             -- --x
+  for let i be 0; i lt 10; i\add
+    console.log[i]  -- for (let i = 0; i < 10; i++) { ... }
+  ```
+
+- **Floor division (`fdiv`)**: Integer floor division using `Math.floor`. `fdiv be` for compound assignment:
+  ```purus
+  let q be 7 fdiv 2       -- Math.floor(7 / 2) → 3
+  x fdiv be 10             -- x = Math.floor(x / 10)
+  ```
+
+- **Bitwise compound assignments**: `band be`, `bor be`, `bxor be`, `shl be`, `shr be`, `ushr be`:
+  ```purus
+  x band be 255            -- x &= 255
+  x bor be 1               -- x |= 1
+  x bxor be mask           -- x ^= mask
+  x shl be 2               -- x <<= 2
+  x shr be 1               -- x >>= 1
+  x ushr be 1              -- x >>>= 1
+  ```
+
+- **Logical compound assignments**: `and be`, `or be`, `coal be` — new compound assignment for logical and nullish operators:
+  ```purus
+  x and be true            -- x &&= true
+  x or be false            -- x ||= false
+  x coal be 0              -- x ??= 0
+  ```
+
+- **BigInt literals**: Append `n` to any integer literal (decimal, binary, or hex) to create a BigInt:
+  ```purus
+  const big be 9007199254740993n     -- 9007199254740993n
+  const hex be 0xFFFFFFFFFFFFFFFFn   -- 18446744073709551615n
+  const bin be 0b11111111n           -- 255n
+  big add 1n                         -- 9007199254740994n
+  ```
+
+- **`void` expression**: The `void` keyword evaluates its operand and returns `undefined`. Useful for side-effect-only calls:
+  ```purus
+  void f[]                 -- void f()
+  const u be void 0        -- const u = void 0
+  ```
+
+### Keywords Changed
+
+| Keyword | Change |
+|---|---|
+| `is` | Removed (use `eq` instead) |
+| `use` | Added for standard library imports (`use p-... [as ...]`) |
+| `from...use` | Removed for stdlib (still works for ES imports: `from "mod" import ...`) |
+| `band` `bor` `bxor` `bnot` `shl` `shr` `ushr` | Added — bitwise operators |
+| `infinity` | Added — `Infinity` literal (`neg infinity` / `-infinity` for negative) |
+| `do` | Added — do-while loop (deprecated, prefer `while`/`until`) |
+| `yield` | Added — yield expression for generator functions |
+| `function` | Added — deprecated alias for `fn` |
+| `protected` | Added — deprecated alias for `private` |
+| `add be` `sub be` `mul be` `div be` `mod be` `pow be` | Added — compound assignment operators |
+| `fdiv` | Added — floor division (`Math.floor(a / b)`) |
+| `fdiv be` | Added — floor division compound assignment |
+| `band be` `bor be` `bxor be` `shl be` `shr be` `ushr be` | Added — bitwise compound assignment operators |
+| `and be` `or be` `coal be` | Added — logical/nullish compound assignment operators (`&&=`, `\|\|=`, `??=`) |
+| `\add` `\sub` (postfix), `add\` `sub\` (prefix) | Added — increment/decrement operators |
+| `100n` / `0xFFn` / `0b1n` | Added — BigInt literal suffix `n` |
+| `void` | Added — void expression (`void x` → `void x`) |
+
+### Deprecations
+
+- **Bare variable assignment**: Using `x be value` without a declaration keyword (`const`/`let`) is now deprecated. Property assignments (`obj.field be value`, `arr[\i] be value`) are not affected.
+  ```purus
+  -- Deprecated:
+  x be 42
+
+  -- Use instead:
+  const x be 42
+  let x be 42
+  ```
+
+- **`for ... in range` loop (deprecated)**: The `for x in range a; b` syntax is deprecated. Use the new JS-style `for` loop instead:
+  ```purus
+  -- Deprecated:
+  for i in range 0; 10
+    console.log[i]
+
+  -- Use instead:
+  for let i be 0; i lt 10; i add be 1
+    console.log[i]
+  ```
+
+### Tooling
+
+- Linter (`@puruslang/linter`): `0.7.1` → `0.8.0` — removed `is` keyword, synced keywords (`do`, `yield`, `function`, `protected`, `infinity`, `void`), added binary/hex/BigInt number support, expanded rules from 8 to 17 (`bare-assignment`, `no-function`, `no-protected`, `no-else-if`, `no-js-chars`, `no-js-operators`, `bracket-match`, `const-reassign`, `duplicate-use`, `no-for-range`), updated `JS_OPERATOR_MAP` with compound assignment suggestions including `&&=` → `and be`, `||=` → `or be`, `??=` → `coal be`
+- Prettier Plugin (`@puruslang/prettier-plugin-purus`): `0.7.1` → `0.8.0` — removed `is` keyword, synced keywords (`do`, `yield`, `function`, `protected`, `infinity`, `void`), added `BLOCK_STARTERS` (`do`, `try`, `catch`, `finally`, `class`), added binary/hex/BigInt number support
+- VS Code Extension (`purus`): `0.6.1` → `0.7.0` — removed `is` from syntax highlighting, added `use` stdlib syntax, added real-time diagnostics (errors, warnings, deprecation notices), reorganized source into `src/`, added snippets (`dowhile`, `yield`, `genfn`, `class`), updated `use` snippet with all 13 stdlib modules, updated language configuration (`do`, `class` indent patterns), added BigInt numeric highlighting, added `void` keyword highlight
+
+---
+
 ## v0.8.1 (2026-03-22)
 
 ### Bug Fixes

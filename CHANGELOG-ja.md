@@ -4,6 +4,247 @@ Purus の構文・仕様・予約語に関する変更履歴です。
 
 ---
 
+## v0.9.0 (2026-04-21)
+
+### Breaking Changes
+
+- **`is` キーワード削除**: `is` キーワード（`eq` のエイリアス）を削除しました。代わりに `eq` を使用してください。`is` は予約語ではなくなりました。
+  ```purus
+  -- 変更前 (v0.8.x):
+  x is y           -- x === y
+  x is string      -- x === string
+
+  -- 変更後 (v0.9.0):
+  x eq y           -- x === y
+  typeof x eq ///string///  -- typeof x === "string"
+  ```
+
+### New Features
+
+- **`use ... [as ...]` による標準ライブラリ**: `use` キーワードで Purus 組み込み標準ライブラリモジュールをインポート。すべてのモジュール名に `p-` プレフィックスが付いており、予約語との競合を防止します。`as` は任意で、省略時はモジュール名がそのままバインディング名になります。ツリーシェイキングにより使用した関数のみが出力に含まれます。
+  ```purus
+  use p-random as r
+  r.randint[1; 10]              -- 1〜10のランダムな整数
+  r.gauss[0; 1]                 -- ガウス分布
+  r.choice[list[1; 2; 3]]      -- 配列からランダムな要素
+  r.shuffle[list[1; 2; 3]]     -- 配列のシャッフルコピー
+
+  use p-math as m
+  m.floor[3.7]                  -- 3
+  m.pi                          -- 3.14159...
+  m.abs[-5]                     -- 5
+
+  use p-string as s
+  s.upper[///hello///]           -- ///HELLO///
+  s.reverse[///abc///]           -- ///cba///
+  s.words[///foo bar baz///]     -- [///foo///; ///bar///; ///baz///]
+
+  use p-datetime as dt
+  dt.now[]                       -- 現在のタイムスタンプ（ms）
+  dt.year[dt.now[]]              -- 現在の年
+  dt.toiso[dt.now[]]             -- ISO 8601 文字列
+
+  use p-json as j
+  j.parse[///{ "a": 1 }///]     -- { a: 1 }
+  j.stringify[obj]               -- JSON 文字列
+
+  use p-object as o
+  o.keys[obj]                    -- オブジェクトのキー
+  o.merge[a; b]                  -- オブジェクトのマージ
+
+  use p-number as n
+  n.isinteger[42]                -- true
+  n.clamp[15; 0; 10]             -- 10
+
+  use p-array as a
+  a.unique[list[1; 2; 2; 3]]    -- [1; 2; 3]
+  a.chunk[list[1; 2; 3; 4]; 2]  -- [[1; 2]; [3; 4]]
+
+  use p-error as e
+  e.create[///何かがおかしい///]
+  e.iserror[err]                 -- true
+  ```
+
+  利用可能な標準ライブラリモジュール:
+  | モジュール | 説明 |
+  |--------|-------------|
+  | `p-random` | `random`, `randint`, `randrange`, `randbool`, `getrandbits`, `randbytes`, `uniform`, `triangular`, `gauss`, `normalvariate`, `expovariate`, `gammavariate`, `betavariate`, `lognormvariate`, `vonmisesvariate`, `paretovariate`, `weibullvariate`, `choice`, `choices`, `wchoices`, `shuffle`, `sample`, `binomial`, `poisson`, `geometric`, `clamp`, `lerp` |
+  | `p-math` | JS `Math` エイリアス＋小文字の定数エイリアス（`pi`, `e`, `ln2`, `ln10`, `sqrt2` など） |
+  | `p-string` | `len`, `contains`, `startswith`, `endswith`, `indexof`, `count`, `upper`, `lower`, `capitalize`, `title`, `trim`, `trimstart`, `trimend`, `reverse`, `repeat`, `replace`, `replacefirst`, `padstart`, `padend`, `split`, `lines`, `words`, `join`, `chars`, `slice`, `charat`, `codeat`, `fromcode` |
+  | `p-datetime` | `now`, `today`, `timestamp`, `create`, `utccreate`, `fromiso`, `year`, `month`, `day`, `weekday`, `hour`, `minute`, `second`, `ms`, `utcyear`, `utcmonth`, `utcday`, `utcweekday`, `utchour`, `utcminute`, `utcsecond`, `utcms`, `tzyear`, `tzmonth`, `tzday`, `tzweekday`, `tzhour`, `tzminute`, `tzsecond`, `toiso`, `tolocale`, `todate`, `totime`, `format`, `addms`, `addseconds`, `addminutes`, `addhours`, `adddays`, `diff`, `diffdays`, `diffhours`, `diffminutes`, `diffseconds`, `offset`, `localtz` |
+  | `p-json` | `parse`, `stringify`, `prettify` |
+  | `p-object` | `keys`, `values`, `entries`, `fromentries`, `assign`, `freeze`, `seal`, `isfrozen`, `issealed`, `hasown`, `create`, `is`, `len`, `merge`, `clone`, `pick`, `omit` |
+  | `p-number` | `isfinite`, `isinteger`, `isnan`, `issafe`, `parsefloat`, `parseint`, `tofixed`, `toprecision`, `toexponential`, `tostring`, `clamp` + 定数 |
+  | `p-array` | `isarray`, `from`, `of`, `len`, `first`, `last`, `range`, `flatten`, `unique`, `zip`, `unzip`, `chunk`, `sum`, `product`, `min`, `max`, `sortasc`, `sortdesc`, `compact`, `count`, `groupby` |
+  | `p-error` | `create`, `type`, `range`, `reference`, `syntax`, `uri`, `iserror`, `message`, `name`, `stack`, `cause`, `wrap` |
+
+- **ツリーシェイキング**: コード中で実際に参照された stdlib 関数のみがコンパイル出力に含まれ、バンドルサイズを最小化します。
+
+- **ビット演算子**: JavaScript のセマンティクスに対応する新しいキーワードベースのビット演算子:
+  ```purus
+  a band b    -- a & b   (ビットAND)
+  a bor b     -- a | b   (ビットOR)
+  a bxor b    -- a ^ b   (ビットXOR)
+  bnot a      -- ~a      (ビットNOT)
+  a shl b     -- a << b  (左シフト)
+  a shr b     -- a >> b  (右シフト)
+  a ushr b    -- a >>> b (符号なし右シフト)
+  ```
+
+- **`p-random` 標準ライブラリ追加**: `getrandbits`, `randbytes`, `normalvariate` 追加。`randbool` にオプションの確率パラメータを追加。
+
+- **新標準ライブラリモジュール追加**: `p-object`（Objectユーティリティ）、`p-number`（Numberユーティリティ＋定数）、`p-array`（Arrayユーティリティ）、`p-error`（Error作成/検査）。
+
+- **追加標準ライブラリモジュール**: `p-regexp`（RegExpユーティリティ）、`p-promise`（Promiseユーティリティ）、`p-set`（Setユーティリティ）、`p-map`（Mapユーティリティ）。
+
+- **`infinity` / `-infinity` リテラル**: `infinity` を予約語として追加。`neg infinity` および `-infinity` はどちらも `-Infinity` にコンパイルされます。
+  ```purus
+  const x be infinity           -- Infinity
+  const y be neg infinity       -- -Infinity
+  const z be -infinity          -- -Infinity（特例）
+  ```
+
+- **`do...while` ループ**: ブロックを少なくとも一回実行し、条件が真の間繰り返します:
+  ```purus
+  do
+    process-item[]
+  while has-more[]
+  ```
+
+- **`yield` / ジェネレータ関数**: `yield` を含む関数は自動的にジェネレータ（`function*`）としてコンパイルされます:
+  ```purus
+  fn count-up limit
+    let i be 0
+    while i lt limit
+      yield i
+      i be i add 1
+  ```
+
+- **2進数 / 16進数リテラル**: `0b` および `0x` プレフィックスの数値リテラルをサポート:
+  ```purus
+  const mask be 0b1010
+  const color be 0xFF00FF
+  ```
+
+- **`function` キーワード（非推奨エイリアス）**: `function` は受け入れられますが非推奨警告が出ます。代わりに `fn` を使用してください。
+
+- **`protected` キーワード（非推奨エイリアス）**: クラス本体で `protected` は受け入れられますが非推奨警告が出ます。代わりに `private` を使用してください。
+
+- **複合代入演算子**: 新しい `add be`, `sub be`, `mul be`, `div be`, `mod be`, `pow be` 複合代入構文:
+  ```purus
+  x add be 1        -- x += 1
+  x sub be 1        -- x -= 1
+  x mul be 2        -- x *= 2
+  x div be 2        -- x /= 2
+  x mod be 3        -- x %= 3
+  x pow be 2        -- x **= 2
+  obj.count add be 1   -- obj.count += 1
+  arr[\i] mul be 2     -- arr[i] *= 2
+  ```
+
+- **JS スタイル `for` ループ**: 初期化・条件・更新を備えたCスタイルのforループ構文。複合代入演算子と組み合わせ可能:
+  ```purus
+  for let i be 0; i lt 10; i add be 1
+    console.log[i]
+  -- → for (let i = 0; i < 10; i += 1) { console.log(i); }
+
+  for let x be 1; x lt 100; x mul be 2
+    console.log[x]
+  -- → for (let x = 1; x < 100; x *= 2) { console.log(x); }
+  ```
+
+- **後置・前置インクリメント/デクリメント**: `\add` と `\sub` でインクリメント/デクリメント。後置: `x\add` → `x++`, `x\sub` → `x--`。前置: `add\x` → `++x`, `sub\x` → `--x`。
+  ```purus
+  x\add             -- x++
+  x\sub             -- x--
+  add\x             -- ++x
+  sub\x             -- --x
+  for let i be 0; i lt 10; i\add
+    console.log[i]  -- for (let i = 0; i < 10; i++) { ... }
+  ```
+
+- **切り捨て除算 (`fdiv`)**: 整数の切り捨て除算（`Math.floor` を使用）。`fdiv be` で複合代入:
+  ```purus
+  let q be 7 fdiv 2       -- Math.floor(7 / 2) → 3
+  x fdiv be 10             -- x = Math.floor(x / 10)
+  ```
+
+- **ビット演算複合代入**: `band be`, `bor be`, `bxor be`, `shl be`, `shr be`, `ushr be`:
+  ```purus
+  x band be 255            -- x &= 255
+  x bor be 1               -- x |= 1
+  x bxor be mask           -- x ^= mask
+  x shl be 2               -- x <<= 2
+  x shr be 1               -- x >>= 1
+  x ushr be 1              -- x >>>= 1
+  ```
+
+- **論理演算複合代入**: `and be`, `or be`, `coal be` — 論理演算子・ null 合体演算子の複合代入:
+  ```purus
+  x and be true            -- x &&= true
+  x or be false            -- x ||= false
+  x coal be 0              -- x ??= 0
+  ```
+
+- **BigInt リテラル**: 整数リテラルに `n` サフィックスを付けて BigInt を作成できます（2進数・16進数にも対応）:
+  ```purus
+  const big be 9007199254740993n     -- 9007199254740993n
+  const hex be 0xFFFFFFFFFFFFFFFFn   -- 18446744073709551615n
+  const bin be 0b11111111n           -- 255n
+  big add 1n                         -- 9007199254740994n
+  ```
+
+- **`void` 式**: `void` キーワードはオペランドを評価して `undefined` を返します。副作用のみの呼び出しに便利:
+  ```purus
+  void f[]                 -- void f()
+  const u be void 0        -- const u = void 0
+  ```
+
+### キーワード変更
+
+| キーワード | 変更 |
+|---|---|
+| `is` | 削除（代わりに `eq` を使用） |
+| `use` | 標準ライブラリインポート用に追加（`use p-... [as ...]`） |
+| `from...use` | stdlib では削除（ES import は引き続き利用可: `from "mod" import ...`） |
+| `band` `bor` `bxor` `bnot` `shl` `shr` `ushr` | 追加 — ビット演算子 |
+| `infinity` | 追加 — `Infinity` リテラル（`neg infinity` / `-infinity` で負の値） |
+| `do` | 追加 — do-whileループ（非推奨、`while`/`until` を推奨） |
+| `yield` | 追加 — ジェネレータ関数用のyield式 |
+| `function` | 追加 — `fn` の非推奨エイリアス |
+| `protected` | 追加 — `private` の非推奨エイリアス |
+| `add be` `sub be` `mul be` `div be` `mod be` `pow be` | 追加 — 複合代入演算子 |
+| `fdiv` | 追加 — 切り捨て除算（`Math.floor(a / b)`） |
+| `fdiv be` | 追加 — 切り捨て除算の複合代入 |
+| `band be` `bor be` `bxor be` `shl be` `shr be` `ushr be` | 追加 — ビット演算複合代入 |
+| `and be` `or be` `coal be` | 追加 — 論理/null合体複合代入（`&&=`, `\|\|=`, `??=`） |
+| `\add` `\sub`（後置）、`add\` `sub\`（前置） | 追加 — インクリメント/デクリメント演算子 |
+| `100n` / `0xFFn` / `0b1n` | 追加 — BigInt リテラルサフィックス `n` |
+| `void` | 追加 — void 式（`void x` → `void x`） |
+
+### Deprecations
+
+- **裸の変数代入の非推奨化**: `const`/`let`/`var` なしの変数代入（例: `x be 10`）は非推奨です。暗黙のグローバル変数を避けるため、`const x be 10` または `let x be 10` を使用してください。プロパティアクセスへの代入（例: `obj.field be 10`）は引き続き有効です。
+
+- **`for ... in range` ループの非推奨化**: `for x in range a; b` 構文は非推奨です。代わりに新しい JS スタイルの `for` ループを使用してください:
+  ```purus
+  -- 非推奨:
+  for i in range 0; 10
+    console.log[i]
+
+  -- 代わりに:
+  for let i be 0; i lt 10; i add be 1
+    console.log[i]
+  ```
+
+### Tooling
+
+- Linter (`@puruslang/linter`): `0.7.1` → `0.8.0` — `is` キーワード削除、キーワード同期（`do`, `yield`, `function`, `protected`, `infinity`, `void`）、2進数/16進数/BigIntサポート追加、ルール拡張 8→8 17（`bare-assignment`, `no-function`, `no-protected`, `no-else-if`, `no-js-chars`, `no-js-operators`, `bracket-match`, `const-reassign`, `duplicate-use`, `no-for-range`）、`JS_OPERATOR_MAP` に `&&=` → `and be`、`||=` → `or be`、`??=` → `coal be` を含む複合代入を追加
+- Prettier Plugin (`@puruslang/prettier-plugin-purus`): `0.7.1` → `0.8.0` — `is` キーワード削除、キーワード同期（`do`, `yield`, `function`, `protected`, `infinity`, `void`）、`BLOCK_STARTERS` 追加（`do`, `try`, `catch`, `finally`, `class`）、2進数/16進数/BigIntサポート追加
+- VS Code Extension (`purus`): `0.6.1` → `0.7.0` — `is` シンタックスハイライト削除、`use` 標準ライブラリ構文追加、リアルタイム診断機能追加（エラー、警告、非推奨通知）、ソースを `src/` に再編成、スニペット追加（`dowhile`, `yield`, `genfn`, `class`）、`use` スニペットに全 13 モジュール追加、言語設定更新（`do`, `class` インデント）、BigInt 数値ハイライト追加、`void` キーワードハイライト追加
+
+---
+
 ## v0.8.1 (2026-03-22)
 
 ### バグ修正

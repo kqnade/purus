@@ -1,0 +1,48 @@
+---
+title: p-set
+description: Set creation and operations.
+sidebar:
+  order: 12
+---
+
+The `set` module provides functions for creating and manipulating `Set` objects.
+
+```purus
+use p-set as s
+```
+
+## Create
+
+| Function | Description |
+|----------|-------------|
+| `s.create[items...]` | Create a Set from individual values |
+| `s.from[iterable]` | Create a Set from an array or iterable |
+
+## Query
+
+| Function | Description |
+|----------|-------------|
+| `s.has[set; value]` | Check if a value exists in the set |
+| `s.size[set]` | Get the number of elements |
+| `s.values[set]` | Convert to an array |
+| `s.toarray[set]` | Convert to an array (alias) |
+
+## Modify
+
+| Function | Description |
+|----------|-------------|
+| `s.add[set; value]` | Return a new set with the value added |
+| `s.delete[set; value]` | Return a new set with the value removed |
+| `s.clear[set]` | Return an empty set |
+
+## Set Operations
+
+| Function | Description |
+|----------|-------------|
+| `s.union[a; b]` | Return elements in either set |
+| `s.intersection[a; b]` | Return elements in both sets |
+| `s.difference[a; b]` | Return elements in `a` but not in `b` |
+| `s.symmetricdifference[a; b]` | Return elements in either set but not both |
+| `s.issubset[a; b]` | Check if `a` is a subset of `b` |
+| `s.issuperset[a; b]` | Check if `a` is a superset of `b` |
+| `s.isdisjoint[a; b]` | Check if `a` and `b` have no common elements |

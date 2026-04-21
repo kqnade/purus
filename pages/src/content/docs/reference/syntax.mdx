@@ -82,6 +82,23 @@ const i be 42
 const f be 3.14
 ```
 
+Binary and hexadecimal literals:
+
+```purus
+const mask be 0b1010      -- 10
+const color be 0xFF00FF   -- 16711935
+```
+
+BigInt literals (suffix `n`):
+
+```purus
+const big be 9007199254740993n
+const hex be 0xFFFFFFFFFFFFFFFFn
+const bin be 0b11111111n
+```
+
+BigInt compiles directly to JavaScript BigInt literals.
+
 ## Booleans and null
 
 ```purus
@@ -115,7 +132,8 @@ fn add a; b
 -- Function arguments
 add[1; 2]
 console.log[///hello///; ///world///]
-Math.max[1; 2; 3]
+use p-math as m
+m.max[1; 2; 3]
 
 -- Destructuring
 const [a; b; c] be arr

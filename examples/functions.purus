@@ -37,7 +37,8 @@ say-hello[]
 const result be add-numbers[3; 4]
 
 -- Nested function calls use semicolons to separate args
-console.log[Math.max[1; 2]]
+use p-math as m
+console.log[m.max[1; 2]]
 console.log[add-numbers[10; 20]]
 
 -- Type annotations (erased in output)

@@ -1,0 +1,46 @@
+---
+title: p-map
+description: Mapの作成と操作。
+sidebar:
+  order: 13
+---
+
+`map` モジュールは、`Map` オブジェクトの作成と操作のための関数を提供します。
+
+```purus
+use p-map as m
+```
+
+## 作成
+
+| 関数 | 説明 |
+|------|------|
+| `m.create[pairs...]` | キーと値のペアからMapを作成 |
+| `m.from[iterable]` | `[key; value]` ペアの配列からMapを作成 |
+| `m.fromobject[obj]` | プレーンオブジェクトからMapを作成 |
+
+## アクセス
+
+| 関数 | 説明 |
+|------|------|
+| `m.get[map; key]` | キーに対応する値を取得 |
+| `m.has[map; key]` | キーが存在するか確認 |
+| `m.size[map]` | エントリ数を取得 |
+
+## 変更
+
+| 関数 | 説明 |
+|------|------|
+| `m.set[map; key; value]` | キーと値のペアを追加/更新した新しいMapを返す |
+| `m.delete[map; key]` | キーを削除した新しいMapを返す |
+| `m.clear[map]` | 空のMapを返す |
+| `m.merge[a; b]` | 2つのMapをマージ（`b` のエントリが `a` を上書き） |
+
+## 変換
+
+| 関数 | 説明 |
+|------|------|
+| `m.keys[map]` | すべてのキーを配列として取得 |
+| `m.values[map]` | すべての値を配列として取得 |
+| `m.entries[map]` | すべてのエントリを `[key, value]` ペアの配列として取得 |
+| `m.toobject[map]` | プレーンオブジェクトに変換 |

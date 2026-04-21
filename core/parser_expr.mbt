@@ -3,13 +3,16 @@
 /// Operator precedence (low to high):
 ///   pipe
 ///   or
-///   and
+///   bor
+///   bxor
+///   band
 ///   eq/neq/is/instanceof
 ///   lt/gt/le/ge
 ///   add/sub
+///   shl/shr/ushr
 ///   mul/div/mod
 ///   pow
-///   unary (not/neg/typeof/await/delete/new)
+///   unary (not/neg/bnot/typeof/await/delete/new)
 ///   postfix (dot access, index access, method call, function call)
 ///   primary
 
@@ -33,6 +36,11 @@ fn Parser::parse_pipe(self : Parser) -> Expr {
 fn Parser::parse_coal(self : Parser) -> Expr {
   let mut left = self.parse_or()
   while self.peek() == Coal {
+    // Lookahead: if Coal followed by Be, it's compound assignment (coal be)
+    if self.pos + 1 < self.tokens.length() &&
+      self.tokens[self.pos + 1].kind == Be {
+      break
+    }
     self.pos += 1
     let right = self.parse_or()
     left = BinOp(Coal, left, right)
@@ -44,6 +52,11 @@ fn Parser::parse_coal(self : Parser) -> Expr {
 fn Parser::parse_or(self : Parser) -> Expr {
   let mut left = self.parse_and()
   while self.peek() == Or {
+    // Lookahead: if Or followed by Be, it's compound assignment (or be)
+    if self.pos + 1 < self.tokens.length() &&
+      self.tokens[self.pos + 1].kind == Be {
+      break
+    }
     self.pos += 1
     let right = self.parse_and()
     left = BinOp(Or, left, right)
@@ -52,11 +65,64 @@ fn Parser::parse_or(self : Parser) -> Expr {
 }
 
 ///|
-fn Parser::parse_and(self : Parser) -> Expr {
+fn Parser::parse_bor(self : Parser) -> Expr {
+  let mut left = self.parse_bxor()
+  while self.peek() == Bor {
+    // Lookahead: if Bor followed by Be, it's compound assignment (bor be)
+    if self.pos + 1 < self.tokens.length() &&
+      self.tokens[self.pos + 1].kind == Be {
+      break
+    }
+    self.pos += 1
+    let right = self.parse_bxor()
+    left = BinOp(Bor, left, right)
+  }
+  left
+}
+
+///|
+fn Parser::parse_bxor(self : Parser) -> Expr {
+  let mut left = self.parse_band()
+  while self.peek() == Bxor {
+    // Lookahead: if Bxor followed by Be, it's compound assignment (bxor be)
+    if self.pos + 1 < self.tokens.length() &&
+      self.tokens[self.pos + 1].kind == Be {
+      break
+    }
+    self.pos += 1
+    let right = self.parse_band()
+    left = BinOp(Bxor, left, right)
+  }
+  left
+}
+
+///|
+fn Parser::parse_band(self : Parser) -> Expr {
   let mut left = self.parse_equality()
-  while self.peek() == And {
+  while self.peek() == Band {
+    // Lookahead: if Band followed by Be, it's compound assignment (band be)
+    if self.pos + 1 < self.tokens.length() &&
+      self.tokens[self.pos + 1].kind == Be {
+      break
+    }
     self.pos += 1
     let right = self.parse_equality()
+    left = BinOp(Band, left, right)
+  }
+  left
+}
+
+///|
+fn Parser::parse_and(self : Parser) -> Expr {
+  let mut left = self.parse_bor()
+  while self.peek() == And {
+    // Lookahead: if And followed by Be, it's compound assignment (and be)
+    if self.pos + 1 < self.tokens.length() &&
+      self.tokens[self.pos + 1].kind == Be {
+      break
+    }
+    self.pos += 1
+    let right = self.parse_bor()
     left = BinOp(And, left, right)
   }
   left
@@ -67,7 +133,7 @@ fn Parser::parse_equality(self : Parser) -> Expr {
   let mut left = self.parse_comparison()
   while self.pos < self.tokens.length() {
     match self.peek() {
-      Eq | Is => {
+      Eq => {
         self.pos += 1
         let right = self.parse_comparison()
         left = BinOp(Eq, left, right)
@@ -104,7 +170,7 @@ fn Parser::parse_equality(self : Parser) -> Expr {
 
 ///|
 fn Parser::parse_comparison(self : Parser) -> Expr {
-  let mut left = self.parse_addition()
+  let mut left = self.parse_shift()
   while self.pos < self.tokens.length() {
     match self.peek() {
       Lt => {
@@ -113,7 +179,7 @@ fn Parser::parse_comparison(self : Parser) -> Expr {
           match self.tokens[self.pos + 1].kind {
             Eq => {
               self.pos += 2
-              let right = self.parse_addition()
+              let right = self.parse_shift()
               left = BinOp(Le, left, right)
               continue
             }
@@ -121,7 +187,7 @@ fn Parser::parse_comparison(self : Parser) -> Expr {
           }
         }
         self.pos += 1
-        let right = self.parse_addition()
+        let right = self.parse_shift()
         left = BinOp(Lt, left, right)
       }
       Gt => {
@@ -130,7 +196,7 @@ fn Parser::parse_comparison(self : Parser) -> Expr {
           match self.tokens[self.pos + 1].kind {
             Eq => {
               self.pos += 2
-              let right = self.parse_addition()
+              let right = self.parse_shift()
               left = BinOp(Ge, left, right)
               continue
             }
@@ -138,17 +204,17 @@ fn Parser::parse_comparison(self : Parser) -> Expr {
           }
         }
         self.pos += 1
-        let right = self.parse_addition()
+        let right = self.parse_shift()
         left = BinOp(Gt, left, right)
       }
       Le => {
         self.pos += 1
-        let right = self.parse_addition()
+        let right = self.parse_shift()
         left = BinOp(Le, left, right)
       }
       Ge => {
         self.pos += 1
-        let right = self.parse_addition()
+        let right = self.parse_shift()
         left = BinOp(Ge, left, right)
       }
       _ => break
@@ -162,15 +228,42 @@ fn Parser::parse_addition(self : Parser) -> Expr {
   let mut left = self.parse_multiplication()
   while self.pos < self.tokens.length() {
     match self.peek() {
-      Add => {
+      Add | Sub => {
+        // Lookahead: if op followed by Be, it's compound assignment (add be / sub be)
+        if self.pos + 1 < self.tokens.length() &&
+          self.tokens[self.pos + 1].kind == Be {
+          break
+        }
+        let op : BinOp = if self.peek() == Add { Add } else { Sub }
         self.pos += 1
         let right = self.parse_multiplication()
-        left = BinOp(Add, left, right)
+        left = BinOp(op, left, right)
       }
-      Sub => {
+      _ => break
+    }
+  }
+  left
+}
+
+///|
+fn Parser::parse_shift(self : Parser) -> Expr {
+  let mut left = self.parse_addition()
+  while self.pos < self.tokens.length() {
+    match self.peek() {
+      Shl | Shr | Ushr => {
+        // Lookahead: if shift op followed by Be, it's compound assignment
+        if self.pos + 1 < self.tokens.length() &&
+          self.tokens[self.pos + 1].kind == Be {
+          break
+        }
+        let op : BinOp = match self.peek() {
+          Shl => Shl
+          Shr => Shr
+          _ => Ushr
+        }
         self.pos += 1
-        let right = self.parse_multiplication()
-        left = BinOp(Sub, left, right)
+        let right = self.parse_addition()
+        left = BinOp(op, left, right)
       }
       _ => break
     }
@@ -183,20 +276,21 @@ fn Parser::parse_multiplication(self : Parser) -> Expr {
   let mut left = self.parse_power()
   while self.pos < self.tokens.length() {
     match self.peek() {
-      Mul => {
+      Mul | Div | Mod | Fdiv => {
+        // Lookahead: if op followed by Be, it's compound assignment
+        if self.pos + 1 < self.tokens.length() &&
+          self.tokens[self.pos + 1].kind == Be {
+          break
+        }
+        let op : BinOp = match self.peek() {
+          Mul => Mul
+          Div => Div
+          Fdiv => Fdiv
+          _ => Mod
+        }
         self.pos += 1
         let right = self.parse_power()
-        left = BinOp(Mul, left, right)
-      }
-      Div => {
-        self.pos += 1
-        let right = self.parse_power()
-        left = BinOp(Div, left, right)
-      }
-      Mod => {
-        self.pos += 1
-        let right = self.parse_power()
-        left = BinOp(Mod, left, right)
+        left = BinOp(op, left, right)
       }
       _ => break
     }
@@ -209,6 +303,11 @@ fn Parser::parse_power(self : Parser) -> Expr {
   let left = self.parse_unary()
   // pow is right-associative
   if self.pos < self.tokens.length() && self.peek() == Pow {
+    // Lookahead: if pow followed by Be, it's compound assignment (pow be)
+    if self.pos + 1 < self.tokens.length() &&
+      self.tokens[self.pos + 1].kind == Be {
+      return left
+    }
     self.pos += 1
     let right = self.parse_power()
     return BinOp(Pow, left, right)
@@ -225,15 +324,54 @@ fn Parser::parse_unary(self : Parser) -> Expr {
     }
     Neg => {
       self.pos += 1
-      UnaryNeg(self.parse_unary())
+      // neg infinity → InfinityLit(false) directly
+      if self.peek() == Infinity_ {
+        self.pos += 1
+        InfinityLit(false)
+      } else {
+        UnaryNeg(self.parse_unary())
+      }
     }
+    Bnot => {
+      self.pos += 1
+      UnaryBnot(self.parse_unary())
+    }
+    Add =>
+      // add\x → ++x (prefix increment)
+      if self.pos + 1 < self.tokens.length() &&
+        self.tokens[self.pos + 1].kind == Backslash {
+        self.pos += 2
+        PreInc(self.parse_unary())
+      } else {
+        self.parse_postfix()
+      }
+    Sub =>
+      // sub\x → --x (prefix decrement)
+      if self.pos + 1 < self.tokens.length() &&
+        self.tokens[self.pos + 1].kind == Backslash {
+        self.pos += 2
+        PreDec(self.parse_unary())
+      } else {
+        self.parse_postfix()
+      }
     Typeof_ => {
       self.pos += 1
       UnaryTypeof(self.parse_unary())
     }
+    Void_ => {
+      self.pos += 1
+      UnaryVoid(self.parse_unary())
+    }
     Await_ => {
       self.pos += 1
       AwaitExpr(self.parse_unary())
+    }
+    Yield_ => {
+      self.pos += 1
+      match self.peek() {
+        Newline | Eof | Indent(_) | RBracket => YieldExpr(None)
+        _ => YieldExpr(Some(self.parse_unary()))
+      }
     }
     New_ => {
       self.pos += 1
@@ -367,6 +505,23 @@ fn Parser::parse_postfix(self : Parser) -> Expr {
         let type_name = self.parse_ident_name()
         expr = AsCast(expr, type_name)
       }
+      Backslash =>
+        // x\add → x++ (postfix increment), x\sub → x-- (postfix decrement)
+        if self.pos + 1 < self.tokens.length() {
+          match self.tokens[self.pos + 1].kind {
+            Add => {
+              self.pos += 2
+              expr = PostInc(expr)
+            }
+            Sub => {
+              self.pos += 2
+              expr = PostDec(expr)
+            }
+            _ => break
+          }
+        } else {
+          break
+        }
       _ => break
     }
   }
@@ -418,6 +573,10 @@ fn Parser::parse_primary(self : Parser) -> Expr {
     Int(n) => {
       self.pos += 1
       IntLit(n)
+    }
+    BigInt(s) => {
+      self.pos += 1
+      BigIntLit(s)
     }
     Float(n) => {
       self.pos += 1
@@ -472,6 +631,10 @@ fn Parser::parse_primary(self : Parser) -> Expr {
     Nan_ => {
       self.pos += 1
       NanLit
+    }
+    Infinity_ => {
+      self.pos += 1
+      InfinityLit(true)
     }
     This_ => {
       self.pos += 1

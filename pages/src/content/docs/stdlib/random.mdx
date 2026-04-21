@@ -1,0 +1,192 @@
+---
+title: p-random
+description: Random number generation and distributions.
+sidebar:
+  order: 4
+---
+
+The `random` module provides random number generation, probability distributions, and sequence utilities.
+
+```purus
+use p-random as r
+```
+
+## Core
+
+### `random[]`
+Returns a floating-point number in [0, 1].
+
+```purus
+use p-random as r
+const x be r.random[]  -- e.g. 0.7312...
+```
+
+### `randint[a; b]`
+Returns a random integer from `a` to `b` (inclusive).
+
+```purus
+use p-random as r
+r.randint[1; 6]  -- e.g. 4 (dice roll)
+```
+
+### `randrange[stop]` / `randrange[start; stop]` / `randrange[start; stop; step]`
+Returns a random integer from the range. With one argument, the range is [0, stop). With two, [start, stop). With three, a random element from `start, start+step, start+2*step, ...` below `stop`.
+
+```purus
+use p-random as r
+r.randrange[10]        -- 0..9
+r.randrange[5; 10]     -- 5..9
+r.randrange[0; 20; 2]  -- even number 0..18
+```
+
+### `randbool[]` / `randbool[p]`
+Returns `true` with probability `p` (default: 0.5).
+
+```purus
+use p-random as r
+r.randbool[]      -- 50% true
+r.randbool[0.8]   -- 80% true
+```
+
+### `getrandbits[k]`
+Returns an integer with `k` random bits.
+
+```purus
+use p-random as r
+r.getrandbits[8]   -- 0..255
+r.getrandbits[16]  -- 0..65535
+```
+
+### `randbytes[n]`
+Returns an array of `n` random bytes (0窶・55).
+
+```purus
+use p-random as r
+r.randbytes[4]  -- e.g. [142, 55, 200, 13]
+```
+
+### `normalvariate[mu; sigma]`
+Alias for `gauss`. Returns a random number from the normal distribution.
+
+## Real-Valued Distributions
+
+### `uniform[a; b]`
+Returns a random floating-point number in [a, b).
+
+```purus
+use p-random as r
+r.uniform[1.0; 5.0]  -- e.g. 3.271...
+```
+
+### `triangular[lo; hi; mode]`
+Returns a random number from the triangular distribution. All parameters are optional (default: lo=0, hi=1, mode=midpoint).
+
+### `gauss[mu; sigma]`
+Returns a random number from the Gaussian (normal) distribution with mean `mu` and standard deviation `sigma`. Both are optional (default: mu=0, sigma=1).
+
+```purus
+use p-random as r
+r.gauss[0; 1]       -- standard normal
+r.gauss[100; 15]    -- IQ-like distribution
+```
+
+### `expovariate[lambd]`
+Returns a random number from the exponential distribution with rate `lambd`.
+
+### `gammavariate[alpha; beta]`
+Returns a random number from the gamma distribution.
+
+### `betavariate[alpha; beta]`
+Returns a random number from the beta distribution in [0, 1].
+
+### `lognormvariate[mu; sigma]`
+Returns a random number from the log-normal distribution.
+
+### `vonmisesvariate[mu; kappa]`
+Returns a random angle from the von Mises distribution (circular normal). `mu` is the mean angle in radians, `kappa` is the concentration parameter.
+
+### `paretovariate[alpha]`
+Returns a random number from the Pareto distribution.
+
+### `weibullvariate[alpha; beta]`
+Returns a random number from the Weibull distribution.
+
+## Sequence
+
+### `choice[arr]`
+Returns a random element from the array.
+
+```purus
+use p-random as r
+r.choice[[///red///; ///green///; ///blue///]]  -- e.g. "green"
+```
+
+### `choices[arr; k]`
+Returns an array of `k` random elements (with replacement).
+
+```purus
+use p-random as r
+r.choices[[///a///; ///b///; ///c///]; 5]  -- e.g. ["b", "a", "c", "a", "b"]
+```
+
+### `wchoices[arr; weights; k]`
+Returns `k` weighted random selections. Each element's probability is proportional to its weight.
+
+```purus
+use p-random as r
+r.wchoices[[///rare///; ///common///]; [1; 9]; 10]
+-- mostly "common"
+```
+
+### `shuffle[arr]`
+Returns a new array with elements in random order (does not mutate the original).
+
+```purus
+use p-random as r
+r.shuffle[[1, 2, 3, 4, 5]]  -- e.g. [3, 1, 5, 2, 4]
+```
+
+### `sample[arr; k]`
+Returns `k` unique random elements from the array (without replacement).
+
+```purus
+use p-random as r
+r.sample[[1, 2, 3, 4, 5]; 3]  -- e.g. [4, 1, 3]
+```
+
+## Discrete Distributions
+
+### `binomial[n; p]`
+Returns a random number from the binomial distribution: the number of successes in `n` trials with probability `p`.
+
+```purus
+use p-random as r
+r.binomial[10; 0.5]  -- e.g. 6
+```
+
+### `poisson[lambda]`
+Returns a random number from the Poisson distribution with expected value `lambda`.
+
+### `geometric[p]`
+Returns from the geometric distribution: the number of trials needed to get the first success with probability `p`.
+
+## Utility
+
+### `clamp[val; lo; hi]`
+Returns `val` clamped to the range [lo, hi].
+
+```purus
+use p-random as r
+r.clamp[15; 0; 10]   -- 10
+r.clamp[-5; 0; 10]   -- 0
+r.clamp[5; 0; 10]    -- 5
+```
+
+### `lerp[a; b; t]`
+Linear interpolation between `a` and `b` by factor `t` (0窶・).
+
+```purus
+use p-random as r
+r.lerp[0; 100; 0.5]   -- 50
+r.lerp[0; 100; 0.25]  -- 25
+```

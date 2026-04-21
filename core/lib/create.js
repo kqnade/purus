@@ -37,7 +37,9 @@ async function run() {
     const projectDir = path.resolve(projectName);
 
     if (fs.existsSync(projectDir) && !isDirEmpty(projectDir)) {
-      console.log(`Error: directory '${projectName}' already exists and is not empty`);
+      console.log(
+        `Error: directory '${projectName}' already exists and is not empty`,
+      );
       process.exit(1);
     }
 
@@ -54,6 +56,16 @@ const header be true
 -- Linter settings
 const lint.no-var be ///warn///
 const lint.no-nil be ///warn///
+const lint.bare-assignment be ///warn///
+const lint.no-function be ///warn///
+const lint.no-protected be ///warn///
+const lint.no-else-if be ///warn///
+const lint.no-js-chars be ///error///
+const lint.no-js-operators be ///error///
+const lint.no-for-range be ///warn///
+const lint.bracket-match be ///error///
+const lint.const-reassign be ///error///
+const lint.duplicate-use be ///warn///
 const lint.indent-size be 2
 const lint.max-line-length be ///off///
 const lint.no-trailing-whitespace be ///warn///
@@ -71,7 +83,7 @@ const lint.consistent-naming be ///warn///
           plugins: ["@puruslang/prettier-plugin-purus"],
         },
         null,
-        2
+        2,
       ) + "\n";
     fs.writeFileSync(path.join(projectDir, ".prettierrc"), prettierrc);
 
@@ -162,7 +174,9 @@ node_modules/
     } else {
       const answer = await question(rl, "\nInstall dependencies? (Y/n) ");
       installDeps =
-        answer === "" || answer.toLowerCase() === "y" || answer.toLowerCase() === "yes";
+        answer === "" ||
+        answer.toLowerCase() === "y" ||
+        answer.toLowerCase() === "yes";
     }
 
     if (installDeps) {

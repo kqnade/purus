@@ -11,14 +11,13 @@
     { "open": "///", "close": "///" }
   ],
   "surroundingPairs": [
-    ["[", "]"],
-    ["///", "///"]
+    ["[", "]"]
   ],
   "folding": {
     "offSide": true
   },
   "indentationRules": {
-    "increaseIndentPattern": "^\\s*(fn|if|elif|else|unless|while|until|for|match|when|try|catch|finally|mod)\\b.*$",
+    "increaseIndentPattern": "^\\s*(fn|if|elif|else|unless|while|until|do|for|match|when|switch|case|try|catch|finally|mod|class)\\b.*$",
     "decreaseIndentPattern": "^\\s*(elif|else|when|catch|finally)\\b"
   },
   "wordPattern": "[a-zA-Z][a-zA-Z0-9-]*"

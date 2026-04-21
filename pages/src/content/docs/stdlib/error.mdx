@@ -1,0 +1,78 @@
+---
+title: p-error
+description: Error creation and inspection utilities.
+sidebar:
+  order: 9
+---
+
+The `error` module provides functions for creating and inspecting JavaScript errors.
+
+```purus
+use p-error as e
+```
+
+## Create Errors
+
+### `create[message]`
+Creates a generic `Error`.
+
+### `type[message]`
+Creates a `TypeError`.
+
+### `range[message]`
+Creates a `RangeError`.
+
+### `reference[message]`
+Creates a `ReferenceError`.
+
+### `syntax[message]`
+Creates a `SyntaxError`.
+
+### `uri[message]`
+Creates a `URIError`.
+
+### `wrap[message; cause]`
+Creates an `Error` with a `cause` (for error chaining).
+
+```purus
+use p-error as e
+throw e.create[///something went wrong///]
+throw e.type[///expected a string///]
+throw e.range[///index out of bounds///]
+
+-- Error chaining
+try
+  riskyOperation[]
+catch err
+  throw e.wrap[///operation failed///; err]
+```
+
+## Inspect Errors
+
+### `iserror[val]`
+Returns `true` if `val` is an instance of `Error`.
+
+### `message[err]`
+Returns the error message. If `err` is not an Error, returns `String(err)`.
+
+### `name[err]`
+Returns the error name (e.g. `"TypeError"`, `"RangeError"`). Returns `"Error"` for non-Error values.
+
+### `stack[err]`
+Returns the stack trace as a string. Returns `""` for non-Error values.
+
+### `cause[err]`
+Returns the error's cause (if set via `wrap` or the `cause` option).
+
+```purus
+use p-error as e
+const err be e.type[///invalid argument///]
+e.iserror[err]      -- true
+e.message[err]      -- "invalid argument"
+e.name[err]         -- "TypeError"
+e.stack[err]        -- "TypeError: invalid argument\n    at ..."
+
+const wrapped be e.wrap[///failed///; err]
+e.cause[wrapped]    -- the original TypeError
+e.message[wrapped]  -- "failed"
+```

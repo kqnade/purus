@@ -25,6 +25,8 @@ sidebar:
 | `gives` | _（消去）_ | 戻り値型アノテーション |
 | `async` | `async` | 非同期関数 |
 | `await` | `await` | await式 |
+| `yield` | `yield` | yield式（ジェネレータ） |
+| `function` | _（非推奨）_ | `fn` の非推奨エイリアス |
 
 ## 条件分岐
 
@@ -47,6 +49,7 @@ sidebar:
 | `range` | _（数値範囲）_ | 範囲ベースのループ |
 | `break` | `break` | ブレーク |
 | `continue` | `continue` | コンティニュー |
+| `do` | `do` | do-whileループ（非推奨） |
 
 ## パターンマッチング
 
@@ -67,7 +70,7 @@ sidebar:
 | `export` | `export` | ESMエクスポート |
 | `default` | `default` | デフォルトエクスポート |
 | `require` | `require()` | CJS require |
-| `use` | `import` | ドットパスインポート（非推奨） |
+| `use` | _（インラインJS）_ | 標準ライブラリインポート（`p-` プレフィックス、`as` は任意） |
 | `namespace` | IIFE | モジュール名前空間 |
 | `public` | `export` | パブリックエクスポート |
 | `all` | `* as` | 名前空間インポート |
@@ -86,6 +89,17 @@ sidebar:
 | `mod` | `%` |
 | `pow` | `**` |
 | `neg` | `-`（単項） |
+
+### 複合代入
+
+| キーワード | JS出力 |
+|---|---|
+| `add be` | `+=` |
+| `sub be` | `-=` |
+| `mul be` | `*=` |
+| `div be` | `/=` |
+| `mod be` | `%=` |
+| `pow be` | `**=` |
 
 ### 比較
 
@@ -122,7 +136,6 @@ sidebar:
 
 | キーワード | JS出力 | 説明 |
 |---|---|---|
-| `is` | `===` | 等価チェック（`eq` のエイリアス） |
 | `as` | _（消去）_ | 型キャスト |
 | `of` | _（消去）_ | 型アノテーション |
 | `typeof` | `typeof` | typeof演算子 |
@@ -145,6 +158,7 @@ sidebar:
 | `list` | 配列リテラル |
 | `object` | オブジェクトリテラル |
 | `nan` | `NaN` |
+| `infinity` | `Infinity`（`neg infinity` / `-infinity` → `-Infinity`） |
 
 ## クラス
 
@@ -155,6 +169,7 @@ sidebar:
 | `super` | `super` | 親クラス参照 |
 | `static` | `static` | 静的メソッド |
 | `private` | `#field` | プライベートフィールド宣言 |
+| `protected` | _（非推奨）_ | `private` の非推奨エイリアス |
 | `get` | `get` | ゲッターアクセサ |
 | `set` | `set` | セッターアクセサ |
 

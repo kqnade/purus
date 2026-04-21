@@ -1,0 +1,43 @@
+---
+title: p-regexp
+description: Regular expression utilities.
+sidebar:
+  order: 10
+---
+
+The `regexp` module provides functions for creating and working with regular expressions.
+
+```purus
+use p-regexp as r
+```
+
+## Create
+
+| Function | Description |
+|----------|-------------|
+| `r.create[pattern; flags]` | Create a `RegExp` from string pattern and optional flags |
+| `r.escape[str]` | Escape special regex characters in a string |
+
+## Test & Match
+
+| Function | Description |
+|----------|-------------|
+| `r.test[re; str]` | Test if a string matches a pattern. Returns `true`/`false` |
+| `r.match[re; str]` | Match a string against a pattern. Returns match array or `null` |
+| `r.matchall[re; str]` | Return all matches (auto-adds `g` flag if needed) |
+| `r.exec[re; str]` | Execute a regex and return detailed match result |
+
+## Replace & Split
+
+| Function | Description |
+|----------|-------------|
+| `r.replace[re; str; replacement]` | Replace first match in string |
+| `r.replaceall[re; str; replacement]` | Replace all matches in string |
+| `r.split[re; str]` | Split a string by a regex pattern |
+
+## Inspect
+
+| Function | Description |
+|----------|-------------|
+| `r.source[re]` | Get the source pattern of a regex |
+| `r.flags[re]` | Get the flags of a regex |

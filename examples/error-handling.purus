@@ -1,8 +1,10 @@
 -- Error Handling
 
+use p-json as j
+
 -- Try-catch
 try
-  const data be JSON.parse[///invalid///]
+  const data be j.parse[///invalid///]
 catch err
   console.error[///Parse failed:///; err]
 
@@ -22,6 +24,6 @@ fn validate value
 
 -- Try as expression
 const result be try
-  JSON.parse[///{"key": "value"}///]
+  j.parse[///["key": "value"]///]
 catch e
   null

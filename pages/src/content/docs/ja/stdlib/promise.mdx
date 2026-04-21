@@ -1,0 +1,36 @@
+---
+title: p-promise
+description: Promiseユーティリティ関数。
+sidebar:
+  order: 11
+---
+
+`promise` モジュールは、Promiseの作成と合成のための関数を提供します。
+
+```purus
+use p-promise as p
+```
+
+## 作成
+
+| 関数 | 説明 |
+|------|------|
+| `p.resolve[value]` | 解決済みのPromiseを作成 |
+| `p.reject[reason]` | 拒否されたPromiseを作成 |
+| `p.create[executor]` | executor関数で新しいPromiseを作成 |
+| `p.delay[ms]` | `ms` ミリ秒後に解決するPromiseを作成 |
+
+## 合成
+
+| 関数 | 説明 |
+|------|------|
+| `p.all[promises]` | すべてのPromiseが解決するまで待機 |
+| `p.allsettled[promises]` | すべてのPromiseが確定（解決または拒否）するまで待機 |
+| `p.race[promises]` | 最初に確定したPromiseを返す |
+| `p.any[promises]` | 最初に解決したPromiseを返す |
+
+## ユーティリティ
+
+| 関数 | 説明 |
+|------|------|
+| `p.timeout[promise; ms]` | `ms` ミリ秒以内にPromiseが確定しなければ拒否 |
