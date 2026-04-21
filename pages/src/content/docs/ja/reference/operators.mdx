@@ -20,7 +20,7 @@ sidebar:
 11. `add` / `sub`  加算 / 減算
 12. `mul` / `div` / `mod`  乗算 / 除算 / 剰余
 13. `pow`  べき乗
-14. 単項: `not` / `neg` / `bnot` / `typeof` / `await` / `delete` / `new`
+14. 単項: `not` / `neg` / `bnot` / `typeof` / `void` / `await` / `delete` / `new`
 15. 後置: `.` アクセス / `\.` オプショナルチェイニング / `[args]` 呼び出し / `[\expr]` 計算アクセス / `as` キャスト
 16. 基本: リテラル、識別子、括弧
 
@@ -61,6 +61,25 @@ x mul be 2      -- x *= 2
 x div be 2      -- x /= 2
 x mod be 3      -- x %= 3
 x pow be 2      -- x **= 2
+```
+
+ビット演算の複合代入:
+
+```purus
+x band be 255   -- x &= 255
+x bor be 1      -- x |= 1
+x bxor be mask  -- x ^= mask
+x shl be 2      -- x <<= 2
+x shr be 1      -- x >>= 1
+x ushr be 1     -- x >>>= 1
+```
+
+論理演算の複合代入:
+
+```purus
+x and be true   -- x &&= true
+x or be false   -- x ||= false
+x coal be 0     -- x ??= 0
 ```
 
 プロパティアクセスやインデックスアクセスにも使用可能:
@@ -253,4 +272,5 @@ x eq null            -- x === null
 x eq MyClass         -- x instanceof MyClass
 x instanceof Y       -- x instanceof Y
 typeof x             -- typeof x
+void x               -- void x
 ```

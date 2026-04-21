@@ -20,7 +20,7 @@ sidebar:
 11. `add` / `sub` — Addition / Subtraction
 12. `mul` / `div` / `mod` — Multiplication / Division / Modulo
 13. `pow` — Exponentiation
-14. Unary: `not` / `neg` / `bnot` / `typeof` / `await` / `delete` / `new`
+14. Unary: `not` / `neg` / `bnot` / `typeof` / `void` / `await` / `delete` / `new`
 15. Postfix: `.` access / `\.` optional chaining / `[args]` call / `[\expr]` computed access / `as` cast
 16. Primary: literals, identifiers, brackets
 
@@ -61,6 +61,25 @@ x mul be 2      -- x *= 2
 x div be 2      -- x /= 2
 x mod be 3      -- x %= 3
 x pow be 2      -- x **= 2
+```
+
+Bitwise compound assignments:
+
+```purus
+x band be 255   -- x &= 255
+x bor be 1      -- x |= 1
+x bxor be mask  -- x ^= mask
+x shl be 2      -- x <<= 2
+x shr be 1      -- x >>= 1
+x ushr be 1     -- x >>>= 1
+```
+
+Logical compound assignments:
+
+```purus
+x and be true   -- x &&= true
+x or be false   -- x ||= false
+x coal be 0     -- x ??= 0
 ```
 
 Works with property and computed access:
@@ -253,4 +272,5 @@ x eq null            -- x === null
 x eq MyClass         -- x instanceof MyClass
 x instanceof Y       -- x instanceof Y
 typeof x             -- typeof x
+void x               -- void x
 ```
