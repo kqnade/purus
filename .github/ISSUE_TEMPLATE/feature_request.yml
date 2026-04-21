@@ -1,0 +1,71 @@
+name: Feature Request
+description: Suggest a new feature or improvement for Purus
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a new feature! Please describe your idea as clearly as possible.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Motivation
+      description: What problem does this feature solve? What use case does it enable?
+      placeholder: "Currently, there is no way to..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: Describe the feature you'd like to see. Include example syntax if applicable.
+      placeholder: |
+        I'd like Purus to support...
+
+        Example:
+        ```purus
+        -- proposed syntax
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative approaches or workarounds?
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected Component
+      description: Which part of Purus would this feature affect?
+      options:
+        - core (compiler / language syntax)
+        - linter (@puruslang/linter)
+        - prettier-plugin (@puruslang/prettier-plugin-purus)
+        - VS Code Extension
+        - docs (pages/)
+        - CLI
+        - stdlib
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority (your estimate)
+      options:
+        - Low — nice to have
+        - Medium — would significantly improve my workflow
+        - High — blocking my use of Purus
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context, references, or examples from other languages.
