@@ -4,7 +4,7 @@ Change history for Purus syntax, specifications, and reserved keywords.
 
 ---
 
-## v0.9.0 (2026-04-02)
+## v0.9.0 (2026-04-21)
 
 ### Breaking Changes
 
