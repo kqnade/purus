@@ -3,6 +3,7 @@
 pub(all) enum Expr {
   // Literals
   IntLit(Int)
+  BigIntLit(String) // BigInt literal e.g. 100n → 100n
   FloatLit(Double)
   StrLit(String) // raw string content
   StrInterp(Array[StrPart]) // interpolated string
@@ -28,6 +29,7 @@ pub(all) enum Expr {
   UnaryNot(Expr) // not x
   UnaryBnot(Expr) // bnot x (bitwise NOT)
   UnaryTypeof(Expr) // typeof x
+  UnaryVoid(Expr)    // void x
 
   // Comparison / type
   AsCast(Expr, String) // x as number

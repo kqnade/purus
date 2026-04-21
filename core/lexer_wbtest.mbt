@@ -75,6 +75,30 @@ test "lexer: negative hex literal" {
 }
 
 ///|
+test "lexer: bigint decimal literal" {
+  let lexer = Lexer::new("100n")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[0].kind, Indent(0))
+  assert_eq(tokens[1].kind, BigInt("100"))
+}
+
+///|
+test "lexer: bigint binary literal" {
+  let lexer = Lexer::new("0b1010n")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[0].kind, Indent(0))
+  assert_eq(tokens[1].kind, BigInt("10"))
+}
+
+///|
+test "lexer: bigint hex literal" {
+  let lexer = Lexer::new("0xffn")
+  let tokens = lexer.tokenize()
+  assert_eq(tokens[0].kind, Indent(0))
+  assert_eq(tokens[1].kind, BigInt("255"))
+}
+
+///|
 test "lexer: string" {
   let lexer = Lexer::new("///hello world///")
   let tokens = lexer.tokenize()

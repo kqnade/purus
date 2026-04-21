@@ -3,6 +3,7 @@
 pub(all) enum TokenKind {
   // Literals
   Int(Int)
+  BigInt(String) // BigInt literal e.g. 100n
   Float(Double)
   Str(String) // already-parsed string content (no ///)
   Regex(String, String) // pattern, flags
@@ -79,6 +80,7 @@ pub(all) enum TokenKind {
   Of
   Gives
   Typeof_
+  Void_
   Instanceof_
   New_
   Delete_

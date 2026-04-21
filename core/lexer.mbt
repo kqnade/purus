@@ -476,6 +476,12 @@ fn Lexer::scan_number(self : Lexer) -> Unit {
     if negative {
       value = -value
     }
+    // BigInt suffix: 0b...n
+    if self.pos < self.chars.length() && self.peek() == 'n' {
+      self.advance() |> ignore
+      self.emit(BigInt(value.to_string()), line, col)
+      return
+    }
     self.emit(Int(value), line, col)
     return
   }
@@ -497,6 +503,12 @@ fn Lexer::scan_number(self : Lexer) -> Unit {
     }
     if negative {
       value = -value
+    }
+    // BigInt suffix: 0x...n
+    if self.pos < self.chars.length() && self.peek() == 'n' {
+      self.advance() |> ignore
+      self.emit(BigInt(value.to_string()), line, col)
+      return
     }
     self.emit(Int(value), line, col)
     return
@@ -520,7 +532,13 @@ fn Lexer::scan_number(self : Lexer) -> Unit {
     self.emit(Float(parse_double(s)), line, col)
   } else {
     let s = buf.to_string()
-    self.emit(Int(parse_int(s)), line, col)
+    // BigInt suffix: digits followed by 'n'
+    if self.pos < self.chars.length() && self.peek() == 'n' {
+      self.advance() |> ignore
+      self.emit(BigInt(s), line, col)
+    } else {
+      self.emit(Int(parse_int(s)), line, col)
+    }
   }
 }
 
@@ -604,6 +622,7 @@ fn Lexer::scan_ident(self : Lexer) -> Unit {
     "of" => Of
     "gives" => Gives
     "typeof" => Typeof_
+    "void" => Void_
     "instanceof" => Instanceof_
     "new" => New_
     "delete" => Delete_

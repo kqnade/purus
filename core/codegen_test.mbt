@@ -1095,3 +1095,45 @@ test "codegen: fdiv be in for classic" {
     js, "for (let n = 1000; n > 0; n = Math.floor(n / 10)) {\n  console.log(n);\n}\n",
   )
 }
+
+///|
+test "codegen: and be (&&=)" {
+  let js = compile("x and be true")
+  assert_eq(js, "x &&= true;\n")
+}
+
+///|
+test "codegen: or be (||=)" {
+  let js = compile("x or be false")
+  assert_eq(js, "x ||= false;\n")
+}
+
+///|
+test "codegen: coal be (??=)" {
+  let js = compile("x coal be 0")
+  assert_eq(js, "x ??= 0;\n")
+}
+
+///|
+test "codegen: bigint literal" {
+  let js = compile("const n be 100n")
+  assert_eq(js, "const n = 100n;\n")
+}
+
+///|
+test "codegen: bigint expression" {
+  let js = compile("const big be 9007199254740993n add 1n")
+  assert_eq(js, "const big = 9007199254740993n + 1n;\n")
+}
+
+///|
+test "codegen: void expression" {
+  let js = compile("void f[]")
+  assert_eq(js, "void f();\n")
+}
+
+///|
+test "codegen: void 0" {
+  let js = compile("const u be void 0")
+  assert_eq(js, "const u = void 0;\n")
+}

@@ -36,6 +36,11 @@ fn Parser::parse_pipe(self : Parser) -> Expr {
 fn Parser::parse_coal(self : Parser) -> Expr {
   let mut left = self.parse_or()
   while self.peek() == Coal {
+    // Lookahead: if Coal followed by Be, it's compound assignment (coal be)
+    if self.pos + 1 < self.tokens.length() &&
+      self.tokens[self.pos + 1].kind == Be {
+      break
+    }
     self.pos += 1
     let right = self.parse_or()
     left = BinOp(Coal, left, right)
@@ -47,6 +52,11 @@ fn Parser::parse_coal(self : Parser) -> Expr {
 fn Parser::parse_or(self : Parser) -> Expr {
   let mut left = self.parse_and()
   while self.peek() == Or {
+    // Lookahead: if Or followed by Be, it's compound assignment (or be)
+    if self.pos + 1 < self.tokens.length() &&
+      self.tokens[self.pos + 1].kind == Be {
+      break
+    }
     self.pos += 1
     let right = self.parse_and()
     left = BinOp(Or, left, right)
@@ -106,6 +116,11 @@ fn Parser::parse_band(self : Parser) -> Expr {
 fn Parser::parse_and(self : Parser) -> Expr {
   let mut left = self.parse_bor()
   while self.peek() == And {
+    // Lookahead: if And followed by Be, it's compound assignment (and be)
+    if self.pos + 1 < self.tokens.length() &&
+      self.tokens[self.pos + 1].kind == Be {
+      break
+    }
     self.pos += 1
     let right = self.parse_bor()
     left = BinOp(And, left, right)
@@ -343,6 +358,10 @@ fn Parser::parse_unary(self : Parser) -> Expr {
       self.pos += 1
       UnaryTypeof(self.parse_unary())
     }
+    Void_ => {
+      self.pos += 1
+      UnaryVoid(self.parse_unary())
+    }
     Await_ => {
       self.pos += 1
       AwaitExpr(self.parse_unary())
@@ -554,6 +573,10 @@ fn Parser::parse_primary(self : Parser) -> Expr {
     Int(n) => {
       self.pos += 1
       IntLit(n)
+    }
+    BigInt(s) => {
+      self.pos += 1
+      BigIntLit(s)
     }
     Float(n) => {
       self.pos += 1

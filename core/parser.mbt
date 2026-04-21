@@ -190,7 +190,10 @@ fn Parser::parse_stmt(self : Parser) -> Stmt? {
         | Bxor
         | Shl
         | Shr
-        | Ushr => {
+        | Ushr
+        | And
+        | Or
+        | Coal => {
           let op = match self.peek() {
             Add => BinOp::Add
             Sub => BinOp::Sub
@@ -204,7 +207,10 @@ fn Parser::parse_stmt(self : Parser) -> Stmt? {
             Bxor => BinOp::Bxor
             Shl => BinOp::Shl
             Shr => BinOp::Shr
-            _ => BinOp::Ushr // Ushr
+            Ushr => BinOp::Ushr
+            And => BinOp::And
+            Or => BinOp::Or
+            _ => BinOp::Coal // Coal
           }
           self.pos += 1
           self.expect(Be)

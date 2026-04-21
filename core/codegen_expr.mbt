@@ -5,6 +5,10 @@
 fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
   match expr {
     IntLit(n) => self.write(n.to_string())
+    BigIntLit(s) => {
+      self.write(s)
+      self.write("n")
+    }
     FloatLit(f) => self.write(f.to_string())
     StrLit(s) => {
       self.write("\"")
@@ -162,6 +166,10 @@ fn JsCodegen::gen_expr(self : JsCodegen, expr : Expr) -> Unit {
     }
     UnaryTypeof(inner) => {
       self.write("typeof ")
+      self.gen_expr(inner)
+    }
+    UnaryVoid(inner) => {
+      self.write("void ")
       self.gen_expr(inner)
     }
     AsCast(expr, _type_name) =>
@@ -584,7 +592,10 @@ fn compound_op_str(op : BinOp) -> String {
     Shl => " <<= "
     Shr => " >>= "
     Ushr => " >>>= "
-    _ => " += " // unreachable (Fdiv handled specially, logical ops not used)
+    And => " &&= "
+    Or => " ||= "
+    Coal => " ??= "
+    _ => " += " // unreachable (Fdiv handled specially)
   }
 }
 
