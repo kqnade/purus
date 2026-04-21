@@ -171,7 +171,7 @@ const defaultRules = {
   "no-else-if": { severity: "warn", message: "Use 'elif' instead of 'else if'" },
   "no-js-chars": { severity: "error", message: "JavaScript characters are not allowed in Purus" },
   "no-js-operators": { severity: "error", message: "JavaScript operators are not allowed in Purus" },
-  "no-for-range": { severity: "warn", message: "'for ... in range' is deprecated; use 'for let i be 0; i lt N; i add be 1' instead" },
+  "no-for-range": { severity: "warn", message: "'for ... in range' is deprecated; use 'for let i be 0; i lt N; i\\add' instead" },
   "bracket-match": { severity: "error" },
   "const-reassign": { severity: "error", message: "Cannot reassign a 'const' variable" },
   "duplicate-use": { severity: "warn", message: "Duplicate 'use' import" },

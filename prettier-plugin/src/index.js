@@ -228,6 +228,32 @@ function isEmptyLine(lineTokens) {
   return lineTokens.every(t => t.type === "whitespace");
 }
 
+/**
+ * Returns "postfix", "prefix", or null for the backslash token at content[ti].
+ * Postfix: (ident | ] | number) \ (add|sub keyword)  → x\add, x\sub
+ * Prefix:  (add|sub keyword) \ ident                 → add\x, sub\x
+ */
+function isIncrDecrSlash(content, ti) {
+  if (content[ti].value !== "\\") return null;
+  let ni = ti + 1;
+  while (ni < content.length && content[ni].type === "whitespace") ni++;
+  let pi = ti - 1;
+  while (pi >= 0 && content[pi].type === "whitespace") pi--;
+  const nextTok = ni < content.length ? content[ni] : null;
+  const prevTok = pi >= 0 ? content[pi] : null;
+  if (nextTok && nextTok.type === "keyword" && (nextTok.value === "add" || nextTok.value === "sub")) {
+    if (prevTok && (prevTok.type === "ident" || prevTok.value === "]" || prevTok.type === "number")) {
+      return "postfix";
+    }
+  }
+  if (prevTok && prevTok.type === "keyword" && (prevTok.value === "add" || prevTok.value === "sub")) {
+    if (nextTok && nextTok.type === "ident") {
+      return "prefix";
+    }
+  }
+  return null;
+}
+
 function formatPurus(source, options = {}) {
   const indent = options.tabWidth || 2;
   const useTabs = options.useTabs || false;
@@ -273,22 +299,37 @@ function formatPurus(source, options = {}) {
         // Normalize to single space between tokens, but not before [ or after [, or before ]
         const next = content[ti + 1];
         const prevChar = lineStr.length > 0 ? lineStr[lineStr.length - 1] : "";
-        if (lineStr.length > 0 && next && next.value !== "]" && next.value !== "[" && prevChar !== "[") {
+        // Suppress space before an incr/decr backslash
+        const nextIsIncrDecrSlash = next && next.value === "\\" && isIncrDecrSlash(content, ti + 1) !== null;
+        // Suppress space after an incr/decr backslash
+        let prevIsIncrDecrSlash = false;
+        { let pi = ti - 1; while (pi >= 0 && content[pi].type === "whitespace") pi--;
+          prevIsIncrDecrSlash = pi >= 0 && content[pi].value === "\\" && isIncrDecrSlash(content, pi) !== null; }
+        if (lineStr.length > 0 && next && next.value !== "]" && next.value !== "[" && prevChar !== "[" && !nextIsIncrDecrSlash && !prevIsIncrDecrSlash) {
           lineStr += " ";
         }
       } else {
         if (ti > 0 && content[ti - 1].type !== "whitespace" && lineStr.length > 0) {
           // Adjacent non-whitespace tokens - check if space needed
           const prev = lineStr[lineStr.length - 1];
+          let suppressSpace = false;
           if (tok.value === "." || prev === ".") {
-            // No space around dots
+            suppressSpace = true; // No space around dots
           } else if (tok.value === "," || tok.value === ";") {
-            // No space before comma/semicolon
+            suppressSpace = true; // No space before comma/semicolon
           } else if (tok.value === "[" || tok.value === "]" || prev === "[") {
-            // No space around brackets (function call syntax)
+            suppressSpace = true; // No space around brackets
+          } else if (tok.value === "\\" && isIncrDecrSlash(content, ti) !== null) {
+            suppressSpace = true; // No space before incr/decr backslash
           } else {
-            lineStr += " ";
+            // No space after incr/decr backslash
+            let pi = ti - 1;
+            while (pi >= 0 && content[pi].type === "whitespace") pi--;
+            if (pi >= 0 && content[pi].value === "\\" && isIncrDecrSlash(content, pi) !== null) {
+              suppressSpace = true;
+            }
           }
+          if (!suppressSpace) lineStr += " ";
         }
         lineStr += tok.value;
       }
